@@ -23,10 +23,10 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Check out the code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Node (version from .node-version)
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: .node-version
 
@@ -37,7 +37,7 @@ jobs:
         run: npm run make
 
       - name: Upload the installer + portable build
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: RadGesture-Windows-x64
           path: |
@@ -48,7 +48,7 @@ jobs:
           retention-days: 30
 
       - name: Publish to the rolling "windows-dev" release (direct download link)
-        uses: svenstaro/upload-release-action@2.9.0
+        uses: svenstaro/upload-release-action@2.11.5
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           tag: windows-dev
