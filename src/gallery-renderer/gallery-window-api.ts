@@ -24,12 +24,20 @@ export const GALLERY_WINDOW_API = {
   pickAndAddImages: (sectionId: string): Promise<GalleryData> =>
     ipcRenderer.invoke('gallery-window.pick-and-add-images', sectionId),
 
-  /** Save dropped image files (as base64) into a section; resolves with refreshed data. */
+  /** Save dropped files (images or PDFs, as base64) into a section; resolves with data. */
   addImageData: (
     sectionId: string,
     images: Array<{ name: string; base64: string }>
   ): Promise<GalleryData> =>
     ipcRenderer.invoke('gallery-window.add-image-data', { sectionId, images }),
+
+  /** Get the current gallery storage folder path. */
+  getStoragePath: (): Promise<string> =>
+    ipcRenderer.invoke('gallery-window.get-storage-path'),
+
+  /** Pick a new gallery storage folder; resolves with the new path + refreshed data. */
+  setStorageFolder: (): Promise<{ path: string; data: GalleryData }> =>
+    ipcRenderer.invoke('gallery-window.set-storage-path'),
 
   /** Open a URL (article link) in the default browser. */
   openURI: (uri: string) => ipcRenderer.send('gallery-window.open-uri', uri),

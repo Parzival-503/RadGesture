@@ -14,7 +14,7 @@ export type GalleryCard = {
   id?: string;
 
   /** Determines how the card is rendered. */
-  type: 'table' | 'note' | 'link' | 'image';
+  type: 'table' | 'note' | 'link' | 'image' | 'pdf';
 
   /** The card's heading. */
   title: string;

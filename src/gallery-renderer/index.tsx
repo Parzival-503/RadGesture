@@ -162,6 +162,20 @@ function CardView({
     ) : (
       <div className="shot">image not found</div>
     );
+  } else if (card.type === 'pdf') {
+    body = (
+      <div className="pdf-body">
+        <div className="pdf-icon">📄</div>
+        <button
+          className="openbtn"
+          type="button"
+          onClick={() =>
+            card.resolvedPath && window.galleryAPI.openPath(card.resolvedPath)
+          }>
+          Open PDF ↗
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -207,6 +221,7 @@ function App({ initial }: { readonly initial: GalleryData }) {
     dataUrl: string;
     path?: string;
   } | null>(null);
+  const [storagePath, setStoragePath] = React.useState('');
 
   const sections = data.sections || [];
   const safeActive = Math.min(active, Math.max(0, sections.length - 1));
@@ -230,6 +245,10 @@ function App({ initial }: { readonly initial: GalleryData }) {
     return () => window.removeEventListener('keydown', onKey);
   }, [lightbox]);
 
+  React.useEffect(() => {
+    window.galleryAPI.getStoragePath().then(setStoragePath).catch(console.error);
+  }, []);
+
   // Persist `next` to disk and adopt the canonical (image-resolved) result.
   const persist = (next: GalleryData) => {
     setData(next);
@@ -244,6 +263,17 @@ function App({ initial }: { readonly initial: GalleryData }) {
     window.galleryAPI
       .save(data)
       .then((fresh) => setData(withIds(fresh)))
+      .catch(console.error);
+  };
+
+  // Let the user pick a new storage folder (e.g. a OneDrive folder) and migrate into it.
+  const changeStorage = () => {
+    window.galleryAPI
+      .setStorageFolder()
+      .then(({ path: newPath, data: fresh }) => {
+        setStoragePath(newPath);
+        setData(withIds(fresh));
+      })
       .catch(console.error);
   };
 
@@ -345,7 +375,9 @@ function App({ initial }: { readonly initial: GalleryData }) {
   const readImages = (
     fileList: FileList
   ): Promise<Array<{ name: string; base64: string }>> => {
-    const files = Array.from(fileList).filter((f) => f.type.startsWith('image/'));
+    const files = Array.from(fileList).filter(
+      (f) => f.type.startsWith('image/') || f.type === 'application/pdf'
+    );
     return Promise.all(
       files.map(
         (file) =>
@@ -494,6 +526,17 @@ function App({ initial }: { readonly initial: GalleryData }) {
               </button>
             </div>
           ) : null}
+          {editing ? (
+            <div className="storage">
+              <div className="storage-label">📂 Storage folder</div>
+              <div className="storage-path" title={storagePath}>
+                {storagePath || '(default)'}
+              </div>
+              <button type="button" onClick={changeStorage}>
+                Change…
+              </button>
+            </div>
+          ) : null}
           <div className="foot">
             {editing ? 'Editing — changes save automatically' : 'Esc to close'}
           </div>
@@ -597,7 +640,7 @@ function App({ initial }: { readonly initial: GalleryData }) {
               {addType === null ? (
                 <>
                   <button disabled={!section} type="button" onClick={addImages}>
-                    ＋ Image
+                    ＋ File
                   </button>
                   <button
                     disabled={!section}

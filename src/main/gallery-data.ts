@@ -8,22 +8,56 @@ import { randomUUID } from 'node:crypto';
 import { getConfigDirectory } from './settings';
 import { GalleryData, GalleryCard } from '../common/gallery';
 
-/** The gallery database file, stored next to menus.json / config.json. */
+/** The gallery database file. */
 const GALLERY_FILE = 'gallery.json';
 
-/** Where image cards with relative paths are resolved from. */
-function galleryImageDir(): string {
-  return path.join(getConfigDirectory(), 'gallery');
+/** Tiny pointer file (always kept locally) recording where the gallery is stored. */
+const LOCATION_FILE = 'gallery-location.json';
+
+/**
+ * The directory holding gallery.json and the gallery/ media folder. Defaults to the local
+ * config directory, but the user can point it at a synced folder (e.g. OneDrive) so the
+ * whole gallery syncs across machines and can be shared.
+ */
+export function getGalleryDir(): string {
+  try {
+    const locFile = path.join(getConfigDirectory(), LOCATION_FILE);
+    if (fs.existsSync(locFile)) {
+      const loc = JSON.parse(fs.readFileSync(locFile, 'utf-8')) as { path?: string };
+      if (loc.path) {
+        fs.mkdirSync(loc.path, { recursive: true });
+        return loc.path;
+      }
+    }
+  } catch (error) {
+    console.error('Failed to read gallery location, using default:', error);
+  }
+  return getConfigDirectory();
+}
+
+/** @returns The current gallery storage directory. */
+export function getStoragePath(): string {
+  return getGalleryDir();
+}
+
+/** Where image/pdf cards with relative paths are resolved from / copied into. */
+function galleryMediaDir(): string {
+  return path.join(getGalleryDir(), 'gallery');
 }
 
 /** @returns The absolute path to gallery.json. */
 export function getGalleryFilePath(): string {
-  return path.join(getConfigDirectory(), GALLERY_FILE);
+  return path.join(getGalleryDir(), GALLERY_FILE);
+}
+
+/** The card type to use for a given filename (PDF vs image). */
+function cardTypeForFile(filename: string): GalleryCard['type'] {
+  return path.extname(filename).toLowerCase() === '.pdf' ? 'pdf' : 'image';
 }
 
 /**
  * A small starter gallery so the window is not empty on first launch. The user can edit
- * gallery.json (or, later, the in-app editor) to make it their own.
+ * it with the in-app editor (or gallery.json) to make it their own.
  */
 function defaultGallery(): GalleryData {
   return {
@@ -72,10 +106,9 @@ function defaultGallery(): GalleryData {
             url: 'https://radiopaedia.org/articles/pulmonary-embolism',
           },
           {
-            type: 'link',
-            title: 'LI-RADS',
-            source: 'Radiopaedia',
-            url: 'https://radiopaedia.org/articles/li-rads',
+            type: 'note',
+            title: 'Drop a PDF here',
+            text: 'In edit mode, drag a PDF onto the window (or use ＋ File) to add it as an article. It opens the whole document.',
           },
         ],
       },
@@ -88,7 +121,7 @@ function defaultGallery(): GalleryData {
           {
             type: 'note',
             title: 'Add your screenshots',
-            text: 'Click the ✏️ button then ＋ Image to add screenshots — or just drag image files straight onto this window. They are saved automatically.',
+            text: 'Click the ✏️ button then ＋ File to add screenshots/PDFs — or just drag them onto this window. They are saved automatically.',
           },
         ],
       },
@@ -97,8 +130,9 @@ function defaultGallery(): GalleryData {
 }
 
 /**
- * Loads gallery.json from the config directory. If it does not exist yet, a small default
- * gallery is written and returned. Never throws — returns the default on any error.
+ * Loads gallery.json from the storage directory. If it does not exist yet, a small
+ * default gallery is written and returned. Never throws — returns the default on any
+ * error.
  */
 export function loadGallery(): GalleryData {
   const file = getGalleryFilePath();
@@ -116,27 +150,30 @@ export function loadGallery(): GalleryData {
 }
 
 /**
- * Like loadGallery(), but additionally resolves `image` cards into data-URLs so the
- * renderer can display them without running into file:// / CSP restrictions.
+ * Like loadGallery(), but resolves `image`/`pdf` cards: image cards get a data-URL (so
+ * the renderer can show them without file:// / CSP issues) and both get a resolved
+ * absolute path (so the renderer can open them).
  */
 export function loadGalleryForRenderer(): GalleryData {
   const data = loadGallery();
   for (const section of data.sections) {
     for (const card of section.cards) {
-      if (card.type === 'image' && card.path) {
+      if ((card.type === 'image' || card.type === 'pdf') && card.path) {
         try {
           const abs = path.isAbsolute(card.path)
             ? card.path
-            : path.join(galleryImageDir(), card.path);
+            : path.join(galleryMediaDir(), card.path);
           if (fs.existsSync(abs)) {
-            const ext = (path.extname(abs).slice(1) || 'png').toLowerCase();
-            const mime = ext === 'jpg' ? 'jpeg' : ext;
             card.resolvedPath = abs;
-            card.dataUrl =
-              `data:image/${mime};base64,` + fs.readFileSync(abs).toString('base64');
+            if (card.type === 'image') {
+              const ext = (path.extname(abs).slice(1) || 'png').toLowerCase();
+              const mime = ext === 'jpg' ? 'jpeg' : ext;
+              card.dataUrl =
+                `data:image/${mime};base64,` + fs.readFileSync(abs).toString('base64');
+            }
           }
         } catch (error) {
-          console.error(`Failed to read gallery image "${card.path}":`, error);
+          console.error(`Failed to read gallery file "${card.path}":`, error);
         }
       }
     }
@@ -177,14 +214,45 @@ export function saveGallery(data: GalleryData): void {
 }
 
 /**
- * Copies the given image files into the gallery folder and appends an image card for each
- * to the section with the given id. Returns the refreshed (renderer-ready) gallery.
+ * Points the gallery storage at a new directory, migrating the existing gallery.json +
+ * media into it if the destination has none yet. Returns the refreshed gallery.
+ */
+export function setStoragePath(newDir: string): GalleryData {
+  const oldDir = getGalleryDir();
+  try {
+    fs.mkdirSync(newDir, { recursive: true });
+    if (path.resolve(newDir) !== path.resolve(oldDir)) {
+      const oldJson = path.join(oldDir, GALLERY_FILE);
+      const newJson = path.join(newDir, GALLERY_FILE);
+      if (fs.existsSync(oldJson) && !fs.existsSync(newJson)) {
+        fs.copyFileSync(oldJson, newJson);
+      }
+      const oldMedia = path.join(oldDir, 'gallery');
+      const newMedia = path.join(newDir, 'gallery');
+      if (fs.existsSync(oldMedia) && !fs.existsSync(newMedia)) {
+        fs.cpSync(oldMedia, newMedia, { recursive: true });
+      }
+    }
+    fs.writeFileSync(
+      path.join(getConfigDirectory(), LOCATION_FILE),
+      JSON.stringify({ path: newDir }, null, 2),
+      'utf-8'
+    );
+  } catch (error) {
+    console.error('Failed to set gallery storage path:', error);
+  }
+  return loadGalleryForRenderer();
+}
+
+/**
+ * Copies the given files (images or PDFs) into the media folder and appends a card for
+ * each to the section with the given id. Returns the refreshed gallery.
  */
 export function importImages(sectionId: string, sourcePaths: string[]): GalleryData {
   const data = loadGallery();
   const section = data.sections.find((s) => s.id === sectionId);
   if (section) {
-    const dir = galleryImageDir();
+    const dir = galleryMediaDir();
     fs.mkdirSync(dir, { recursive: true });
     for (const src of sourcePaths) {
       try {
@@ -200,12 +268,12 @@ export function importImages(sectionId: string, sourcePaths: string[]): GalleryD
         fs.copyFileSync(src, path.join(dir, target));
         section.cards.push({
           id: randomUUID(),
-          type: 'image',
+          type: cardTypeForFile(base),
           title: stem,
           path: target,
         });
       } catch (error) {
-        console.error(`Failed to import image "${src}":`, error);
+        console.error(`Failed to import file "${src}":`, error);
       }
     }
     saveGallery(data);
@@ -214,22 +282,22 @@ export function importImages(sectionId: string, sourcePaths: string[]): GalleryD
 }
 
 /**
- * Saves dropped image files (provided as base64) into the gallery folder and appends an
- * image card for each to the given section. Returns the refreshed gallery.
+ * Saves dropped files (images or PDFs, provided as base64) into the media folder and
+ * appends a card for each to the given section. Returns the refreshed gallery.
  */
 export function importImageData(
   sectionId: string,
-  images: Array<{ name: string; base64: string }>
+  files: Array<{ name: string; base64: string }>
 ): GalleryData {
   const data = loadGallery();
   const section = data.sections.find((s) => s.id === sectionId);
   if (section) {
-    const dir = galleryImageDir();
+    const dir = galleryMediaDir();
     fs.mkdirSync(dir, { recursive: true });
-    for (const img of images) {
+    for (const file of files) {
       try {
-        const base = path.basename(img.name) || 'image.png';
-        const ext = path.extname(base) || '.png';
+        const base = path.basename(file.name) || 'file';
+        const ext = path.extname(base);
         const stem = path.basename(base, ext);
         let target = base;
         let n = 1;
@@ -237,15 +305,15 @@ export function importImageData(
           target = `${stem}-${n}${ext}`;
           n++;
         }
-        fs.writeFileSync(path.join(dir, target), Buffer.from(img.base64, 'base64'));
+        fs.writeFileSync(path.join(dir, target), Buffer.from(file.base64, 'base64'));
         section.cards.push({
           id: randomUUID(),
-          type: 'image',
+          type: cardTypeForFile(base),
           title: stem,
           path: target,
         });
       } catch (error) {
-        console.error(`Failed to save dropped image "${img.name}":`, error);
+        console.error(`Failed to save dropped file "${file.name}":`, error);
       }
     }
     saveGallery(data);

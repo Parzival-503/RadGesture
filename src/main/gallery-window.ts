@@ -8,6 +8,8 @@ import {
   saveGallery,
   importImages,
   importImageData,
+  getStoragePath,
+  setStoragePath,
 } from './gallery-data';
 import { GalleryData } from '../common/gallery';
 
@@ -93,12 +95,12 @@ function registerGalleryIPC() {
     'gallery-window.pick-and-add-images',
     async (_event, sectionId: string) => {
       const result = await dialog.showOpenDialog({
-        title: 'Add images to the gallery',
+        title: 'Add files to the gallery',
         properties: ['openFile', 'multiSelections'],
         filters: [
           {
-            name: 'Images',
-            extensions: ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg'],
+            name: 'Images & PDFs',
+            extensions: ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg', 'pdf'],
           },
         ],
       });
@@ -118,6 +120,20 @@ function registerGalleryIPC() {
       return importImageData(payload.sectionId, payload.images);
     }
   );
+
+  ipcMain.handle('gallery-window.get-storage-path', () => getStoragePath());
+
+  ipcMain.handle('gallery-window.set-storage-path', async () => {
+    const result = await dialog.showOpenDialog({
+      title: 'Choose a folder for the gallery (e.g. a OneDrive folder)',
+      properties: ['openDirectory', 'createDirectory'],
+    });
+    if (result.canceled || result.filePaths.length === 0) {
+      return { path: getStoragePath(), data: loadGalleryForRenderer() };
+    }
+    const data = setStoragePath(result.filePaths[0]);
+    return { path: getStoragePath(), data };
+  });
 
   ipcMain.on('gallery-window.open-uri', (_event, uri: string) => {
     if (uri) {
