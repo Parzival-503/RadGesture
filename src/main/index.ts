@@ -62,7 +62,7 @@ if (!gotTheLock) {
     !options.closeMenu
   ) {
     console.log(
-      'Kando is already running. Use --help for a list of commands to communicate with the running instance!'
+      'RadGesture is already running. Use --help for a list of commands to communicate with the running instance!'
     );
   }
   app.quit();
@@ -94,7 +94,7 @@ Notification.init();
  * @param message The message shown in the notification body.
  */
 function quitWithError(message: string) {
-  Notification.show({ title: 'Kando failed to start', type: 'error', message });
+  Notification.show({ title: 'RadGesture failed to start', type: 'error', message });
   app.quit();
   process.exitCode = 1;
 }
@@ -267,7 +267,7 @@ try {
       app.on('window-all-closed', () => {});
 
       // Show a message that the app is ready.
-      console.log(`Kando ${app.getVersion()} is ready.`);
+      console.log(`RadGesture ${app.getVersion()} is ready.`);
 
       // Finally, handle the command line arguments (if any). If the app was started via a
       // deep link, the last argument is a deep link. In this case, we parse it and use

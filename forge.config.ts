@@ -34,7 +34,7 @@ const makerDMG = new MakerDMG({});
 // https://js.electronforge.io/interfaces/_electron_forge_maker_deb.InternalOptions.MakerDebConfigOptions.html
 const makerDeb = new MakerDeb({
   options: {
-    productName: 'Kando',
+    productName: 'RadGesture',
     genericName: 'Pie Menu',
     icon: 'assets/icons/icon.svg',
     homepage: 'https://github.com/kando-menu/kando',
@@ -47,7 +47,7 @@ const makerDeb = new MakerDeb({
 // https://js.electronforge.io/interfaces/_electron_forge_maker_rpm.InternalOptions.MakerRpmConfigOptions.html
 const makerRPM = new MakerRpm({
   options: {
-    productName: 'Kando',
+    productName: 'RadGesture',
     genericName: 'Pie Menu',
     icon: 'assets/icons/icon.svg',
     homepage: 'https://github.com/kando-menu/kando',
@@ -94,7 +94,7 @@ const config: ForgeConfig = {
   packagerConfig: {
     // https://electron.github.io/packager/main/interfaces/Options.html
     icon: 'assets/icons/icon',
-    name: 'Kando',
+    name: 'RadGesture',
 
     // This makes sure that the app is not shown in the dock on macOS.
     extendInfo: {
@@ -105,7 +105,7 @@ const config: ForgeConfig = {
     // This is used to set the app name in the menu bar on macOS.
     protocols: [
       {
-        name: 'Kando',
+        name: 'RadGesture',
         schemes: ['kando'],
       },
     ],
@@ -184,7 +184,7 @@ if (process.env.KANDO_OSX_NOTARIZE === 'true') {
 // On Windows and Linux, we need to set the executable name to "kando".
 if (process.platform !== 'darwin') {
   if (config.packagerConfig) {
-    config.packagerConfig.executableName = 'kando';
+    config.packagerConfig.executableName = 'RadGesture';
   }
 }
 

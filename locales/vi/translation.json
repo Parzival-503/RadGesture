@@ -30,10 +30,10 @@
         },
         "add-tags-placeholder": "Thêm thẻ…",
         "about-dialog": {
-            "title": "Giới thiệu về Kando",
-            "message": "Tôi đang tạo Kando vì niềm đam mê tuyệt đối. Nếu bạn thích sử dụng nó nhiều như tôi yêu thích việc tạo ra nó, bạn có thể [mua cho tôi một ly cà phê]({{link}})!\n\n💖 Simon",
-            "kando-version": "Phiên bản Kando",
-            "kando-backend": "Kando Backend",
+            "title": "Giới thiệu về RadGesture",
+            "message": "Tôi đang tạo RadGesture vì niềm đam mê tuyệt đối. Nếu bạn thích sử dụng nó nhiều như tôi yêu thích việc tạo ra nó, bạn có thể [mua cho tôi một ly cà phê]({{link}})!\n\n💖 Simon",
+            "kando-version": "Phiên bản RadGesture",
+            "kando-backend": "RadGesture Backend",
             "electron-version": "Phiên bản Electron",
             "chrome-version": "Phiên bản Chrome",
             "check-latest-release": "Kiểm tra bản phát hành mới nhất",
@@ -43,11 +43,11 @@
             "none": "Không có",
             "auto-language": "Sử dụng ngôn ngữ hệ thống",
             "title": "Cài đặt chung",
-            "localization-info": "Khởi động lại Kando để áp dụng ngôn ngữ mới.",
+            "localization-info": "Khởi động lại RadGesture để áp dụng ngôn ngữ mới.",
             "localization-label": "Ngôn ngữ",
-            "hardware-acceleration-info": "Tùy chọn này có thể tăng hiệu suất của ứng dụng nhưng cũng có thể dẫn đến một số lỗi hiển thị. Bạn phải khởi động lại Kando để áp dụng cài đặt này.",
+            "hardware-acceleration-info": "Tùy chọn này có thể tăng hiệu suất của ứng dụng nhưng cũng có thể dẫn đến một số lỗi hiển thị. Bạn phải khởi động lại RadGesture để áp dụng cài đặt này.",
             "hardware-acceleration": "Kích hoạt tính năng tăng tốc phần cứng",
-            "check-for-new-versions-info": "Nếu được bật, Kando sẽ hiển thị thông báo khi có phiên bản mới.",
+            "check-for-new-versions-info": "Nếu được bật, RadGesture sẽ hiển thị thông báo khi có phiên bản mới.",
             "check-for-new-versions": "Kiểm tra các phiên bản mới",
             "invisible-settings-button-info": "Bạn vẫn có thể sử dụng nút này, nó sẽ xuất hiện khi bạn di chuột qua nó.",
             "invisible-settings-button": "Nút cài đặt vô hình",
@@ -76,7 +76,7 @@
             "color": "Màu sắc",
             "white": "Trắng",
             "black": "Tối",
-            "lazy-initialization-info": "Nếu được bật, cửa sổ menu sẽ chỉ được tạo khi menu được mở lần đầu tiên. Điều này sẽ làm cho lần mở menu đầu tiên chậm hơn một chút, nhưng nó có thể ngăn ngừa sự cố khi Kando được khởi động quá sớm trong quá trình đăng nhập. Mặc định bị vô hiệu hóa.",
+            "lazy-initialization-info": "Nếu được bật, cửa sổ menu sẽ chỉ được tạo khi menu được mở lần đầu tiên. Điều này sẽ làm cho lần mở menu đầu tiên chậm hơn một chút, nhưng nó có thể ngăn ngừa sự cố khi RadGesture được khởi động quá sớm trong quá trình đăng nhập. Mặc định bị vô hiệu hóa.",
             "lazy-initialization": "Khởi tạo lười biếng",
             "menu-behavior": "Hành vi menu",
             "keep-input-focus-info": "Nếu được bật, menu sẽ không nhận được tiêu điểm nhập bằng bàn phím khi mở. Thao tác này sẽ tắt Chế độ turbo nhưng có thể hữu ích nếu bạn yêu cầu các ứng dụng khác vẫn được tập trung trong khi menu đang mở.",
@@ -100,7 +100,7 @@
             "cycle-from-recent": "Hiển thị menu tiếp theo (tiếp tục từ cuối)",
             "close-menu": "Đóng menu",
             "menu-sounds": "Menu âm thanh",
-            "learn-how-to-add-sound-themes": "Tìm hiểu cách thêm chủ đề âm thanh mới vào Kando [tại đây]({{link}})!",
+            "learn-how-to-add-sound-themes": "Tìm hiểu cách thêm chủ đề âm thanh mới vào RadGesture [tại đây]({{link}})!",
             "sound-theme-info": "Chủ đề âm thanh là tập hợp các âm thanh được phát khi bạn tương tác với menu.",
             "sound-theme": "Chủ đề âm thanh",
             "volume-info": "Âm lượng tổng thể của chủ đề âm thanh. Mặc định là 0.5.",
@@ -124,7 +124,7 @@
             "fixed-stroke-length-info": "Thông thường, các vật phẩm được chọn khi bạn dừng chuyển động hoặc rẽ. Nếu bạn đặt giá trị này thành giá trị lớn hơn 0, hành vi này sẽ thay đổi: Bây giờ các mục sẽ chỉ được chọn nếu bạn kéo một mục ra xa tâm. Mặc định là 0px.",
             "fixed-stroke-length": "Chiều dài hành trình cố định",
             "backup-and-restore": "Sao lưu & Khôi phục",
-            "message": "Tất cả các menu và cài đặt Kando của bạn được lưu trữ trong hai tệp JSON mà bạn cũng có thể chỉnh sửa, chia sẻ hoặc sao lưu. Nhấp vào [đây]({{link}}) để mở thư mục lưu trữ các tập tin.",
+            "message": "Tất cả các menu và cài đặt RadGesture của bạn được lưu trữ trong hai tệp JSON mà bạn cũng có thể chỉnh sửa, chia sẻ hoặc sao lưu. Nhấp vào [đây]({{link}}) để mở thư mục lưu trữ các tập tin.",
             "backup-menus": "Sao lưu menu.json…",
             "backup-settings": "Sao lưu config.json…",
             "restore-menus": "Khôi phục menu.json…",
@@ -133,10 +133,10 @@
             "reload-note": "Khi bạn tải lại chủ đề menu, các thay đổi CSS sẽ được áp dụng ngay cả khi menu hiện đang được hiển thị. Đối với những thay đổi được thực hiện đối với tệp theme.json, bạn cần mở lại menu.",
             "reload-menu-theme": "Tải lại chủ đề menu",
             "reload-sound-theme": "Tải lại chủ đề âm thanh",
-            "dev-tools-note": "Kando sử dụng hai cửa sổ: Một cho menu và một cho cài đặt. Bạn có thể mở các công cụ phát triển để kiểm tra cả hai cửa sổ một cách riêng biệt.",
+            "dev-tools-note": "RadGesture sử dụng hai cửa sổ: Một cho menu và một cho cài đặt. Bạn có thể mở các công cụ phát triển để kiểm tra cả hai cửa sổ một cách riêng biệt.",
             "menu-window-dev-tools": "Kiểm tra menu",
             "settings-window-dev-tools": "Kiểm tra cài đặt",
-            "enable-achievements-info": "Nếu đã bật, Kando sẽ theo dõi tiến trình hướng tới thành tích của bạn.",
+            "enable-achievements-info": "Nếu đã bật, RadGesture sẽ theo dõi tiến trình hướng tới thành tích của bạn.",
             "enable-achievements": "Theo dõi thành tích",
             "enable-achievement-notifications-info": "Nếu được bật, thông báo sẽ hiển thị khi thành tích được mở khóa.",
             "enable-achievement-notifications": "Hiển thị thông báo thành tích",
@@ -157,19 +157,19 @@
             "app-settings": "Cài đặt ứng dụng",
             "interaction-modes": "Chế độ tương tác",
             "input-options": "Tùy chọn đầu vào",
-            "learn-interaction-mode": "Tìm hiểu thêm về các chế độ tương tác của Kando [tại đây]({{link}})!",
+            "learn-interaction-mode": "Tìm hiểu thêm về các chế độ tương tác của RadGesture [tại đây]({{link}})!",
             "backup-menus-note": "Điều này sẽ sao lưu hoặc khôi phục tất cả các menu của bạn cùng một lúc. Điều này bao gồm tất cả các phím tắt, bố cục menu và bộ sưu tập menu đã định cấu hình của bạn.",
-            "backup-settings-note": "Thao tác này sẽ sao lưu hoặc khôi phục cài đặt của Kando, bao gồm tất cả cài đặt chung và cấu hình chủ đề menu của bạn."
+            "backup-settings-note": "Thao tác này sẽ sao lưu hoặc khôi phục cài đặt của RadGesture, bao gồm tất cả cài đặt chung và cấu hình chủ đề menu của bạn."
         },
         "introduction-dialog": {
-            "slide1-title": "Kando cung cấp một cách độc đáo và hiệu quả để tương tác với máy tính của bạn.",
-            "slide1-text": "Hãy lướt qua các trang trình bày này để tìm hiểu Kando có thể làm gì cho bạn! Bạn có thể sử dụng các dấu chương ở bên trái để nhanh chóng chuyển đến phần giới thiệu cụ thể.",
+            "slide1-title": "RadGesture cung cấp một cách độc đáo và hiệu quả để tương tác với máy tính của bạn.",
+            "slide1-text": "Hãy lướt qua các trang trình bày này để tìm hiểu RadGesture có thể làm gì cho bạn! Bạn có thể sử dụng các dấu chương ở bên trái để nhanh chóng chuyển đến phần giới thiệu cụ thể.",
             "slide2-title": "Mở menu!",
-            "slide2-text-standard": "Nếu bạn khởi chạy Kando lần đầu tiên, bạn có thể mở menu ví dụ bằng Ctrl+Space. Đóng lại bằng phím Escape hoặc bằng nút chuột phải ở bất cứ đâu trên màn hình.",
-            "slide2-text-no-shortcuts": "Nếu khởi chạy Kando lần đầu tiên, bạn [có thể cần thực hiện một số bước bổ sung trên Linux để các phím tắt toàn cục hoạt động]({{link}}). Sau khi đã thiết lập xong, bạn có thể đóng menu bằng phím Escape hoặc bằng nút chuột phải.",
+            "slide2-text-standard": "Nếu bạn khởi chạy RadGesture lần đầu tiên, bạn có thể mở menu ví dụ bằng Ctrl+Space. Đóng lại bằng phím Escape hoặc bằng nút chuột phải ở bất cứ đâu trên màn hình.",
+            "slide2-text-no-shortcuts": "Nếu khởi chạy RadGesture lần đầu tiên, bạn [có thể cần thực hiện một số bước bổ sung trên Linux để các phím tắt toàn cục hoạt động]({{link}}). Sau khi đã thiết lập xong, bạn có thể đóng menu bằng phím Escape hoặc bằng nút chuột phải.",
             "slide3-hint1": "Bạn cũng có thể bấm vào đây để đóng menu.",
             "slide3-hint2": "Bấm vào bất cứ nơi nào ở đây để chọn mục.",
-            "slide3-text": "Trong Kando, toàn bộ màn hình của bạn đều có thể nhấp chuột được! Bạn không cần phải ngắm bấm vào biểu tượng, mà có thể nhấp vào bất kỳ đâu trong nêm của mục đó. Điều này giúp việc chọn các mục trở nên hiệu quả hơn rất nhiều.",
+            "slide3-text": "Trong RadGesture, toàn bộ màn hình của bạn đều có thể nhấp chuột được! Bạn không cần phải ngắm bấm vào biểu tượng, mà có thể nhấp vào bất kỳ đâu trong nêm của mục đó. Điều này giúp việc chọn các mục trở nên hiệu quả hơn rất nhiều.",
             "slide4-text": "Một menu con sẽ **luôn** mở ở con trỏ chuột của bạn. Bạn **không cần đợi hoạt ảnh kết thúc**. Hãy tin tưởng vào trí nhớ cơ bắp của bạn và tiến hành lựa chọn của bạn!",
             "slide5-hint": "Bấm vào bất kỳ đâu ở đây để lên một cấp.",
             "slide5-text": "Để **điều hướng quay lại**, hãy nhấp vào nêm của menu cha hoặc nhấp vào trung tâm của menu hiện tại.",
@@ -182,14 +182,14 @@
             "slide10-text": "**Đừng đợi hoạt ảnh kết thúc!** Chỉ cần di chuyển theo đường zigzag để qua menu. Đây là cách nhanh nhất để chọn các mục!",
             "slide11-text": "**Đừng ngại việc chọn nhầm!** Các hành động chỉ được thực hiện ngay khi bạn nhả nút chuột ở Chế độ đánh dấu hoặc phím bàn phím ở Chế độ turbo. Sử dụng điều này để khám phá menu!",
             "slide12-title": "Còn nhiều hơn nữa!",
-            "slide12-text": "Kando có khả năng tùy biến cao. Bạn có thể sử dụng nó để mở ứng dụng, tệp, thực thi macro bàn phím và nhiều thứ khác. Bạn có thể [thay đổi kiểu menu]({{link1}}), [thêm chủ đề biểu tượng]({{link2}}) và thậm chí [sử dụng âm thanh]({{link3}}) trong menu của mình!",
+            "slide12-text": "RadGesture có khả năng tùy biến cao. Bạn có thể sử dụng nó để mở ứng dụng, tệp, thực thi macro bàn phím và nhiều thứ khác. Bạn có thể [thay đổi kiểu menu]({{link1}}), [thêm chủ đề biểu tượng]({{link2}}) và thậm chí [sử dụng âm thanh]({{link3}}) trong menu của mình!",
             "slide13-text": "Nếu bạn cần trợ giúp bất cứ lúc nào, vui lòng tham gia [Máy chủ Discord]({{link1}}) của chúng tôi hoặc xem [tài liệu]({{link2}})!",
             "chapter1": "Bắt đầu",
             "chapter2": "Chế độ đánh dấu",
             "chapter3": "Chế độ turbo",
             "chapter4": "Các bước tiếp theo",
             "chapter5": "Nhận trợ giúp",
-            "title": "Chào mừng đến với Kando!",
+            "title": "Chào mừng đến với RadGesture!",
             "show-again": "Hiển thị lại hộp thoại này"
         },
         "menu-themes-dialog": {
@@ -247,12 +247,12 @@
         "undo": "Hoàn tác",
         "redo": "Làm lại",
         "app-picker": {
-            "hint": "Bạn cũng có thể kéo và thả ứng dụng từ menu bắt đầu vào trình chỉnh sửa menu của Kando!",
+            "hint": "Bạn cũng có thể kéo và thả ứng dụng từ menu bắt đầu vào trình chỉnh sửa menu của RadGesture!",
             "search-placeholder": "Tìm kiếm ứng dụng…",
             "use-selected": "Sử dụng đã chọn"
         },
         "menu-behavior": "Hành vi menu",
-        "menu-behavior-info": "Trước khi bật các tùy chọn này, chúng tôi khuyên bạn nên tìm hiểu lý do tại sao chúng tôi thích hành vi mặc định của Kando [tại đây]({{link}})!",
+        "menu-behavior-info": "Trước khi bật các tùy chọn này, chúng tôi khuyên bạn nên tìm hiểu lý do tại sao chúng tôi thích hành vi mặc định của RadGesture [tại đây]({{link}})!",
         "centered-mode-info": "Mở menu ở giữa màn hình thay vì ở con trỏ.",
         "centered-mode": "Chế độ căn giữa",
         "anchored-mode-info": "Mở các menu con ở cùng vị trí với menu chính. Việc kiểm tra điều này sẽ tắt Chế độ đánh dấu và Chế độ turbo.",
@@ -315,7 +315,7 @@
         },
         "export-menu-error-title": "Không xuất được menu",
         "import-menu-error-title": "Không thể nhập menu",
-        "import-menu-error-message": "Không thể nhập tệp đã chọn. Nó không chứa menu xuất Kando hợp lệ.",
+        "import-menu-error-message": "Không thể nhập tệp đã chọn. Nó không chứa menu xuất RadGesture hợp lệ.",
         "export-menu": "Xuất menu",
         "import-menu": "Nhập menu",
         "quick-select-key-info": "Phím này cho phép bạn chọn nhanh mục menu.",
@@ -328,9 +328,9 @@
             "description": "Khởi chạy ứng dụng hoặc kịch bản.",
             "choose-app": "Chọn một ứng dụng…",
             "placeholder": "Chèn bất kỳ lệnh nào…",
-            "isolated-info": "Lệnh này sẽ chạy lệnh trong môi trường sạch, nghĩa là nó sẽ không kế thừa bất kỳ biến môi trường nào từ Kando. Điều này có thể trợ giúp với các lệnh không khởi động đúng cách.",
+            "isolated-info": "Lệnh này sẽ chạy lệnh trong môi trường sạch, nghĩa là nó sẽ không kế thừa bất kỳ biến môi trường nào từ RadGesture. Điều này có thể trợ giúp với các lệnh không khởi động đúng cách.",
             "isolated": "Chạy cô lập",
-            "detached-info": "Thao tác này sẽ ngắt kết nối lệnh khỏi Kando nên nó sẽ tiếp tục chạy ngay cả khi Kando bị đóng. Việc tắt tính năng này có thể giải quyết được sự cố với các lệnh không khởi động đúng cách.",
+            "detached-info": "Thao tác này sẽ ngắt kết nối lệnh khỏi RadGesture nên nó sẽ tiếp tục chạy ngay cả khi RadGesture bị đóng. Việc tắt tính năng này có thể giải quyết được sự cố với các lệnh không khởi động đúng cách.",
             "detached": "Chạy tách rời",
             "tip-1": "Bạn có thể sử dụng loại mục Lệnh để khởi chạy ứng dụng hoặc kịch bản.",
             "tip-2": "Nếu đường dẫn đến tệp thực thi chứa khoảng trắng, bạn nên \"bọc nó trong dấu ngoặc kép\".",
@@ -360,7 +360,7 @@
             "description": "Nhập macro bàn phím.",
             "placeholder": "Nhấn nút ghi để bắt đầu ghi!",
             "recording-placeholder": "Nhấn phím bất kỳ…",
-            "tip-1": "Theo mặc định, Kando thêm độ trễ 10 mili giây trước mỗi sự kiện quan trọng. Bạn có thể thay đổi điều này bằng thuộc tính \"độ trễ\".",
+            "tip-1": "Theo mặc định, RadGesture thêm độ trễ 10 mili giây trước mỗi sự kiện quan trọng. Bạn có thể thay đổi điều này bằng thuộc tính \"độ trễ\".",
             "tip-2": "Bạn cũng có thể chỉnh sửa macro bằng tay. Điều này rất hữu ích nếu bạn muốn điều chỉnh thời gian của các phím."
         },
         "redirect": {
@@ -369,8 +369,8 @@
         },
         "settings": {
             "name": "Mở Cài đặt",
-            "description": "Mở cửa sổ cài đặt Kando.",
-            "tip-1": "Loại mục này sẽ mở cửa sổ cài đặt Kando."
+            "description": "Mở cửa sổ cài đặt RadGesture.",
+            "tip-1": "Loại mục này sẽ mở cửa sổ cài đặt RadGesture."
         },
         "submenu": {
             "name": "Menu con",
@@ -403,12 +403,12 @@
         "common": {
             "delayed-option-info": "Hữu ích nếu hành động nhắm vào một cửa sổ cần được tập trung.",
             "delayed-option": "Đợi hoạt ảnh mờ dần",
-            "inhibit-shortcuts-info": "Tắt tất cả các phím tắt Kando trong khi phím nóng hoặc macro đang được mô phỏng. Điều này ngăn chặn đầu vào mô phỏng vô tình kích hoạt các phím tắt menu khác.",
+            "inhibit-shortcuts-info": "Tắt tất cả các phím tắt RadGesture trong khi phím nóng hoặc macro đang được mô phỏng. Điều này ngăn chặn đầu vào mô phỏng vô tình kích hoạt các phím tắt menu khác.",
             "inhibit-shortcuts": "Tắt phím tắt"
         }
     },
     "main": {
-        "new-version-notification-header": "Đã có phiên bản mới của Kando!",
+        "new-version-notification-header": "Đã có phiên bản mới của RadGesture!",
         "new-version-notification-body": "Lấy nó từ {{link}}.",
         "show-settings": "Hiển thị cài đặt",
         "un-inhibit-shortcuts": "Kích hoạt lại phím tắt",
@@ -434,10 +434,10 @@
         "web-links": {
             "submenu": "Liên Kết Web",
             "google": "Google",
-            "kando-on-github": "Kando trên GitHub",
-            "kando-on-kofi": "Kando trên Ko-fi",
-            "kando-on-youtube": "Kando trên YouTube",
-            "kando-on-discord": "Kando trên Discord"
+            "kando-on-github": "RadGesture trên GitHub",
+            "kando-on-kofi": "RadGesture trên Ko-fi",
+            "kando-on-youtube": "RadGesture trên YouTube",
+            "kando-on-discord": "RadGesture trên Discord"
         },
         "next-workspace": "Không gian làm việc tiếp theo",
         "clipboard": {
@@ -475,13 +475,13 @@
     },
     "backends": {
         "gnome": {
-            "error": "Không thể kết nối với tiện ích mở rộng Gnome Shell tích hợp Kando. Bạn có thể lấy nó từ đây: {{link}}"
+            "error": "Không thể kết nối với tiện ích mở rộng Gnome Shell tích hợp RadGesture. Bạn có thể lấy nó từ đây: {{link}}"
         },
         "hyprland": {
-            "shortcut-info": "Kando không thể liên kết trực tiếp các lối tắt toàn cầu trên Hyprland. Thay vào đó, hãy chỉ định ID lối tắt tại đây và liên kết lối tắt trong hyprland.conf của bạn bằng nội dung như \"bind = CTRL, Space, toàn cầu, kando:example-menu\". Thay thế menu ví dụ bằng ID được chọn ở đây."
+            "shortcut-info": "RadGesture không thể liên kết trực tiếp các lối tắt toàn cầu trên Hyprland. Thay vào đó, hãy chỉ định ID lối tắt tại đây và liên kết lối tắt trong hyprland.conf của bạn bằng nội dung như \"bind = CTRL, Space, toàn cầu, kando:example-menu\". Thay thế menu ví dụ bằng ID được chọn ở đây."
         },
         "kde-wayland": {
-            "shortcut-info": "Kando không thể liên kết trực tiếp các phím tắt chung trên KDE/Wayland. Thay vào đó, hãy chỉ định ID lối tắt tại đây rồi tìm kiếm nó trong phần KWin của lối tắt chung trong cài đặt hệ thống KDE của bạn. Ở đó bạn có thể chỉ định phím tắt sẽ mở menu này."
+            "shortcut-info": "RadGesture không thể liên kết trực tiếp các phím tắt chung trên KDE/Wayland. Thay vào đó, hãy chỉ định ID lối tắt tại đây rồi tìm kiếm nó trong phần KWin của lối tắt chung trong cài đặt hệ thống KDE của bạn. Ở đó bạn có thể chỉ định phím tắt sẽ mở menu này."
         },
         "niri": {
             "shortcut-info": "Niri chưa hỗ trợ các phím tắt toàn cục. Nhưng bạn có thể mở menu này bằng cách sử dụng 'kando --menu \"Tên menu\"' từ dòng lệnh hoặc từ cấu hình niri của bạn."
@@ -545,7 +545,7 @@
             "description": "Khôi phục bản sao lưu {{n}} lần."
         },
         "added-items": {
-            "name": "Con đường Kando {{tier}}",
+            "name": "Con đường RadGesture {{tier}}",
             "description": "Tạo các mục {{n}} trong trình chỉnh sửa menu."
         },
         "deleted-all-menus": {
@@ -561,8 +561,8 @@
             "description": "Thêm một mục menu vào menu con sâu bốn cấp."
         },
         "sponsors-viewed": {
-            "name": "Người bảo vệ Kando",
-            "description": "Hãy cân nhắc việc trở thành nhà tài trợ của Kando."
+            "name": "Người bảo vệ RadGesture",
+            "description": "Hãy cân nhắc việc trở thành nhà tài trợ của RadGesture."
         },
         "menu-themes-selected": {
             "name": "Con đường thẩm mỹ",
@@ -570,7 +570,7 @@
         },
         "tutorial-viewed": {
             "name": "Cuộc hành trình bắt đầu",
-            "description": "Hoàn thành phần hướng dẫn giới thiệu Kando."
+            "description": "Hoàn thành phần hướng dẫn giới thiệu RadGesture."
         },
         "completed-title": "Đã mở khóa thành tích!",
         "many-selections-streak": {

@@ -14,13 +14,13 @@
             "menu-sounds": "メニューのサウンド",
             "sound-theme": "サウンドテーマ",
             "settings-window-flavor-info": "透過のフレーバーを選択した場合は、効果の適用のために設定ウィンドウを再起動する必要があります。",
-            "check-for-new-versions-info": "有効化すると最新のバージョンが利用可能になったときに Kando で通知が表示されます。",
+            "check-for-new-versions-info": "有効化すると最新のバージョンが利用可能になったときに RadGesture で通知が表示されます。",
             "none": "なし",
             "title": "一般設定",
-            "message": "メニューとKandoの設定はすべて、編集、共有、バックアップが可能な2つのJSONファイルに保存されています。ファイルが保存されているディレクトリを開くには、[こちら]({{link}})をクリックしてください。",
+            "message": "メニューとRadGestureの設定はすべて、編集、共有、バックアップが可能な2つのJSONファイルに保存されています。ファイルが保存されているディレクトリを開くには、[こちら]({{link}})をクリックしてください。",
             "app-settings": "アプリケーションの設定",
             "localization-label": "言語",
-            "localization-info": "言語を適用するには Kando を再起動してください。",
+            "localization-info": "言語を適用するには RadGesture を再起動してください。",
             "check-for-new-versions": "新しいバージョンを確認",
             "auto-language": "システム言語を使用",
             "invisible-settings-button": "設定ボタンの非表示",
@@ -54,7 +54,7 @@
             "do-nothing": "何もしない",
             "cycle-menus": "一致するメニューを循環する",
             "close-menu": "メニューを閉じる",
-            "learn-how-to-add-sound-themes": "[こちら]({{link}})から Kando に新しいサウンドテーマを追加する方法を学ぶことができます！",
+            "learn-how-to-add-sound-themes": "[こちら]({{link}})から RadGesture に新しいサウンドテーマを追加する方法を学ぶことができます！",
             "volume": "音量",
             "volume-info": "サウンドテーマの全体の音量、既定は 0.5 です。",
             "advanced-menu-options": "高度なメニューオプション",
@@ -70,7 +70,7 @@
             "reload-sound-theme": "サウンドテーマを再読み込み",
             "settings-window-color-scheme": "ウィンドウカラースキームの設定",
             "tray-icon-flavor-info": "トレイアイコンを完全に非表示することも可能です。",
-            "lazy-initialization-info": "有効化するとメニューウィンドウは、メニューを初めて開いたときにのみ作成されます。これによってメニューを初めて開いたときの速度が少し遅くなりますが、サインイン時に Kando がすぐに起動してしまう問題を回避することができます。既定では無効化されています。",
+            "lazy-initialization-info": "有効化するとメニューウィンドウは、メニューを初めて開いたときにのみ作成されます。これによってメニューを初めて開いたときの速度が少し遅くなりますが、サインイン時に RadGesture がすぐに起動してしまう問題を回避することができます。既定では無効化されています。",
             "enable-marking-mode-info": "マーキングモードを有効化するとマウスをドラッグで項目を選択できます。",
             "move-pointer-to-menu-center": "ポインターをメニューの中央に移動",
             "right-mouse-button-selects-parent-info": "チェックを外すとマウスの右ボタンでメニューを閉じます。",
@@ -89,16 +89,16 @@
             "reload-note": "メニューテーマを再読み込みすると、メニューが表示されている状態でもCSSの変更が適用されます。ただし、theme.json を使った変化にはメニューを開きなおす必要があります。",
             "settings-window-dev-tools": "設定のインスペクト",
             "gesture-pause-timeout-info": "選択の実行に必要なジェスチャー停止時間。既定は 100msです。",
-            "hardware-acceleration-info": "このオプションはアプリの動作速度を上げることができますが、レンダリングの不具合を引き起こす可能性もあります。この設定を適用するにはKandoの再起動が必要です。",
+            "hardware-acceleration-info": "このオプションはアプリの動作速度を上げることができますが、レンダリングの不具合を引き起こす可能性もあります。この設定を適用するにはRadGestureの再起動が必要です。",
             "hardware-acceleration": "ハードウエアアクセラレーションを有効にする",
-            "dev-tools-note": "Kando はメニュー用と設定用の二つのウインドウを使用します。開発ツールでそれぞれのウィンドウを個別にインスペクトできます。",
+            "dev-tools-note": "RadGesture はメニュー用と設定用の二つのウインドウを使用します。開発ツールでそれぞれのウィンドウを個別にインスペクトできます。",
             "menu-window-dev-tools": "メニューのインスペクト",
             "gesture-jitter-threshold-info": "ジェスチャー検出では、小さな動きは無視されます。既定は 10px です。",
             "backup-menus": "menus.json のバックアップ…",
             "backup-settings": "config.json のバックアップ…",
             "restore-menus": "menus.json の復元…",
             "restore-settings": "config.json の復元…",
-            "enable-achievements-info": "有効にすると、Kandoは実績解除に向けたあなたの進捗状況を記録します。",
+            "enable-achievements-info": "有効にすると、RadGestureは実績解除に向けたあなたの進捗状況を記録します。",
             "enable-achievements": "実績を記録",
             "minimum-gesture-angle-info": "直線的な動きからのわずかなずれでは、選択はトリガーされません。既定は 20° です。"
         },
@@ -152,25 +152,25 @@
             "slide3-hint2": "項目を選択するにはここをクリックします。",
             "slide6-text": "こうするとメニュー構造を素早く見つけることができます。",
             "chapter2": "マーキングモード",
-            "title": "Kando へようこそ！",
+            "title": "RadGesture へようこそ！",
             "chapter1": "始める",
             "slide12-title": "さらにあります！",
             "slide7-title": "より速くする: マーキングモード",
             "slide3-hint1": "ここをクリックしてメニューを閉じることもできます。",
             "slide5-hint": "ここをクリックすると 1 つ上のレベルに移動します。",
             "slide9-title": "超高速: ターボモード",
-            "slide1-title": "Kando はユニークで効率的な方法でのコンピューターの操作を可能にします。",
-            "slide1-text": "これらのスライドをスワイプして、Kandoがあなたのために何ができるかをご覧ください！左側のチャプターマークを使って、紹介の特定の部分へ素早くジャンプできます。",
-            "slide2-text-standard": "Kandoを初めて起動した場合、Ctrl+Spaceでサンプルメニューを開くことができます。Escapeキーまたは画面上のどこでも右クリックすることで、再度閉じることができます。",
-            "slide2-text-no-shortcuts": "Kando を初めて起動する場合、[Linux でグローバルホットキーを機能させるために、追加設定が必要なことがあります]({{link}})。それが完了すると、Escapeキーまた右クリックでメニューを閉じることができます。",
-            "slide3-text": "Kando では**画面全体がクリック対象**です！アイコンにカーソルを合わせる必要はなく、項目の範囲内であればどこでもクリックできます。これにより、項目の選択が格段に効率化されます。",
+            "slide1-title": "RadGesture はユニークで効率的な方法でのコンピューターの操作を可能にします。",
+            "slide1-text": "これらのスライドをスワイプして、RadGestureがあなたのために何ができるかをご覧ください！左側のチャプターマークを使って、紹介の特定の部分へ素早くジャンプできます。",
+            "slide2-text-standard": "RadGestureを初めて起動した場合、Ctrl+Spaceでサンプルメニューを開くことができます。Escapeキーまたは画面上のどこでも右クリックすることで、再度閉じることができます。",
+            "slide2-text-no-shortcuts": "RadGesture を初めて起動する場合、[Linux でグローバルホットキーを機能させるために、追加設定が必要なことがあります]({{link}})。それが完了すると、Escapeキーまた右クリックでメニューを閉じることができます。",
+            "slide3-text": "RadGesture では**画面全体がクリック対象**です！アイコンにカーソルを合わせる必要はなく、項目の範囲内であればどこでもクリックできます。これにより、項目の選択が格段に効率化されます。",
             "slide4-text": "サブメニューは**常に**マウスポインターの位置で開きます。**アニメーションの終了を待つ必要はありません**。慣れた操作で素早く選択していきましょう！",
             "slide5-text": "**ひとつ前に戻る**には、親の範囲、またはメニューの中心をクリックして下さい。",
             "slide8-text": "**メニューはマウスの動きに反応します！** サブメニューは、開きたいときに開きます。少し練習すれば、メニューを見なくても項目を選択できるようになります。",
             "slide9-text": "メニューを開いた後、_Ctrl_、_Shift_、_Alt_などのキーを**押したままにすると**、ポインターを動かすだけで選択できるようになります。クリックやドラッグは不要です。",
             "slide10-text": "**アニメーションが終わるのを待たないでください！**メニューをジグザグに進んでください。これが項目を選択する最速の方法です！",
             "slide11-text": "**誤った選択を恐れる必要はありません！**マーキングモードではマウスボタンを、ターボモードではキーボードのキーを離したときにのみ、アクションが実行されます。これを活用して、メニューを自由に探索してください！",
-            "slide12-text": "Kandoは非常にカスタマイズ性が高く、アプリケーションやファイルの起動、キーボードマクロの実行など、様々な用途に利用できます。[メニューのスタイル変更]({{link1}})、[アイコンテーマの追加]({{link2}})、さらには[サウンドの使用]({{link3}})といったことも可能です！",
+            "slide12-text": "RadGestureは非常にカスタマイズ性が高く、アプリケーションやファイルの起動、キーボードマクロの実行など、様々な用途に利用できます。[メニューのスタイル変更]({{link1}})、[アイコンテーマの追加]({{link2}})、さらには[サウンドの使用]({{link3}})といったことも可能です！",
             "slide13-text": "もし何か困ったことがあれば、いつでも[Discordサーバー]({{link1}})に参加するか、[ドキュメント]({{link2}})をご覧ください！",
             "show-again": "このダイアログを再度表示",
             "slide7-text": "項目をクリック＆ドラッグして「マーキングモード」に入ります。**ポインターの動きを止めたり、方向転換したりすると、現在ドラッグ中のサブメニューが開きます！** 項目までの経路を記憶し、表情豊かなジグザグの動きで描きましょう。"
@@ -198,10 +198,10 @@
         },
         "add-tags-placeholder": "タグを追加…",
         "about-dialog": {
-            "title": "Kando について",
-            "message": "純粋な情熱から Kando を開発しています。もしあなたが、Kando を気に入ってくれたのであれば [buy me a coffee]({{link}}) からコーヒーを奢ってください！\n\n💖 Simon",
-            "kando-version": "Kando のバージョン",
-            "kando-backend": "Kando のバックエンド",
+            "title": "RadGesture について",
+            "message": "純粋な情熱から RadGesture を開発しています。もしあなたが、RadGesture を気に入ってくれたのであれば [buy me a coffee]({{link}}) からコーヒーを奢ってください！\n\n💖 Simon",
+            "kando-version": "RadGesture のバージョン",
+            "kando-backend": "RadGesture のバックエンド",
             "electron-version": "Electron のバージョン",
             "chrome-version": "Chrome のバージョン",
             "check-latest-release": "最新のリリースを確認",
@@ -247,11 +247,11 @@
         "undo": "元に戻す",
         "redo": "やり直し",
         "app-picker": {
-            "hint": "スタートメニューからKandoのメニューエディターへ、アプリをドラッグ＆ドロップすることもできます！",
+            "hint": "スタートメニューからRadGestureのメニューエディターへ、アプリをドラッグ＆ドロップすることもできます！",
             "search-placeholder": "アプリを検索…",
             "use-selected": "選択したものを利用"
         },
-        "menu-behavior-info": "これらのオプションを有効にする前に、Kandoの既定の動作を好む理由について、[こちら]({{link}})でご確認いただくことをお勧めします！",
+        "menu-behavior-info": "これらのオプションを有効にする前に、RadGestureの既定の動作を好む理由について、[こちら]({{link}})でご確認いただくことをお勧めします！",
         "centered-mode-info": "カーソル位置ではなく、画面中央にメニューを開きます。",
         "anchored-mode-info": "親メニューと同じ位置でサブメニューを開きます。これをチェックすると、マーキングモードとターボモードが無効になります。",
         "hover-mode-info": "上級者向け！項目にカーソルを合わせると選択できます。",
@@ -286,8 +286,8 @@
             "description": "アプリまたはスクリプトを起動します。",
             "choose-app": "アプリを選択…",
             "placeholder": "コマンドを入力…",
-            "isolated-info": "これにより、Kandoから環境変数を継承しない、クリーンな環境でコマンドが実行されます。これは、正しく開始されないコマンドの助けになる可能性があります。",
-            "detached-info": "これにより、コマンドはKandoから切り離され、Kandoが閉じられた後も実行を継続します。これを無効にすると、正しく開始されないコマンドの問題が解決される可能性があります。",
+            "isolated-info": "これにより、RadGestureから環境変数を継承しない、クリーンな環境でコマンドが実行されます。これは、正しく開始されないコマンドの助けになる可能性があります。",
+            "detached-info": "これにより、コマンドはRadGestureから切り離され、RadGestureが閉じられた後も実行を継続します。これを無効にすると、正しく開始されないコマンドの問題が解決される可能性があります。",
             "tip-1": "コマンド項目タイプを使用すると、アプリケーションやスクリプトを起動できます。",
             "tip-2": "実行可能ファイルのパスにスペースが含まれている場合は、そのパスを \"クォートで囲む\" 必要があります。",
             "tip-3": "メニューを開いたときにフォーカスされていたアプリケーションの名前を挿入するには、 {{app_name}} を使用してください。",
@@ -318,7 +318,7 @@
             "description": "キーボードマクロを入力します。",
             "placeholder": "記録を開始するには、記録ボタンを押してください！",
             "recording-placeholder": "キーを入力…",
-            "tip-1": "既定では、Kandoは各キーイベントの前に10ミリ秒の遅延を追加します。この設定は\"delay\"プロパティで変更できます。",
+            "tip-1": "既定では、RadGestureは各キーイベントの前に10ミリ秒の遅延を追加します。この設定は\"delay\"プロパティで変更できます。",
             "tip-2": "マクロは手動で編集することもできます。キーのタイミングを調整したい場合に便利です。"
         },
         "redirect": {
@@ -327,8 +327,8 @@
         },
         "settings": {
             "name": "設定を開く",
-            "description": "Kandoの設定ウィンドウを開きます。",
-            "tip-1": "この項目タイプを選択すると、Kando設定ウィンドウが開きます。"
+            "description": "RadGestureの設定ウィンドウを開きます。",
+            "tip-1": "この項目タイプを選択すると、RadGesture設定ウィンドウが開きます。"
         },
         "submenu": {
             "name": "サブメニュー",
@@ -364,7 +364,7 @@
         }
     },
     "main": {
-        "new-version-notification-header": "Kando の新しいバージョンが利用可能です！",
+        "new-version-notification-header": "RadGesture の新しいバージョンが利用可能です！",
         "new-version-notification-body": "入手はこちらから {{link}}.",
         "show-settings": "設定を表示",
         "un-inhibit-shortcuts": "ショートカットを再度有効化",
@@ -390,10 +390,10 @@
         "web-links": {
             "submenu": "ウェブリンク",
             "google": "Google",
-            "kando-on-github": "Kando on GitHub",
-            "kando-on-kofi": "Kando on Ko-fi",
-            "kando-on-youtube": "Kando on YouTube",
-            "kando-on-discord": "Kando on Discord"
+            "kando-on-github": "RadGesture on GitHub",
+            "kando-on-kofi": "RadGesture on Ko-fi",
+            "kando-on-youtube": "RadGesture on YouTube",
+            "kando-on-discord": "RadGesture on Discord"
         },
         "next-workspace": "次のワークスペース",
         "clipboard": {
@@ -477,7 +477,7 @@
             "description": "バックアップを{{n}}回復元する。"
         },
         "added-items": {
-            "name": "Kando流 {{tier}}",
+            "name": "RadGesture流 {{tier}}",
             "description": "メニューエディタで{{n}}個の項目を作成する。"
         },
         "deleted-all-menus": {
@@ -493,8 +493,8 @@
             "description": "深さが4層目のサブメニューにメニュー項目を追加する。"
         },
         "sponsors-viewed": {
-            "name": "Kandoの守護者",
-            "description": "Kandoのスポンサーになる。"
+            "name": "RadGestureの守護者",
+            "description": "RadGestureのスポンサーになる。"
         },
         "menu-themes-selected": {
             "name": "美の探究道",
@@ -502,7 +502,7 @@
         },
         "tutorial-viewed": {
             "name": "旅の始まり",
-            "description": "Kandoの紹介チュートリアルを完了する。"
+            "description": "RadGestureの紹介チュートリアルを完了する。"
         },
         "many-selections-streak": {
             "name": "稲妻の御手 {{tier}}",

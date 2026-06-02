@@ -1,13 +1,13 @@
 {
     "backends": {
         "gnome": {
-            "error": "Kando Integration GNOME Shell 확장에 연결할 수 없어요. 여기서 설치 가능해요: {{link}}"
+            "error": "RadGesture Integration GNOME Shell 확장에 연결할 수 없어요. 여기서 설치 가능해요: {{link}}"
         },
         "hyprland": {
-            "shortcut-info": "Kando는 Hyprland에서 전역 단축키를 직접 바인딩할 수 없어요. 대신, 여기서 단축키 ID를 지정한 후, hyprland.conf 파일에 다음과 같이 바인딩하세요: `bind = CTRL, Space, global, kando:example-menu` 여기서 `example-menu`를 이곳에서 선택한 ID로 바꾸면 돼요."
+            "shortcut-info": "RadGesture는 Hyprland에서 전역 단축키를 직접 바인딩할 수 없어요. 대신, 여기서 단축키 ID를 지정한 후, hyprland.conf 파일에 다음과 같이 바인딩하세요: `bind = CTRL, Space, global, kando:example-menu` 여기서 `example-menu`를 이곳에서 선택한 ID로 바꾸면 돼요."
         },
         "kde-wayland": {
-            "shortcut-info": "Kando는 KDE/Wayland에서 전역 단축키를 직접 바인딩할 수 없어요. 대신, 여기서 단축키 ID를 지정한 후 KDE 시스템 설정의 KWin 전역 단축키 항목에서 해당 ID를 찾아 단축키를 할당하세요. 이렇게 하면 지정한 단축키로 이 메뉴를 열 수 있어요."
+            "shortcut-info": "RadGesture는 KDE/Wayland에서 전역 단축키를 직접 바인딩할 수 없어요. 대신, 여기서 단축키 ID를 지정한 후 KDE 시스템 설정의 KWin 전역 단축키 항목에서 해당 ID를 찾아 단축키를 할당하세요. 이렇게 하면 지정한 단축키로 이 메뉴를 열 수 있어요."
         },
         "niri": {
             "shortcut-info": "Niri는 아직 전역 단축키를 지원하지 않아요. 하지만 명령어 창이나 Niri 설정 파일에서 `'kando --menu \"Menu Name\"'` 명령어를 사용해 이 메뉴를 열 수 있어요."
@@ -54,10 +54,10 @@
         "previous-workspace": "이전 타일",
         "web-links": {
             "google": "구글",
-            "kando-on-discord": "Kando의 Discord",
-            "kando-on-github": "Kando의 GitHub 페이지",
-            "kando-on-kofi": "Kando의 Ko-fi",
-            "kando-on-youtube": "Kando의 유튜브",
+            "kando-on-discord": "RadGesture의 Discord",
+            "kando-on-github": "RadGesture의 GitHub 페이지",
+            "kando-on-kofi": "RadGesture의 Ko-fi",
+            "kando-on-youtube": "RadGesture의 유튜브",
             "submenu": "웹 링크"
         },
         "windows": {
@@ -70,9 +70,9 @@
         }
     },
     "main": {
-        "failed-to-start-header": "Kando를 실행하지 못했어요",
+        "failed-to-start-header": "RadGesture를 실행하지 못했어요",
         "inhibit-shortcuts": "일시적으로 모든 단축키 비활성화하기",
-        "new-version-notification-header": "Kando를 새 버전으로 업데이트할 수 있어요!",
+        "new-version-notification-header": "RadGesture를 새 버전으로 업데이트할 수 있어요!",
         "quit": "종료하기",
         "show-settings": "설정 열기",
         "un-inhibit-shortcuts": "단축키 다시 활성화하기",
@@ -94,9 +94,9 @@
             "tip-5": "메뉴가 열렸을 때의 포인터 위치를 삽입하려면 {{pointer_x}} 및 {{pointer_y}}를 사용하세요.",
             "placeholder": "아무 명령어나 입력하세요…",
             "isolated": "격리 실행하기",
-            "isolated-info": "이 옵션을 선택하면 명령어가 깨끗한 환경에서 실행돼요. 즉, Kando의 환경 변수들을 상속받지 않아요. 이는 일부 명령어가 정상적으로 시작되지 않을 때 도움이 될 수 있어요.",
+            "isolated-info": "이 옵션을 선택하면 명령어가 깨끗한 환경에서 실행돼요. 즉, RadGesture의 환경 변수들을 상속받지 않아요. 이는 일부 명령어가 정상적으로 시작되지 않을 때 도움이 될 수 있어요.",
             "detached": "분리 실행하기",
-            "detached-info": "이 옵션을 사용하면 명령어가 Kando와 분리되어 실행되므로, Kando가 종료되더라도 명령어는 계속 실행돼요. 이 옵션을 비활성화하면 일부 명령어가 제대로 시작되지 않는 문제를 해결할 수 있어요.",
+            "detached-info": "이 옵션을 사용하면 명령어가 RadGesture와 분리되어 실행되므로, RadGesture가 종료되더라도 명령어는 계속 실행돼요. 이 옵션을 비활성화하면 일부 명령어가 제대로 시작되지 않는 문제를 해결할 수 있어요.",
             "tip-6": "앱을 실행하는 명령어를 찾는 방법을 알아보려면 [여기]({{link}})를 클릭하세요.",
             "choose-app": "앱 선택하기…"
         },
@@ -122,7 +122,7 @@
             "name": "매크로 실행하기",
             "placeholder": "녹화 버튼을 눌러 녹화를 시작하세요!",
             "recording-placeholder": "키를 눌러주세요…",
-            "tip-1": "기본적으로 Kando는 키 이벤트 사이에 10ms의 지연을 추가해요. 이 지연 시간은 \"delay\" 속성으로 변경할 수 있어요.",
+            "tip-1": "기본적으로 RadGesture는 키 이벤트 사이에 10ms의 지연을 추가해요. 이 지연 시간은 \"delay\" 속성으로 변경할 수 있어요.",
             "tip-2": "매크로는 직접 수동으로도 편집할 수 있어요. 키 입력 간격을 조정하고 싶을 때 유용해요."
         },
         "redirect": {
@@ -130,9 +130,9 @@
             "name": "리다이렉트"
         },
         "settings": {
-            "description": "Kando의 설정 메뉴가 열려요.",
+            "description": "RadGesture의 설정 메뉴가 열려요.",
             "name": "설정 열기",
-            "tip-1": "이 동작은 Kando 설정 메뉴를 열어요."
+            "tip-1": "이 동작은 RadGesture 설정 메뉴를 열어요."
         },
         "submenu": {
             "description": "다른 메뉴 항목을 넣을 수 있어요.",
@@ -172,12 +172,12 @@
         "about-dialog": {
             "chrome-version": "Chrome 버전",
             "electron-version": "Electron 버전",
-            "kando-backend": "Kando 백엔드",
-            "kando-version": "Kando 버전",
+            "kando-backend": "RadGesture 백엔드",
+            "kando-version": "RadGesture 버전",
             "check-latest-release": "최신 버전 확인하기",
             "read-release-notes": "업데이트 내용 보기",
-            "message": "저는 열정 하나만으로 Kando를 만들고 있어요. 제가 이걸 만드는 게 즐거웠던 만큼 당신도 즐겁게 사용하셨다면, [커피 한 잔 사주기]({{link}})로 응원해 주세요!\n\nSimon으로부터 💖",
-            "title": "Kando에 대하여"
+            "message": "저는 열정 하나만으로 RadGesture를 만들고 있어요. 제가 이걸 만드는 게 즐거웠던 만큼 당신도 즐겁게 사용하셨다면, [커피 한 잔 사주기]({{link}})로 응원해 주세요!\n\nSimon으로부터 💖",
+            "title": "RadGesture에 대하여"
         },
         "anchored-mode": "고정 모드",
         "app-condition": "특정 앱으로 제한하기",
@@ -208,7 +208,7 @@
             "right-mouse-button-selects-parent": "마우스 오른쪽 버튼으로 상위 메뉴 선택하기",
             "right-mouse-button-selects-parent-info": "이 옵션을 해제하면, 마우스 오른쪽 버튼을 클릭해 메뉴를 닫을 수 있어요.",
             "advanced-menu-options-note": "일반적으로는 이 설정들을 기본값으로 놔둬도 돼요.",
-            "message": "Kando와 모든 메뉴들의 설정은 수정, 공유, 백업할 수 있는 2개의 JSON 파일로 저장돼요. 파일들이 저장된 폴더를 열려면 [여기]({{link}})를 클릭하세요.",
+            "message": "RadGesture와 모든 메뉴들의 설정은 수정, 공유, 백업할 수 있는 2개의 JSON 파일로 저장돼요. 파일들이 저장된 폴더를 열려면 [여기]({{link}})를 클릭하세요.",
             "check-for-new-versions": "업데이트 확인하기",
             "invisible-settings-button": "설정 버튼 숨기기",
             "settings-button-position-info": "설정 버튼을 표시할 화면 모서리를 선택하세요.",
@@ -243,7 +243,7 @@
             "movement-threshold": "움직임 한계점",
             "movement-threshold-info": "마킹 모드나 터보 모드에서 이보다 작은 마우스 움직임을 무시해요. 기본값은 15px이예요.",
             "press-again-behavior-info": "이 옵션은 메뉴가 표시된 상태에서 단축키를 다시 눌렀을 때의 동작을 정해요. 하나의 단축키에 여러 메뉴가 할당됐을 때, 이 옵션을 통해 해당 메뉴들을 순차적으로 전환할 수 있어요. ‘아무것도 하지 않기’ 외의 옵션과 터보 모드를 함께 사용하려면, 반드시 보조 키(modifier key)를 누르고 있어야 해요.",
-            "localization-info": "새 언어를 적용하려면 Kando를 다시 실행하세요.",
+            "localization-info": "새 언어를 적용하려면 RadGesture를 다시 실행하세요.",
             "check-for-new-versions-info": "이 옵션을 선택하면, 새 업데이트가 있을 때 알림 메세지를 띄울 거예요.",
             "enable-marking-mode-info": "이 옵션을 선택하면, 마우스를 드래그해서 항목을 선택할 수 있어요.",
             "minimum-submenu-distance": "하위 메뉴의 최소 거리",
@@ -260,7 +260,7 @@
             "settings-window-color-scheme": "설정 창 색상",
             "tray-icon-flavor-info": "'숨김'을 선택해 트레이 아이콘을 아예 숨길 수도 있어요.",
             "lazy-initialization": "느린 초기화",
-            "lazy-initialization-info": "이 옵션을 선택하면, 메뉴를 처음으로 열 때에만 메뉴 창이 생성돼요. 메뉴를 처음 열 때 약간 느려질 수 있지만, 로그인할 때 Kando가 너무 일찍 실행될 때 때 생길 수 있는 문제를 막을 수 있죠. 기본값은 '비활성화'예요.",
+            "lazy-initialization-info": "이 옵션을 선택하면, 메뉴를 처음으로 열 때에만 메뉴 창이 생성돼요. 메뉴를 처음 열 때 약간 느려질 수 있지만, 로그인할 때 RadGesture가 너무 일찍 실행될 때 때 생길 수 있는 문제를 막을 수 있죠. 기본값은 '비활성화'예요.",
             "sakura-light": "사쿠라 라이트",
             "sakura-dark": "사쿠라 다크",
             "keep-input-focus": "활성화된 애플리케이션에 포커스 유지하기",
@@ -279,11 +279,11 @@
             "fixed-stroke-length-info": "보통 항목은 움직임을 멈추거나 방향을 전환할 때 선택돼요. 그런데 이 값을 0보다 크게 설정하면 이러한 작동방식이 바뀌어요: 이제 항목은 중심에서 이만큼 떨어진 거리까지 끌었을 때만 선택돼요. 기본값은 0px이예요.",
             "developer-options": "개발자 옵션",
             "reload-note": "CSS의 변경사항은 메뉴가 현재 표시 중이더라도 메뉴 테마를 새로고침하면 적용돼요. 하지만 theme.json 파일의 변경 사항은 메뉴를 다시 열어야 적용돼요.",
-            "dev-tools-note": "Kando는 메뉴와 설정을 위해 두 개의 창을 사용해요. 개발자 도구를 열어 두 창을 개별적으로 검사할 수 있어요.",
+            "dev-tools-note": "RadGesture는 메뉴와 설정을 위해 두 개의 창을 사용해요. 개발자 도구를 열어 두 창을 개별적으로 검사할 수 있어요.",
             "menu-window-dev-tools": "메뉴 검사하기",
             "settings-window-dev-tools": "설정 검사하기",
             "hardware-acceleration": "하드웨어 가속 활성화",
-            "hardware-acceleration-info": "이 옵션은 앱의 성능을 높일 수 있지만, 렌더링 아티팩트가 나타날 수 있어요. 이 설정을 적용하려면 Kando를 재시작해야 해요."
+            "hardware-acceleration-info": "이 옵션은 앱의 성능을 높일 수 있지만, 렌더링 아티팩트가 나타날 수 있어요. 이 설정을 적용하려면 RadGesture를 재시작해야 해요."
         },
         "hover-mode": "호버 모드",
         "hover-mode-info": "숙련된 사용자 전용! 항목 위로 호버링해서 선택해요.",
@@ -297,15 +297,15 @@
             "reload-button-tooltip": "모든 아이콘 테마 새로고침"
         },
         "introduction-dialog": {
-            "title": "Kando에 오신 것을 환영해요!",
-            "slide1-title": "Kando는 컴퓨터와 상호작용하는 독창적이고 효율적인 방식을 제공해요.",
-            "slide1-text": "이 슬라이드를 넘기며 Kando가 무엇을 할 수 있는지 알아보세요! 왼쪽의 챕터 마커를 사용하면 소개의 특정 파트로 빠르게 이동할 수 있어요.",
+            "title": "RadGesture에 오신 것을 환영해요!",
+            "slide1-title": "RadGesture는 컴퓨터와 상호작용하는 독창적이고 효율적인 방식을 제공해요.",
+            "slide1-text": "이 슬라이드를 넘기며 RadGesture가 무엇을 할 수 있는지 알아보세요! 왼쪽의 챕터 마커를 사용하면 소개의 특정 파트로 빠르게 이동할 수 있어요.",
             "slide2-title": "메뉴를 열어 보세요!",
-            "slide2-text-standard": "Kando를 처음 실행했다면, 컨트롤+스페이스바로 예제 메뉴를 열 수 있어요. 메뉴는 Esc 키를 누르거나 화면 아무 곳에서나 마우스 오른쪽 버튼을 클릭해 닫을 수 있어요.",
-            "slide2-text-no-shortcuts": "리눅스에서 Kando를 처음 실행했다면, [전역 단축키를 사용하기 위한 추가 설정이 필요할 수 있어요]({{link}}). 설정이 완료되면 Esc키 또는 마우스 오른쪽 버튼으로 메뉴를 닫을 수 있어요.",
+            "slide2-text-standard": "RadGesture를 처음 실행했다면, 컨트롤+스페이스바로 예제 메뉴를 열 수 있어요. 메뉴는 Esc 키를 누르거나 화면 아무 곳에서나 마우스 오른쪽 버튼을 클릭해 닫을 수 있어요.",
+            "slide2-text-no-shortcuts": "리눅스에서 RadGesture를 처음 실행했다면, [전역 단축키를 사용하기 위한 추가 설정이 필요할 수 있어요]({{link}}). 설정이 완료되면 Esc키 또는 마우스 오른쪽 버튼으로 메뉴를 닫을 수 있어요.",
             "slide3-hint1": "여기를 클릭해서 메뉴를 닫을 수도 있어요.",
             "slide3-hint2": "항목을 선택하려면 이곳 아무 곳이나 클릭하세요.",
-            "slide3-text": "Kando에서는 **화면 전체가 클릭 타겟이예요**! 아이콘을 정확히 조준할 필요 없이, 각 항목별로 나뉜 공간(웨지)의 아무 곳이나 클릭하면 돼요. 덕분에 항목 선택이 훨씬 효율적이죠.",
+            "slide3-text": "RadGesture에서는 **화면 전체가 클릭 타겟이예요**! 아이콘을 정확히 조준할 필요 없이, 각 항목별로 나뉜 공간(웨지)의 아무 곳이나 클릭하면 돼요. 덕분에 항목 선택이 훨씬 효율적이죠.",
             "slide4-text": "하위 메뉴는 **항상** 마우스 포인터 위치에 열려요. **애니메이션이 끝날 때까지 기다릴 필요가 없죠**. 머슬 메모리를 믿고 바로 선택을 진행하세요!",
             "slide5-hint": "한 단계 위로 가려면 이곳 아무 곳이나 클릭하세요.",
             "slide5-text": "**뒤로 이동하려면** 상위 항목의 웨지 또는 메뉴 중앙을 클릭하세요.",
@@ -318,7 +318,7 @@
             "slide10-text": "**애니메이션이 끝날 때까지 기다리지 마세요!** 메뉴를 지그재그로 빠르게 움직이세요. 이것이 항목을 선택하는 가장 빠른 방법이예요!",
             "slide11-text": "**실수로 항목이 선택될까봐 걱정하지 마세요!** 마킹 모드에서는 마우스 버튼을, 터보 모드에서는 키보드 키를 놓을 때만 동작이 실행돼요. 이걸 활용해 메뉴를 자유롭게 탐색해 보세요!",
             "slide12-title": "아직 더 있어요!",
-            "slide12-text": "Kando는 커스터마이징이 굉장히 자유로워요. 파일과 애플리케이션을 열고 키보드 매크로를 실행하는 등 다양하게 활용할 수 있죠. [메뉴 스타일을 바꾸거나]({{link1}}), [아이콘 테마를 추가하거나]({{link2}}), 심지어는 [메뉴에 사운드를 사용할 수도 있어요]({{link3}})!",
+            "slide12-text": "RadGesture는 커스터마이징이 굉장히 자유로워요. 파일과 애플리케이션을 열고 키보드 매크로를 실행하는 등 다양하게 활용할 수 있죠. [메뉴 스타일을 바꾸거나]({{link1}}), [아이콘 테마를 추가하거나]({{link2}}), 심지어는 [메뉴에 사운드를 사용할 수도 있어요]({{link3}})!",
             "slide13-text": "도움이 필요하다면 언제든지 저희의 [디스코드 서버]({{link1}})에 참여하거나 [관련 문서]({{link2}})를 참조해 주세요!",
             "chapter1": "시작하기",
             "chapter2": "마킹 모드",
@@ -378,7 +378,7 @@
         "add-menu-items": "메뉴 항목을 추가하세요",
         "undo": "실행 취소",
         "redo": "다시 실행",
-        "menu-behavior-info": "이 옵션들을 활성화하기 전에, 저희가 왜 Kando의 기본 작동방식을 사랑하는지 [여기]({{link}})에서 확인해 보세요!",
+        "menu-behavior-info": "이 옵션들을 활성화하기 전에, 저희가 왜 RadGesture의 기본 작동방식을 사랑하는지 [여기]({{link}})에서 확인해 보세요!",
         "anchored-mode-info": "하위 메뉴를 상위 메뉴와 같은 위치에 열어요. 체크하면, 마킹 모드와 터보 모드가 비활성화돼요.",
         "app-condition-info": "특정 애플리케이션이 포커스됐을 때만 메뉴를 표시해요. 정규 표현식(예: /firefox|chrome/i)도 지원해요.",
         "app-condition-placeholder": "앱 이름",
@@ -414,7 +414,7 @@
             "confirm": "이 값을 사용하기"
         },
         "app-picker": {
-            "hint": "시작 메뉴에서 Kando의 메뉴 에디터로 앱을 끌어와 놓을 수 있어요!",
+            "hint": "시작 메뉴에서 RadGesture의 메뉴 에디터로 앱을 끌어와 놓을 수 있어요!",
             "search-placeholder": "앱을 검색하세요…",
             "use-selected": "선택한 앱 사용하기"
         },

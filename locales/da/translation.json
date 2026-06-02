@@ -3,12 +3,12 @@
         "about-dialog": {
             "chrome-version": "Chrome-Version",
             "check-latest-release": "Tjek den seneste udgivelse",
-            "kando-version": "Kando Version",
-            "kando-backend": "Kando Backend",
+            "kando-version": "RadGesture Version",
+            "kando-backend": "RadGesture Backend",
             "electron-version": "Electron-Version",
-            "message": "Jeg skaber Kando af ren og skær passion. Hvis du nyder at bruge det lige så meget, som jeg elsker at lave det, kan du [købe mig en kaffe]({{link}})!\n\n💖 Simon",
+            "message": "Jeg skaber RadGesture af ren og skær passion. Hvis du nyder at bruge det lige så meget, som jeg elsker at lave det, kan du [købe mig en kaffe]({{link}})!\n\n💖 Simon",
             "read-release-notes": "Læs noter til udgivelsen",
-            "title": "Om Kando"
+            "title": "Om RadGesture"
         },
         "icon-picker-dialog": {
             "base64-example": "Base64 eksempel:",
@@ -28,7 +28,7 @@
             "check-for-new-versions": "Søg efter nye versioner",
             "dark": "Mørk",
             "bottom-right": "Nederst til højre",
-            "check-for-new-versions-info": "Hvis aktiveret, vil Kando vise en meddelelse, når en ny version er tilgængelig.",
+            "check-for-new-versions-info": "Hvis aktiveret, vil RadGesture vise en meddelelse, når en ny version er tilgængelig.",
             "invisible-settings-button": "Usynlig knap til indstillinger",
             "settings-button-position": "Indstillingsknappens position",
             "settings-button-position-info": "Vælg det hjørne af skærmen, hvor indstillingsknappen skal vises.",
@@ -40,13 +40,13 @@
             "system": "System",
             "invisible-settings-button-info": "Du kan stadig bruge knappen, den kommer frem, når du fører musen hen over den.",
             "none": "Ingenting",
-            "message": "Alle indstillinger i Kando gemmes i en JSON-fil, som du også kan redigere, dele eller tage backup af. Klik på [her]({{link}}) for at åbne den mappe, hvor config.json-filen er gemt.",
+            "message": "Alle indstillinger i RadGesture gemmes i en JSON-fil, som du også kan redigere, dele eller tage backup af. Klik på [her]({{link}}) for at åbne den mappe, hvor config.json-filen er gemt.",
             "tray-icon-flavor-info": "Du kan også vælge at skjule bakkeikonet helt.",
             "hidden": "Gemt",
             "color": "Farve",
             "white": "Hvid",
             "black": "Sort",
-            "lazy-initialization-info": "Hvis aktiveret, oprettes menuvinduet kun, når menuen åbnes for første gang. Det vil gøre den første åbning af menuen lidt langsommere, men det kan forhindre problemer, når Kando startes for tidligt under login. Standard er deaktiveret.",
+            "lazy-initialization-info": "Hvis aktiveret, oprettes menuvinduet kun, når menuen åbnes for første gang. Det vil gøre den første åbning af menuen lidt langsommere, men det kan forhindre problemer, når RadGesture startes for tidligt under login. Standard er deaktiveret.",
             "menu-behavior": "Menuadfærd",
             "enable-marking-mode-info": "Når Marking Mode er aktiveret, kan du vælge elementer ved at trække musen hen over dem.",
             "enable-turbo-mode-info": "Når Turbo Mode er aktiveret, kan du udføre bevægelser, så længe du holder en modifikationstast som Shift eller Ctrl nede.",
@@ -56,7 +56,7 @@
             "enable-turbo-mode": "Aktiver Turbo Mode",
             "enable-marking-mode": "Aktiver Marking Mode",
             "menu-sounds": "Menu-lyde",
-            "learn-how-to-add-sound-themes": "Lær, hvordan du tilføjer nye lydtemaer til Kando [her]({{link}})!",
+            "learn-how-to-add-sound-themes": "Lær, hvordan du tilføjer nye lydtemaer til RadGesture [her]({{link}})!",
             "sound-theme": "Lydtema",
             "volume": "Lydstyrke",
             "volume-info": "Den samlede lydstyrke for lydtemaet. Standard er 0,5.",
@@ -67,14 +67,14 @@
             "menu-window-dev-tools": "Inspicer menuen",
             "settings-window-dev-tools": "Inspicer indstillinger",
             "reload-note": "Når du genindlæser menutemaet, vil CSS-ændringer blive anvendt, selv om der vises en menu i øjeblikket. Hvis der foretages ændringer i filen theme.json, skal du åbne menuen igen.",
-            "dev-tools-note": "Kando bruger to vinduer: Et til menuen og et til indstillingerne. Du kan åbne udviklingsværktøjerne for at inspicere begge vinduer separat.",
+            "dev-tools-note": "RadGesture bruger to vinduer: Et til menuen og et til indstillingerne. Du kan åbne udviklingsværktøjerne for at inspicere begge vinduer separat.",
             "developer-options": "Indstillinger for udviklere",
             "enable-gamepad-support": "Aktiver understøttelse af gamepad",
             "sound-theme-info": "Et lydtema er en samling af lyde, der afspilles, når du interagerer med menuen.",
             "auto-language": "Brug systemsproget",
-            "localization-info": "Genstart Kando for at anvende det nye sprog.",
+            "localization-info": "Genstart RadGesture for at anvende det nye sprog.",
             "localization-label": "Sprog",
-            "hardware-acceleration-info": "Denne indstilling kan øge ydelsen af programmet, men kan også føre til nogle gengivelsesproblemer. Du er nødt til at genstarte Kando for at anvende denne indstilling.",
+            "hardware-acceleration-info": "Denne indstilling kan øge ydelsen af programmet, men kan også føre til nogle gengivelsesproblemer. Du er nødt til at genstarte RadGesture for at anvende denne indstilling.",
             "hardware-acceleration": "Aktiver hardware-acceleration"
         },
         "file-picker": {
@@ -83,23 +83,23 @@
         },
         "add-tags-placeholder": "Tilføj tags…",
         "introduction-dialog": {
-            "slide1-text": "Swipe gennem disse slides for at lære, hvad Kando kan gøre for dig! Du kan bruge kapitelmærkerne til venstre til hurtigt at springe til en bestemt del af introduktionen.",
+            "slide1-text": "Swipe gennem disse slides for at lære, hvad RadGesture kan gøre for dig! Du kan bruge kapitelmærkerne til venstre til hurtigt at springe til en bestemt del af introduktionen.",
             "slide2-title": "Åbn menuen!",
-            "slide2-text-no-shortcuts": "Hvis du starter Kando for første gang, skal du [muligvis udføre nogle ekstra trin på Linux for at få de globale genvejstaster til at fungere]({{link}}). Når det virker, kan du lukke en menu med Escape-tasten eller med højre museknap.",
+            "slide2-text-no-shortcuts": "Hvis du starter RadGesture for første gang, skal du [muligvis udføre nogle ekstra trin på Linux for at få de globale genvejstaster til at fungere]({{link}}). Når det virker, kan du lukke en menu med Escape-tasten eller med højre museknap.",
             "slide3-hint1": "Du kan også klikke her for at lukke menuen.",
             "slide7-title": "Bliv hurtigere: Marking Mode",
             "slide9-title": "Bliv lynhurtig: Turbo Mode",
             "slide12-title": "Der er mere!",
-            "slide12-text": "Kando kan i høj grad tilpasses. Du kan bruge den til at åbne programmer, filer, udføre tastaturmakroer og mange andre ting. Du kan [ændre menustilen]({{link1}}), [tilføje ikontemaer]({{link2}}) og endda [bruge lyde]({{link3}}) i dine menuer!",
+            "slide12-text": "RadGesture kan i høj grad tilpasses. Du kan bruge den til at åbne programmer, filer, udføre tastaturmakroer og mange andre ting. Du kan [ændre menustilen]({{link1}}), [tilføje ikontemaer]({{link2}}) og endda [bruge lyde]({{link3}}) i dine menuer!",
             "slide13-text": "Hvis du har brug for hjælp på noget tidspunkt, er du velkommen til at deltage i vores [Discord Server]({{link1}}) eller tjekke [dokumentationen]({{link2}})!",
             "chapter1": "Kom i gang",
             "chapter4": "Næste Skridt",
             "chapter5": "Få Hjælp",
             "show-again": "Vis denne dialog igen",
-            "slide2-text-standard": "Hvis du har startet Kando for første gang, kan du åbne eksempelmenuen med Ctrl+Space. Luk den igen med Escape-tasten eller med højre museknap et vilkårligt sted på skærmen.",
+            "slide2-text-standard": "Hvis du har startet RadGesture for første gang, kan du åbne eksempelmenuen med Ctrl+Space. Luk den igen med Escape-tasten eller med højre museknap et vilkårligt sted på skærmen.",
             "chapter3": "Turbo Mode",
-            "title": "Velkommen til Kando!",
-            "slide1-title": "Kando tilbyder en unik og effektiv måde at interagere med din computer på.",
+            "title": "Velkommen til RadGesture!",
+            "slide1-title": "RadGesture tilbyder en unik og effektiv måde at interagere med din computer på.",
             "chapter2": "Marking Mode"
         },
         "menu-themes-dialog": {
@@ -131,7 +131,7 @@
         "window-condition-placeholder": "Titel på vindue",
         "window-condition-tooltip": "Vælg et vindue",
         "area-condition-info": "Vis kun menuen, hvis markøren befinder sig i et givet område på skærmen. Området angives i pixels i forhold til øverste venstre hjørne af din hovedskærm. Hvis du lader et felt være tomt, er området ubegrænset i den retning.",
-        "menu-behavior-info": "Før du aktiverer disse muligheder, anbefaler vi, at du lærer, hvorfor vi kan lide Kandos standardadfærd [her]({{link}})!",
+        "menu-behavior-info": "Før du aktiverer disse muligheder, anbefaler vi, at du lærer, hvorfor vi kan lide RadGestures standardadfærd [her]({{link}})!",
         "menu-conditions-info": "Du kan binde flere menuer til den samme genvej og derefter vælge, under hvilke betingelser hver menu skal vises.",
         "area-condition": "Begræns til specifikt skærmområde",
         "add-collection-tooltip": "Opret en ny menusamling. Brug samlinger til at gruppere dine menuer efter tags!",
@@ -182,14 +182,14 @@
         }
     },
     "main": {
-        "new-version-notification-header": "En ny version af Kando er tilgængelig!",
+        "new-version-notification-header": "En ny version af RadGesture er tilgængelig!",
         "invalid-link-header": "Ugyldigt link",
         "new-version-notification-body": "Hent den fra {{link}}.",
         "show-settings": "Vis indstillinger",
         "un-inhibit-shortcuts": "Genaktiver genveje",
         "inhibit-shortcuts": "Deaktiver midlertidigt alle genveje",
         "quit": "Stop",
-        "failed-to-start-header": "Kando kunne ikke starte"
+        "failed-to-start-header": "RadGesture kunne ikke starte"
     },
     "example-menu": {
         "apps": {
@@ -204,11 +204,11 @@
             "terminal": "Terminal"
         },
         "web-links": {
-            "kando-on-github": "Kando på GitHub",
+            "kando-on-github": "RadGesture på GitHub",
             "submenu": "Weblinks",
-            "kando-on-kofi": "Kando på Ko-fi",
-            "kando-on-youtube": "Kando på YouTube",
-            "kando-on-discord": "Kando på Discord",
+            "kando-on-kofi": "RadGesture på Ko-fi",
+            "kando-on-youtube": "RadGesture på YouTube",
+            "kando-on-discord": "RadGesture på Discord",
             "google": "Google"
         },
         "bookmarks": {
@@ -238,7 +238,7 @@
     },
     "backends": {
         "gnome": {
-            "error": "Kunne ikke oprette forbindelse til Kando Integration GNOME Shell-udvidelsen. Du kan hente den herfra: {{link}}"
+            "error": "Kunne ikke oprette forbindelse til RadGesture Integration GNOME Shell-udvidelsen. Du kan hente den herfra: {{link}}"
         }
     }
 }

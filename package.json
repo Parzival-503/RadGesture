@@ -1,6 +1,7 @@
 {
-  "name": "kando",
-  "desktopName": "menu.kando.Kando",
+  "name": "radgesture",
+  "productName": "RadGesture",
+  "desktopName": "menu.radgesture.RadGesture",
   "version": "2.3.0",
   "description": "The Cross-Platform Pie Menu.",
   "copyright": "Copyright © 2026 Simon Schneegans",

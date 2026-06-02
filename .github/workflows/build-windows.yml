@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   windows:
@@ -42,3 +42,17 @@ jobs:
             out/make/zip/win32/**/*.zip
           if-no-files-found: error
           retention-days: 30
+
+      - name: Publish to the rolling "windows-dev" release (direct download link)
+        uses: svenstaro/upload-release-action@2.9.0
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: windows-dev
+          release_name: RadGesture (Windows, latest build)
+          body: |
+            Automatically built Windows installer from the latest commit on main.
+            Download the "...Setup.exe" asset below and run it on your Windows PC.
+          prerelease: true
+          overwrite: true
+          file_glob: true
+          file: out/make/squirrel.windows/*/*.exe

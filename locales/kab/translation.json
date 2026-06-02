@@ -37,7 +37,7 @@
         "general-settings-dialog": {
             "localization-label": "Tutlayt",
             "hardware-acceleration": "Rmed asɣiwel n warrum",
-            "check-for-new-versions-info": "Ma yermed, Kando ad d-yesken tilɣa mi ara yili lqem amaynut.",
+            "check-for-new-versions-info": "Ma yermed, RadGesture ad d-yesken tilɣa mi ara yili lqem amaynut.",
             "check-for-new-versions": "Selken ileqman imaynuten",
             "invisible-settings-button-info": "Mazal tzemreḍ ad tesqedceḍ taqeffalt, ad d-tban mi ara tesmuttiḍ taɣerdayt sufella-as.",
             "invisible-settings-button": "Taqeffalt n yiɣewwaṛen uffiren",
@@ -69,7 +69,7 @@
             "gesture-pause-timeout": "Tanzagt n uraǧu n imussa",
             "reload-menu-theme": "Ales asali n usentel n wumuɣ",
             "reload-sound-theme": "Ales asali n usentel n imesli",
-            "dev-tools-note": "Kando iseqdac sin n yisfuyla: Yiwen i wumuɣ, yiwen i yiɣewwaṛen. Tzemreḍ ad teldiḍ ifecka n tneflit akken ad tsewḍeḍ yal yiwen seg sin n yisfuyla-agi.",
+            "dev-tools-note": "RadGesture iseqdac sin n yisfuyla: Yiwen i wumuɣ, yiwen i yiɣewwaṛen. Tzemreḍ ad teldiḍ ifecka n tneflit akken ad tsewḍeḍ yal yiwen seg sin n yisfuyla-agi.",
             "menu-window-dev-tools": "Umuɣ n usweḍ",
             "settings-window-dev-tools": "Iɣewwaṛen n usweḍ",
             "center": "Di tlemmast",
@@ -84,7 +84,7 @@
         "introduction-dialog": {
             "slide3-hint1": "Tzemreḍ daɣen ad tsiteḍ dagi akken ad tmedleḍ umuɣ.",
             "slide3-hint2": "Sit anida tebɣiḍ dagi akken ad tferneḍ aferdis.",
-            "slide3-text": "Deg Kando, ** agdil-ik·im akk d asiti anican**! Ur tesriḍ ara ad tḥakṛeḍ tignitin, tzemreḍ ad tsiteḍ anda tebɣiḍ deg uḥric n ukerdis. Aya yettarra iferdisen d imellilen ugar.",
+            "slide3-text": "Deg RadGesture, ** agdil-ik·im akk d asiti anican**! Ur tesriḍ ara ad tḥakṛeḍ tignitin, tzemreḍ ad tsiteḍ anda tebɣiḍ deg uḥric n ukerdis. Aya yettarra iferdisen d imellilen ugar.",
             "slide4-text": "Umuɣ anaddaw **dima yezga** yeldi ɣer usewwaṛ n tɣerdayt-ik·im. **Ur teḥwaǧeḍ ara ad teṛjuḍ merru akken ad tfaked* *. Eg laman deg tkatut-ik·im sakin kcem ɣer ufran-ik·im!",
             "slide5-hint": "Sit anida tebɣiḍ dagi akken ad taliḍ deg uswir.",
             "slide5-text": "Akken ad **tuɣaleḍ ɣer deffir**, tekki ɣef tneccabt tamarawt, neɣ di tlemmast n wumuɣ.",
@@ -96,20 +96,20 @@
             "slide9-text": "Ma **teǧǧiḍ annal ɣef tqeffalt** (am Ctrl_, _Shift_, neɣ _Alt_) seld mi teldiḍ umuɣ, tzemreḍ ad tgeḍ tafrayt s usmutti n usewweṛ. Ulac asiti neɣ azuɣer yettwasra.",
             "slide10-text": "**Ur ttraǧu ara imrayen ad fakken!** Awi-d kan inig s wudem azigzag deg wumuɣ. D wa i d abrid arurad akk ad tferneḍ iferdisen!",
             "slide12-title": "Yella diɣen ugar!",
-            "slide12-text": "Kando d win i d-yufraren s waggan s wudem afellay. Tzemreḍ ad tesqedceḍ ayagi akken ad teldiḍ isnasen, ifuyla, ad ttuselkmen imakṛuyen n unasiw, akked aṭas n tɣawsiwin-nniḍen. Tzemreḍ ad [tesnifleḍ aɣanib n umuɣ]({{link1}}), [rnu tignit n yisental]({{link2}}) akk daɣen [aseqdec n imesli]({{link3}}) deg wumuɣen-ik·im!",
+            "slide12-text": "RadGesture d win i d-yufraren s waggan s wudem afellay. Tzemreḍ ad tesqedceḍ ayagi akken ad teldiḍ isnasen, ifuyla, ad ttuselkmen imakṛuyen n unasiw, akked aṭas n tɣawsiwin-nniḍen. Tzemreḍ ad [tesnifleḍ aɣanib n umuɣ]({{link1}}), [rnu tignit n yisental]({{link2}}) akk daɣen [aseqdec n imesli]({{link3}}) deg wumuɣen-ik·im!",
             "slide13-text": "Ma yella tesriḍ tallalt deg kra n tneqqiḍt, tzemreḍ ad tedduḍ ɣur-neɣ deg [Discord Server]({{link1}}) neɣ selken [tasemlit]({{link2}})!",
             "chapter1": "Akken ad tebduḍ",
             "chapter2": "Askar n ucraḍ",
             "chapter3": "Askar Turbu",
             "chapter4": "Isurifen uḍfiren",
             "chapter5": "Awi-d tallelt",
-            "title": "Ansuf ɣer Kando!",
+            "title": "Ansuf ɣer RadGesture!",
             "show-again": "Sken adiwenni-agi tikkelt-nniḍen",
-            "slide1-title": "Kando yettak-d abrid asuf s tmellit i teywalt akked uselkim-ik·im.",
+            "slide1-title": "RadGesture yettak-d abrid asuf s tmellit i teywalt akked uselkim-ik·im.",
             "slide1-text": "Sedrurem gar tigriwin-agi iwakken ad tlemdeḍ acu kando yezmer ad k·em-yexdem! Tzemreḍ ad tesqedceḍ ticraḍ n yixef deg uzelmaḍ iwakken ad tneggezeḍ s tɣawla ɣer wuḥric tebɣiḍ deg tazwart.",
             "slide2-title": "Ldi umuɣ!",
-            "slide2-text-standard": "Ma tesnekreḍ Kando i tikkelt tamezwarut, tzemreḍ ad teldiḍ umuɣ umedya s Ctrl+Space. Mdel-it tikkelt niḍen s tqeffalt Escape neɣ s tqeffalt tayeffust n tɣerdayt deg wanda i tebɣiḍ deg ugdil.",
-            "slide2-text-no-shortcuts": "Ma tesnekreḍ Kando i tikkelt tamezwarut, tzemreḍ [ad tgeḍ kra n yisurifen imernanen i Linux akken ad ddunt inegzumen unasiw amatu] ({{link}}). Ma ifat yetteddu waya, tzemreḍ ad tmedleḍ umuɣ s tsarut Escape neɣ s teqfalt tayefust n tɣerdayt.",
+            "slide2-text-standard": "Ma tesnekreḍ RadGesture i tikkelt tamezwarut, tzemreḍ ad teldiḍ umuɣ umedya s Ctrl+Space. Mdel-it tikkelt niḍen s tqeffalt Escape neɣ s tqeffalt tayeffust n tɣerdayt deg wanda i tebɣiḍ deg ugdil.",
+            "slide2-text-no-shortcuts": "Ma tesnekreḍ RadGesture i tikkelt tamezwarut, tzemreḍ [ad tgeḍ kra n yisurifen imernanen i Linux akken ad ddunt inegzumen unasiw amatu] ({{link}}). Ma ifat yetteddu waya, tzemreḍ ad tmedleḍ umuɣ s tsarut Escape neɣ s teqfalt tayefust n tɣerdayt.",
             "slide11-text": "**Ur ttaggad ara seg tefrayt n usehwu** Tigawin ttuselkment akken kan ara tserḥeḍ i tqeffalt n tɣerdayt-ik·im deg uskar n ucraḍ neɣ s tsarut n unasiw deg uskar Turbu. Seqdec wagi iwakken ad tesnirmeḍ umuɣ!"
         },
         "menu-themes-dialog": {
@@ -154,12 +154,12 @@
         "undo": "Semmet",
         "redo": "Ales",
         "app-picker": {
-            "hint": "Tzemreḍ daɣen ad d-zuɣreḍ u ad tserseḍ asnas seg usenker n wumuɣ-ik·im ɣer umaẓrag n wumuɣ n Kando!",
+            "hint": "Tzemreḍ daɣen ad d-zuɣreḍ u ad tserseḍ asnas seg usenker n wumuɣ-ik·im ɣer umaẓrag n wumuɣ n RadGesture!",
             "search-placeholder": "Nadi asnas…",
             "use-selected": "Seqdec afran"
         },
         "menu-behavior": "Tiddin n umuɣ",
-        "menu-behavior-info": "Send ad tremdeḍ tinefrunin-a, ad k-nwelleh ad nelmed amek i nḥemmel tiddin tamezwert n Kando [here]({{link}})!",
+        "menu-behavior-info": "Send ad tremdeḍ tinefrunin-a, ad k-nwelleh ad nelmed amek i nḥemmel tiddin tamezwert n RadGesture [here]({{link}})!",
         "centered-mode-info": "Ldi umuɣ deg tlemmast n ugdil wala ɣer uswir n teḥnaccaḍt.",
         "centered-mode": "Askar Ulmis",
         "anchored-mode-info": "Ldi umuɣ anaddaw deg yiwen n yideg am wumuɣ amarraw. Aṛṛcem n waya, ad isexsi Askar n ucraḍ d uskar Turbu.",
@@ -260,8 +260,8 @@
         },
         "settings": {
             "name": "Ldi iɣewwaṛen",
-            "description": "Ldi asfaylu n yiɣewwaṛen n Kando.",
-            "tip-1": "Anaw-agi n uferdis ad yeldi asfaylu n iɣewwaṛen n Kando."
+            "description": "Ldi asfaylu n yiɣewwaṛen n RadGesture.",
+            "tip-1": "Anaw-agi n uferdis ad yeldi asfaylu n iɣewwaṛen n RadGesture."
         },
         "submenu": {
             "name": "Umuɣ anaddaw",
@@ -278,7 +278,7 @@
     "achievements": {
         "added-items": {
             "description": "Snulfu-d {{n}} n yiferdisen deg umaẓrag n wumuɣ.",
-            "name": "Tarrayt n Kando {{tier}}"
+            "name": "Tarrayt n RadGesture {{tier}}"
         },
         "deleted-all-menus": {
             "name": "Sfeḍ Aduju",
@@ -293,8 +293,8 @@
             "description": "Rnu aferdis n wumuɣ ɣer wumuɣ anaddaw yesɛan kuẓ n yiswiren."
         },
         "sponsors-viewed": {
-            "name": "Aɛessas n Kando",
-            "description": "Xemmem ad teqqleḍ d aṣpunṣur n Kando."
+            "name": "Aɛessas n RadGesture",
+            "description": "Xemmem ad teqqleḍ d aṣpunṣur n RadGesture."
         },
         "menu-themes-selected": {
             "description": "Senfel asentel n wumuɣ {{n}} n tikkal.",
@@ -302,7 +302,7 @@
         },
         "tutorial-viewed": {
             "name": "Yebda-d usikel",
-            "description": "Fak adlisfus n unekcum n Kando."
+            "description": "Fak adlisfus n unekcum n RadGesture."
         },
         "many-selections-streak": {
             "name": "Ifassen n lebraq {{tier}}",
@@ -370,7 +370,7 @@
         }
     },
     "main": {
-        "new-version-notification-header": "Yella lqem amaynut n Kando!",
+        "new-version-notification-header": "Yella lqem amaynut n RadGesture!",
         "new-version-notification-body": "Awi-t-id seg {{link}}.",
         "show-settings": "Sken iɣewwaṛen",
         "un-inhibit-shortcuts": "Ales armad n yinegzumen",
@@ -396,10 +396,10 @@
         "web-links": {
             "submenu": "Iseɣwan n Web",
             "google": "Google",
-            "kando-on-github": "Kando deg GitHub",
-            "kando-on-kofi": "Kando deg Ko-fi",
-            "kando-on-youtube": "Kando deg YouTube",
-            "kando-on-discord": "Kando deg Discord"
+            "kando-on-github": "RadGesture deg GitHub",
+            "kando-on-kofi": "RadGesture deg Ko-fi",
+            "kando-on-youtube": "RadGesture deg YouTube",
+            "kando-on-discord": "RadGesture deg Discord"
         },
         "next-workspace": "Tallunt n umahil Tuḍfirt",
         "clipboard": {

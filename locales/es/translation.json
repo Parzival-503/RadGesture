@@ -1,7 +1,7 @@
 {
     "backends": {
         "gnome": {
-            "error": "No se pudo conectar a la extensión de GNOME Shell de Kando Integration. Puede obtenerla desde aquí: {{link}}"
+            "error": "No se pudo conectar a la extensión de GNOME Shell de RadGesture Integration. Puede obtenerla desde aquí: {{link}}"
         },
         "hyprland": {
             "shortcut-info": ""
@@ -51,10 +51,10 @@
         "previous-workspace": "Espacio de trabajo anterior",
         "web-links": {
             "google": "Google",
-            "kando-on-discord": "Kando en Discord",
-            "kando-on-github": "Kando en GitHub",
-            "kando-on-kofi": "Kando en Ko-fi",
-            "kando-on-youtube": "Kando en YouTube",
+            "kando-on-discord": "RadGesture en Discord",
+            "kando-on-github": "RadGesture en GitHub",
+            "kando-on-kofi": "RadGesture en Ko-fi",
+            "kando-on-youtube": "RadGesture en YouTube",
             "submenu": "Sitios Web"
         },
         "windows": {
@@ -67,8 +67,8 @@
         }
     },
     "main": {
-        "failed-to-start-header": "Kando no se ha iniciado",
-        "new-version-notification-header": "Una nueva versión de Kando está disponible!",
+        "failed-to-start-header": "RadGesture no se ha iniciado",
+        "new-version-notification-header": "Una nueva versión de RadGesture está disponible!",
         "invalid-link-header": "Enlace no válido",
         "quit": "Salir",
         "show-settings": "Mostrar configuración",
@@ -102,7 +102,7 @@
             "name": "Simular Macro",
             "placeholder": "¡Pulsa el botón de grabación para comenzar a grabar!",
             "recording-placeholder": "Presiona las teclas…",
-            "tip-1": "De manera predeterminada, Kando añade una demora de 10 ms antes de cada suceso de tecla. Puede cambiarlo con la propiedad «delay»."
+            "tip-1": "De manera predeterminada, RadGesture añade una demora de 10 ms antes de cada suceso de tecla. Puede cambiarlo con la propiedad «delay»."
         },
         "submenu": {
             "description": "Contiene otras opciones de menú.",
@@ -145,9 +145,9 @@
             "description": "Abre otro menú."
         },
         "settings": {
-            "description": "Abre la ventana de configuración de Kando.",
+            "description": "Abre la ventana de configuración de RadGesture.",
             "name": "Abrir configuración",
-            "tip-1": "Este tipo de elemento abre la ventana de configuración de Kando."
+            "tip-1": "Este tipo de elemento abre la ventana de configuración de RadGesture."
         }
     },
     "settings": {
@@ -200,10 +200,10 @@
             "developer-options": "Opciones de desarrollo",
             "minimum-gesture-angle": "Ángulo mínimo de gesto",
             "reload-note": "Cuando vuelva a cargar el tema del menú, los cambios al CSS se aplicarán aun si se está mostrando un menú. Para que se reflejen los cambios en el archivo theme.json, deberá reabrir el menú.",
-            "check-for-new-versions-info": "Si se activa, Kando mostrará una notificación cuando esté disponible una versión nueva.",
+            "check-for-new-versions-info": "Si se activa, RadGesture mostrará una notificación cuando esté disponible una versión nueva.",
             "menu-window-dev-tools": "Inspeccionar menú",
             "hidden": "Oculto",
-            "dev-tools-note": "Kando utiliza dos ventanas: una para el menú y otra para la configuración. Puede abrir las herramientas de desarrollo para inspeccionar ambas ventanas de forma separada.",
+            "dev-tools-note": "RadGesture utiliza dos ventanas: una para el menú y otra para la configuración. Puede abrir las herramientas de desarrollo para inspeccionar ambas ventanas de forma separada.",
             "settings-window-dev-tools": "Inspeccionar configuración"
         },
         "icon-picker-dialog": {
@@ -215,7 +215,7 @@
             "base64-hint": "Los iconos codificados en Base64 proporcionan una manera fácil de incluir cualquier tipo de icono dentro de sus menús. Puede usar un servicio como [www.base64.image.de] ({{link}}) para convertir cualquier imagen en código base64. ¡Esto también funciona con los gifs animados!"
         },
         "introduction-dialog": {
-            "title": "Le damos la bienvenida a Kando!",
+            "title": "Le damos la bienvenida a RadGesture!",
             "slide12-title": "¡Hay más!",
             "chapter1": "Primeros pasos",
             "chapter3": "Modo turbo",
@@ -223,7 +223,7 @@
             "chapter5": "Obtener ayuda",
             "show-again": "Mostrar este diálogo nuevamente",
             "slide3-hint1": "También puede pulsar aquí para cerrar el menú.",
-            "slide1-title": "Kando brinda una manera única y eficiente de interactuar con su equipo."
+            "slide1-title": "RadGesture brinda una manera única y eficiente de interactuar con su equipo."
         },
         "menu-behavior": "Comportamiento del menú",
         "menu-conditions": "Condiciones de menú",
@@ -253,11 +253,11 @@
         "app-condition-placeholder": "Nombre de la aplicación",
         "add-tags-placeholder": "Añadir etiquetas…",
         "about-dialog": {
-            "title": "Acerca de Kando",
-            "kando-version": "Versión de Kando",
+            "title": "Acerca de RadGesture",
+            "kando-version": "Versión de RadGesture",
             "electron-version": "Versión de Electron",
             "chrome-version": "Versión de Chrome",
-            "kando-backend": "Motor de Kando",
+            "kando-backend": "Motor de RadGesture",
             "read-release-notes": "Leer las novedades"
         },
         "window-picker-dialog": {

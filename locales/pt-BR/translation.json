@@ -1,13 +1,13 @@
 {
     "backends": {
         "gnome": {
-            "error": "Não foi possível se conectar a extensão do GNOME Shell \"Kando Integration\". Você pode obtê-la a partir daqui: {{link}}"
+            "error": "Não foi possível se conectar a extensão do GNOME Shell \"RadGesture Integration\". Você pode obtê-la a partir daqui: {{link}}"
         },
         "hyprland": {
-            "shortcut-info": "Kando não pode atribuir atalhos globais diretamente no Hyprland. Ao invés disso, especifique um ID de atalho aqui e atribua um atalho em seu hyprland.conf com algo como \"bind = CTRL, Space, global, kando:example-menu\". Substitua example-menu pelo ID escolhido aqui."
+            "shortcut-info": "RadGesture não pode atribuir atalhos globais diretamente no Hyprland. Ao invés disso, especifique um ID de atalho aqui e atribua um atalho em seu hyprland.conf com algo como \"bind = CTRL, Space, global, kando:example-menu\". Substitua example-menu pelo ID escolhido aqui."
         },
         "kde-wayland": {
-            "shortcut-info": "Kando não pode atribuir atalhos globais diretamente no KDE/Wayland. Ao invés disso, especifique um ID de atalho aqui e procure por ele na seção de atalhos globais do KWin nas configurações de sistema do seu KDE. Lá você pode atribuir um atalho que irá abrir esse menu."
+            "shortcut-info": "RadGesture não pode atribuir atalhos globais diretamente no KDE/Wayland. Ao invés disso, especifique um ID de atalho aqui e procure por ele na seção de atalhos globais do KWin nas configurações de sistema do seu KDE. Lá você pode atribuir um atalho que irá abrir esse menu."
         },
         "niri": {
             "shortcut-info": "O Niri ainda não suporta atalhos globais. Mas você pode abrir este menu usando 'kando --menu \"Nome do Menu\"' na linha de comando ou na configuração do Niri."
@@ -54,10 +54,10 @@
         "previous-workspace": "Espaço de Trabalho Anterior",
         "web-links": {
             "google": "Google",
-            "kando-on-discord": "Kando em Discord",
-            "kando-on-github": "Kando em GitHub",
-            "kando-on-kofi": "Kando em Ko-fi",
-            "kando-on-youtube": "Kando no YouTube",
+            "kando-on-discord": "RadGesture em Discord",
+            "kando-on-github": "RadGesture em GitHub",
+            "kando-on-kofi": "RadGesture em Ko-fi",
+            "kando-on-youtube": "RadGesture no YouTube",
             "submenu": "Links da Web"
         },
         "windows": {
@@ -70,9 +70,9 @@
         }
     },
     "main": {
-        "failed-to-start-header": "Kando não conseguiu se iniciar",
+        "failed-to-start-header": "RadGesture não conseguiu se iniciar",
         "inhibit-shortcuts": "Desabilitar os atalhos temporariamente",
-        "new-version-notification-header": "Uma nova versão do Kando está disponível!",
+        "new-version-notification-header": "Uma nova versão do RadGesture está disponível!",
         "quit": "Sair",
         "show-settings": "Mostrar configurações",
         "un-inhibit-shortcuts": "Reativar atalhos",
@@ -95,9 +95,9 @@
             "placeholder": "Insira algum comando…",
             "tip-6": "Clique [aqui]({{link}}) para descobrir como encontrar os comandos para iniciar seus aplicativos.",
             "isolated": "Executar isoladamente",
-            "isolated-info": "Isto irá executar o comando em um ambiente limpo, não herdando nenhuma variável de ambiente do Kando. Isso pode ajudar com comandos que não iniciam corretamente.",
+            "isolated-info": "Isto irá executar o comando em um ambiente limpo, não herdando nenhuma variável de ambiente do RadGesture. Isso pode ajudar com comandos que não iniciam corretamente.",
             "detached": "Executar separadamente",
-            "detached-info": "Isto irá desconectar o comando do Kando, fazendo com que continue executando mesmo se o Kando estiver fechado. Desabilitar isso pode ajudar a resolver problemas com comandos que não iniciam corretamente.",
+            "detached-info": "Isto irá desconectar o comando do RadGesture, fazendo com que continue executando mesmo se o RadGesture estiver fechado. Desabilitar isso pode ajudar a resolver problemas com comandos que não iniciam corretamente.",
             "choose-app": "Escolha um aplicativo…"
         },
         "file": {
@@ -122,7 +122,7 @@
             "name": "Simular Macro",
             "placeholder": "Aperte o botão de gravação para começar a gravar!",
             "recording-placeholder": "Pressione as teclas…",
-            "tip-1": "Por padrão, Kando adiciona 10ms de delay antes de cada evento de tecla. Você pode mudar isso com a propriedade \"delay\".",
+            "tip-1": "Por padrão, RadGesture adiciona 10ms de delay antes de cada evento de tecla. Você pode mudar isso com a propriedade \"delay\".",
             "tip-2": "Você pode editar esse macro manualmente. Isso é útil se você quer ajustar o tempo das teclas."
         },
         "redirect": {
@@ -131,8 +131,8 @@
         },
         "settings": {
             "name": "Abrir Ajustes",
-            "tip-1": "Está ação abrirá a janela de configurações Kando.",
-            "description": "Abre a janela de configurações do Kando."
+            "tip-1": "Está ação abrirá a janela de configurações RadGesture.",
+            "description": "Abre a janela de configurações do RadGesture."
         },
         "submenu": {
             "description": "Contém outros itens de menu.",
@@ -175,10 +175,10 @@
         "about-dialog": {
             "chrome-version": "Versão Chrome",
             "electron-version": "Versão Electron",
-            "kando-backend": "Backend do Kando",
-            "kando-version": "Versão do Kando",
-            "message": "Eu estou criando o Kando por pura paixão. Se você gostar de usá-lo tanto quanto eu adoro criá-lo, você pode [me pagar um café]({{link}})!\n\n💖 Simon",
-            "title": "Sobre o Kando",
+            "kando-backend": "Backend do RadGesture",
+            "kando-version": "Versão do RadGesture",
+            "message": "Eu estou criando o RadGesture por pura paixão. Se você gostar de usá-lo tanto quanto eu adoro criá-lo, você pode [me pagar um café]({{link}})!\n\n💖 Simon",
+            "title": "Sobre o RadGesture",
             "check-latest-release": "Ver a versão mais recente",
             "read-release-notes": "Ler notas da versão"
         },
@@ -197,7 +197,7 @@
             "reload-menu-theme-tooltip": "As alterações CSS serão aplicadas imediatamente. Para alterações feitas no arquivo theme.json, você precisa reabrir o menu.",
             "reload-sound-theme": "Recarregar tema de som atual",
             "reload-note": "Quando você recarregar o tema do menu, mudanças no CSS serão aplicadas mesmo se um menu está sendo exibido. Para mudanças feitas no arquivo theme.json, você precisa reabrir o menu.",
-            "dev-tools-note": "Kando utiliza duas janelas: Uma para o menu e outra para as configurações. Você pode abrir as ferramentas de desenvolvedor para inspecionar ambas as janelas separadamente.",
+            "dev-tools-note": "RadGesture utiliza duas janelas: Uma para o menu e outra para as configurações. Você pode abrir as ferramentas de desenvolvedor para inspecionar ambas as janelas separadamente.",
             "settings-button-position": "Posição do botão de configurações",
             "invisible-settings-button-info": "Você ainda pode usar o botão, ele irá aparecer quando você mover o mouse sobre ele.",
             "settings-button-position-info": "Escolhe o canto da tela onde o botão de configurações será exibido.",
@@ -208,12 +208,12 @@
             "black": "Preto",
             "color": "Cor",
             "white": "Branco",
-            "lazy-initialization-info": "Se ativado, a janela de menu irá ser criada quando o menu for aberto pela primeira vez. Isso fará com que a primeira abertura do menu seja um pouco lenta, mas pode evitar problemas quando o Kando é iniciado muito rápido durante o login. Padrão é desabilitado.",
+            "lazy-initialization-info": "Se ativado, a janela de menu irá ser criada quando o menu for aberto pela primeira vez. Isso fará com que a primeira abertura do menu seja um pouco lenta, mas pode evitar problemas quando o RadGesture é iniciado muito rápido durante o login. Padrão é desabilitado.",
             "enable-turbo-mode": "Ativar Modo Turbo",
             "move-pointer-to-menu-center": "Move o ponteiro para o centro do menu",
             "enable-gamepad-support": "Ativar suporte à controles",
             "enable-gamepad-support-info": "Se marcado, você poderá utilizar um controle conectado para controlar o menu.",
-            "learn-how-to-add-sound-themes": "Veja como adicionar novos temas de sons ao Kando [aqui]({{link}})!",
+            "learn-how-to-add-sound-themes": "Veja como adicionar novos temas de sons ao RadGesture [aqui]({{link}})!",
             "sound-theme": "Tema de som",
             "volume-info": "O volume geral do tema de som. Padrão é 0,5.",
             "advanced-menu-options": "Opções de menu avançadas",
@@ -228,7 +228,7 @@
             "gesture-pause-timeout-info": "Pare o gesto por esse tempo para ativar a seleção. Padrão é 100ms.",
             "menu-window-dev-tools": "Inspecionar menu",
             "settings-window-dev-tools": "Inspecionar configurações",
-            "message": "Todas as configurações do Kando são armazenadas em um arquivo JSON que você pode editar, compartilhar, ou fazer backup. Clique [aqui]({{link}}) para abrir o local do arquivo config.json.",
+            "message": "Todas as configurações do RadGesture são armazenadas em um arquivo JSON que você pode editar, compartilhar, ou fazer backup. Clique [aqui]({{link}}) para abrir o local do arquivo config.json.",
             "sakura-system": "Sakura sistema",
             "sakura-dark": "Sakura escuro",
             "enable-marking-mode-info": "Com o Modo de Marcação ativado, você pode selecionar os itens arrastando o mouse sobre eles.",
@@ -238,7 +238,7 @@
             "none": "Nenhum",
             "check-for-new-versions": "Verificar novas versões",
             "app-behavior": "Comportamento do aplicativo",
-            "check-for-new-versions-info": "Se ativado, o Kando mostrará uma notificação quando uma nova versão estiver disponível.",
+            "check-for-new-versions-info": "Se ativado, o RadGesture mostrará uma notificação quando uma nova versão estiver disponível.",
             "invisible-settings-button": "Botão de configurações invisível",
             "top-left": "Superior esquerdo",
             "top-right": "Superior direito",
@@ -276,9 +276,9 @@
             "auto-language": "Usar linguagem do sistema",
             "app-settings": "Configurações do aplicativo",
             "localization-label": "Linguagem",
-            "localization-info": "Reinicie o Kando para aplicar o novo idioma.",
+            "localization-info": "Reinicie o RadGesture para aplicar o novo idioma.",
             "hardware-acceleration": "Habilitar aceleração de hardware",
-            "hardware-acceleration-info": "Esta opção pode melhorar o desempenho do aplicativo, mas também pode causar alguns artefatos de renderização. Você precisa reiniciar o Kando para aplicar esta configuração.",
+            "hardware-acceleration-info": "Esta opção pode melhorar o desempenho do aplicativo, mas também pode causar alguns artefatos de renderização. Você precisa reiniciar o RadGesture para aplicar esta configuração.",
             "keep-input-focus": "Mantenha o aplicativo ativo focado",
             "keep-input-focus-info": "Se ativado, o menu não receberá o foco da entrada do teclado ao ser aberto. Isso desativa o Modo Turbo, mas pode ser útil se você precisar que outros aplicativos permaneçam em foco enquanto o menu estiver aberto.",
             "press-again-behavior": "Comportamento de pressionar atalho novamente",
@@ -299,7 +299,7 @@
             "reload-button-tooltip": "Recarregar todos os temas de ícones"
         },
         "introduction-dialog": {
-            "title": "Bem-vindo ao Kando!",
+            "title": "Bem-vindo ao RadGesture!",
             "slide5-text": "Para **navegar de volta**, você pode clicar na borda do item pai ou no centro do menu.",
             "slide6-text": "Desse jeito, você pode explorar a estrutura do menu rapidamente.",
             "slide7-text": "Clique e arraste sobre um item para entrar no Modo de Marcação. **Se você parar o movimento do ponteiro ou fizer uma curva, o submenu atual irá abrir!** Lembre o caminho para um item e desenhe ele com um movimentos expressivos de zig-zag.",
@@ -310,20 +310,20 @@
             "chapter3": "Modo Turbo",
             "chapter4": "Próximos passos",
             "chapter5": "Obtendo ajuda",
-            "slide12-text": "Kando é altamente customizável. Você pode abrir aplicações, arquivos, executar macros de teclado, e muitas outras coisas. Você pode [mudar o estilo do menu]({{link1}}), [adicionar temas de ícones]({{link2}}) e até [utilizar sons]({{link3}}) nos seus menus!",
+            "slide12-text": "RadGesture é altamente customizável. Você pode abrir aplicações, arquivos, executar macros de teclado, e muitas outras coisas. Você pode [mudar o estilo do menu]({{link1}}), [adicionar temas de ícones]({{link2}}) e até [utilizar sons]({{link3}}) nos seus menus!",
             "slide13-text": "Se você precisar de ajuda em algum momento, fique à vontade para entrar no nosso [Servidor do Discord]({{link1}}) ou veja a [documentação]({{link2}})!",
             "show-again": "Mostrar esta janela novamente",
-            "slide1-text": "Passe por esses slides para ver o que o Kando pode oferecer a você! Você pode utilizar as marcações de capítulo na esquerda para pular para uma parte específica da introdução.",
-            "slide2-text-standard": "Se você iniciou o Kando pela primeira vez, você pode abrir o menu de exemplo utilizando Ctrl+Espaço. Feche com a tecla Esc ou com o botão direito do seu mouse em qualquer lugar da tela.",
-            "slide1-title": "Kando oferece uma forma única e eficiente de interagir com o seu computador.",
+            "slide1-text": "Passe por esses slides para ver o que o RadGesture pode oferecer a você! Você pode utilizar as marcações de capítulo na esquerda para pular para uma parte específica da introdução.",
+            "slide2-text-standard": "Se você iniciou o RadGesture pela primeira vez, você pode abrir o menu de exemplo utilizando Ctrl+Espaço. Feche com a tecla Esc ou com o botão direito do seu mouse em qualquer lugar da tela.",
+            "slide1-title": "RadGesture oferece uma forma única e eficiente de interagir com o seu computador.",
             "slide2-title": "Abra o menu!",
             "slide3-hint1": "Você também pode clicar aqui para fechar o menu.",
             "slide3-hint2": "Clique em qualquer lugar aqui para selecionar o item.",
-            "slide3-text": "No Kando, **toda sua tela é um alvo clicável**! Você não precisa apontar para os ícones, você pode clicar em qualquer lugar dentro da borda de um item. Isso torna a seleção de itens muito mais eficiente.",
+            "slide3-text": "No RadGesture, **toda sua tela é um alvo clicável**! Você não precisa apontar para os ícones, você pode clicar em qualquer lugar dentro da borda de um item. Isso torna a seleção de itens muito mais eficiente.",
             "slide4-text": "Um submenu irá **sempre** abrir no ponteiro do seu mouse. Você **não precisa esperar que a animação acabe**. Confie na sua memória muscular e continue com sua seleção!",
             "slide5-hint": "Clique em qualquer lugar aqui para ir um nível acima.",
             "slide11-text": "**Não tenha medo de seleções acidentais!** Ações apenas são executadas assim que você soltar o botão do mouse no Modo de Marcação ou com uma tecla do teclado no Modo Turbo. Use isto para explorar o menu!",
-            "slide2-text-no-shortcuts": "Se você iniciou o Kando pela primeira vez, você [talvez precise realizar alguns passos extras no Linux para garantir o funcionamento das teclas globalmente]({{link}}). Uma vez que esteja funcionando, você pode fechar o menu com a tecla Esc ou com o botão direito do seu mouse.",
+            "slide2-text-no-shortcuts": "Se você iniciou o RadGesture pela primeira vez, você [talvez precise realizar alguns passos extras no Linux para garantir o funcionamento das teclas globalmente]({{link}}). Uma vez que esteja funcionando, você pode fechar o menu com a tecla Esc ou com o botão direito do seu mouse.",
             "slide9-text": "Se você **manter uma tecla pressionada** (como _Ctrl_,_Shift_, ou _Alt_) após abrir o menu, você poderá realizar seleções apenas movendo o ponteiro. Nenhum clique ou arrastar é necessário.",
             "slide7-title": "Se torne rápido: Modo de Marcação",
             "slide9-title": "Seja incrivelmente rápido: Modo Turbo",
@@ -404,7 +404,7 @@
         "undo": "Desfazer",
         "hover-mode": "Modo Hover",
         "area-condition-info": "Exibe o menu apenas se o ponteiro está em uma certa área da tela. A área é dada em pixels relativo ao canto superior esquerdo do seu monitor principal. Se você deixar esse campo vazio, a área não é atribuída nessa direção.",
-        "menu-behavior-info": "Antes de habilitar essas opções, nós recomendamos entender porque nós gostamos do comportamento padrão do Kando [aqui]({{link}})!",
+        "menu-behavior-info": "Antes de habilitar essas opções, nós recomendamos entender porque nós gostamos do comportamento padrão do RadGesture [aqui]({{link}})!",
         "app-condition-placeholder": "Nome do aplicativo",
         "app-condition-tooltip": "Selecionar um aplicativo",
         "window-condition-placeholder": "Título da janela",
@@ -419,7 +419,7 @@
         "duplicate-menu": "Duplicar menu",
         "add-menu-item-hint": "Arraste este item para adicioná-lo ao menu acima!",
         "app-picker": {
-            "hint": "Você também pode arrastar e soltar um aplicativo do seu menu Iniciar para o editor de menu do Kando!",
+            "hint": "Você também pode arrastar e soltar um aplicativo do seu menu Iniciar para o editor de menu do RadGesture!",
             "search-placeholder": "Pesquisar um aplicativo…",
             "use-selected": "Usar selecionado"
         },

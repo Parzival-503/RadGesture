@@ -20,10 +20,10 @@
             "fixed-stroke-length-info": "Vanligvis, blir menyalternativer valgt når du stopper bevegelsen eller snur. Hvis du setter dette til en verdi over 0, vil dette endres: Nå vil menyalternativer bare velges hvis du dro det så langt vekk fra midten. Standarden er 0 piksler.",
             "none": "Ingen",
             "title": "Generelle innstillinger",
-            "message": "Alle innstillingene i Kando er lagret i en JSON-fil som du kan redigere, dele eller sikkerhetskopiere. Klikk [her] ({{link}}) for å åpne mappen hvor config.json filen er lagret.",
+            "message": "Alle innstillingene i RadGesture er lagret i en JSON-fil som du kan redigere, dele eller sikkerhetskopiere. Klikk [her] ({{link}}) for å åpne mappen hvor config.json filen er lagret.",
             "check-for-new-versions": "Se etter nye versjoner",
             "app-behavior": "Appens Oppførsel",
-            "check-for-new-versions-info": "Hvis dette er slått på, vil Kando vil vise en varsling når en ny versjon er tilgjengelig.",
+            "check-for-new-versions-info": "Hvis dette er slått på, vil RadGesture vil vise en varsling når en ny versjon er tilgjengelig.",
             "invisible-settings-button": "Usynlig innstillinger-knapp",
             "invisible-settings-button-info": "Du kan fortsatt bruke knappen, den dukker opp når du holder musepekeren over den.",
             "settings-button-position": "Innstillinger-knapp posisjon",
@@ -63,12 +63,12 @@
             "gesture-pause-timeout": "Tidsavbrudd for Bevegelsespause",
             "gesture-pause-timeout-info": "Stop bevegelsen så lenge for å utløse et valg. Standarden er 100ms.",
             "fixed-stroke-length": "Satt Strøklengde",
-            "dev-tools-note": "Kando bruker to vinduer: Én for menyen og én for innstillingene. Du kan åpne utviklerverktøyene for å inspisere begge vinduene separat.",
+            "dev-tools-note": "RadGesture bruker to vinduer: Én for menyen og én for innstillingene. Du kan åpne utviklerverktøyene for å inspisere begge vinduene separat.",
             "menu-window-dev-tools": "Inspiser meny",
             "settings-window-dev-tools": "Inspiser innstillinger",
             "light": "Lyst",
             "dark": "Mørkt",
-            "lazy-initialization-info": "Hvis dette er slått på, vil menyvinduet bare lages mår menyen åpnes for første gang. Det gjør første åpning av menyen litt tregere, men det kan hjelpe med å unngå problemer når Kando startes for raskt under innlogging. Standard er av.",
+            "lazy-initialization-info": "Hvis dette er slått på, vil menyvinduet bare lages mår menyen åpnes for første gang. Det gjør første åpning av menyen litt tregere, men det kan hjelpe med å unngå problemer når RadGesture startes for raskt under innlogging. Standard er av.",
             "right-mouse-button-selects-parent": "Høyre museknapp velger overmenyen",
             "volume-info": "Hovedvolumet til lydtemaet. Standaren er 0.5.",
             "settings-button-position-info": "Velg skjermhjørnet hvor innstillinger-knappen skal vises.",
@@ -79,25 +79,25 @@
             "enable-turbo-mode-info": "Med Turbomodus påslått, kan du gjøre musebevegelser så lenge du holder inne en modifikatortast slik som Skift eller CTRL.",
             "move-pointer-to-menu-center-info": "Hvis påslått, vil musepekeren flytter sil midten av an meny eller undermeny når nødvendig. Dette kan være tilfellet hvis en meny åpnes for nærme kanten av skjermen, eller hvis en meny åpnes i Sentermodus.",
             "right-mouse-button-selects-parent-info": "Hvis ikke avkrysset, vil høyre museknapp lukke menyen umiddelbart i stedet.",
-            "learn-how-to-add-sound-themes": "Finn ut hvordan du kan legge til nye lydtemaer til Kando [her]({{link}})!"
+            "learn-how-to-add-sound-themes": "Finn ut hvordan du kan legge til nye lydtemaer til RadGesture [her]({{link}})!"
         },
         "introduction-dialog": {
             "chapter2": "Markeringsmodus",
             "slide13-text": "Hvis du trenger hjelp med noe, kan du bli med i [Discord Serveren]({{link1}}) vår eller sjekke ut [Dokumentasjonen]({{link2}})!",
-            "slide1-title": "Kando gir deg en unik og effektiv måte å bruke datamaskinen på.",
-            "slide1-text": "Bla gjennom disse lysbildene for å finne ut hva Kando kan gjøre for deg! Du kan bruke kapittelmerkene til venstre for å raskt gå til en spesifikk del av introduksjonen.",
+            "slide1-title": "RadGesture gir deg en unik og effektiv måte å bruke datamaskinen på.",
+            "slide1-text": "Bla gjennom disse lysbildene for å finne ut hva RadGesture kan gjøre for deg! Du kan bruke kapittelmerkene til venstre for å raskt gå til en spesifikk del av introduksjonen.",
             "show-again": "Vis denne dialogen igjen",
             "slide4-text": "en undermeny vil **alltid** åpnes på musepekeren. Du **trenger ikke å vente på at animasjonen skal fullføres**. Stol på muskelhukommelsen og fortsett med valget!",
             "slide8-text": "**Menyen reagerer på musebevegelsene dine!** En undermeny åpnes når du vil at den skal åpnes. Med litt øvelse, kan du velge menyalternativer uten å se på menyen i det hele tatt.",
             "slide9-text": "Hvis du **holder en knapp trykt ned** (slik som _CTRL_, _Skift_, eller _Alt_) etter at du åpner menyen, kan du velge menyalternativer bare med å flytte musepekeren. Ingen klikking eller draging nødvendig.",
             "chapter4": "Stegene Videre",
-            "title": "Velkommen til Kando!",
-            "slide2-text-standard": "Hvis du startet Kando for første gang, kan du bruke eksempelmenyen med CTRL+Mellomrom. Lukk den igjen med Escape-tasten eller med høyre museknapp hvor som helst på skjermen.",
-            "slide3-text": "I Kando, er **hele skjermen din et område du kan klikke på**! Du trenger ikke å sikte etter ikonene, du kan klikke hvor som helst i et menyalternativ's område. Dette gjør det mye mer effektivt å velge menyalternativer.",
+            "title": "Velkommen til RadGesture!",
+            "slide2-text-standard": "Hvis du startet RadGesture for første gang, kan du bruke eksempelmenyen med CTRL+Mellomrom. Lukk den igjen med Escape-tasten eller med høyre museknapp hvor som helst på skjermen.",
+            "slide3-text": "I RadGesture, er **hele skjermen din et område du kan klikke på**! Du trenger ikke å sikte etter ikonene, du kan klikke hvor som helst i et menyalternativ's område. Dette gjør det mye mer effektivt å velge menyalternativer.",
             "slide5-text": "For å **navigere tilbake**, trykk enten i overmenyen's område eller i midten av menyen.",
             "slide7-text": "Klikk og dra over et menyalternativ for å bruke Markeringsmodus. **Hvis du stopper musebevegelsen eller snur retning på bevegelsen, vil den valgte undeermenyen åpnes!** Husk stien til et menyalternativ og tegn veien dit med tydelige sikksakk bevegelser.",
             "slide2-title": "Åpne menyen!",
-            "slide2-text-no-shortcuts": "Hvis du startet Kando for første gang må du kanskje [gjøre noen ekstra steg på Linux for å få globale hurtigtaster til å virke]({{link}}). Når dette virker, kan du lukke en menu med Escape-tasten eller med høyre museknapp.",
+            "slide2-text-no-shortcuts": "Hvis du startet RadGesture for første gang må du kanskje [gjøre noen ekstra steg på Linux for å få globale hurtigtaster til å virke]({{link}}). Når dette virker, kan du lukke en menu med Escape-tasten eller med høyre museknapp.",
             "slide3-hint1": "Du kan også klikke her for å lukke menyen.",
             "slide3-hint2": "Klikk hvor som helst for å velge menyalternativet.",
             "slide5-hint": "Klikk hvor som helst her for å gå opp et nivå.",
@@ -106,7 +106,7 @@
             "slide9-title": "Vær lynrask: Turbomodus",
             "slide11-text": "**Ikke vær redd for feilvalg!** Valgene kjøres bare så snart du slipper museknappen i Markeringsmodus eller en tastaturtast i Turbomodus. Bruk dette for å utforske menyen!",
             "slide12-title": "Det er mer!",
-            "slide12-text": "Kando har mange tilpasningsmuligheter. Du kan bruke det til å åpne apper, filer, kjøre tastaturmakroer og mange andre ting. Du kan [endre menystilen]({{link1}}), [legge til ikontemaer]({{link2}}) og til og med [bruke lyder]({{link3}}) i menyene dine!",
+            "slide12-text": "RadGesture har mange tilpasningsmuligheter. Du kan bruke det til å åpne apper, filer, kjøre tastaturmakroer og mange andre ting. Du kan [endre menystilen]({{link1}}), [legge til ikontemaer]({{link2}}) og til og med [bruke lyder]({{link3}}) i menyene dine!",
             "chapter1": "Kom i gang",
             "chapter5": "Få Hjelp",
             "slide10-text": "**Ikke vent på at animasjonene skal fullføres!**. Bare tegn deg et sikksakk mønster gjennom menyen. Dette er den raskeste måten å velge menyaternativer!",
@@ -135,7 +135,7 @@
             "reset-color-picker": "Tilbakestill til standard"
         },
         "empty-collection-note": "Rediger tagger over eller legg til en helt ny meny til denne samlingen med knappen under.",
-        "menu-behavior-info": "Før du endrer disse innstillingene, anbefaler vi at du lærer hvorfor vi liker Kando's standardinnstillinger [her] ({{link}})!",
+        "menu-behavior-info": "Før du endrer disse innstillingene, anbefaler vi at du lærer hvorfor vi liker RadGesture's standardinnstillinger [her] ({{link}})!",
         "icon-picker-dialog": {
             "base64-hint": "Base64 enkodede ikoner gir deg en enkel måte å inkludere hvilken som helst type ikon i menyene dine. du kan bruke en tjeneste som [www.base64-image.de]({{link}}) for å konvertere et bilde til en base64-enkodet tekst. Dette virker også for animerte gif-er!",
             "base64-example": "Base64 eksempel:",
@@ -179,10 +179,10 @@
             "select-directory": "Veld en mappe"
         },
         "about-dialog": {
-            "title": "Om Kando",
-            "message": "Jeg lager Kando av ren lidenskap. Om du liker å bruke det like mye som jeg liker å lage det kan du [kjøpe meg en kaffe]({{link}})!\n\n💖 Simon",
-            "kando-version": "Kando Versjon",
-            "kando-backend": "Kando Backend",
+            "title": "Om RadGesture",
+            "message": "Jeg lager RadGesture av ren lidenskap. Om du liker å bruke det like mye som jeg liker å lage det kan du [kjøpe meg en kaffe]({{link}})!\n\n💖 Simon",
+            "kando-version": "RadGesture Versjon",
+            "kando-backend": "RadGesture Backend",
             "electron-version": "Electron Versjon",
             "chrome-version": "Chrome Versjon",
             "check-latest-release": "Sjekk nyeste utgivelse",
@@ -231,7 +231,7 @@
     },
     "menu-items": {
         "macro": {
-            "tip-1": "Per standard, legger Kando til 10 millisekunder ventetid før hvert tastetrykk. Du kan endre dette med \"delay\" egenskapen.",
+            "tip-1": "Per standard, legger RadGesture til 10 millisekunder ventetid før hvert tastetrykk. Du kan endre dette med \"delay\" egenskapen.",
             "placeholder": "Trykk på opptaksknappen for å starte opptak!",
             "tip-2": "Du kan også redigere makroen for hånd. Dette er nyttig hvis du vil justere timingen av tastene.",
             "name": "Kjør Makro",
@@ -240,8 +240,8 @@
         },
         "settings": {
             "name": "Åpne innstillinger",
-            "description": "Åpner Kando-innstillingene.",
-            "tip-1": "Dette menyalternativet åpner Kando-innstillingene."
+            "description": "Åpner RadGesture-innstillingene.",
+            "tip-1": "Dette menyalternativet åpner RadGesture-innstillingene."
         },
         "text": {
             "description": "Limer inn den valgte teksten.",
@@ -271,14 +271,14 @@
             "tip-6": "Bruk {{pointer_x}} og {{pointer_y}} for å sette inn musepekerposisjonen hvor menyen ble åpnet."
         },
         "command": {
-            "isolated-info": "Dette vil kjøre kommandoen i et rent miljø, det betyr at den ikke vil få noen miljøvariabler fra Kando. Dette kan hjelpe med kommandoer som ikke starter ordentlig.",
+            "isolated-info": "Dette vil kjøre kommandoen i et rent miljø, det betyr at den ikke vil få noen miljøvariabler fra RadGesture. Dette kan hjelpe med kommandoer som ikke starter ordentlig.",
             "tip-5": "Bruk {{pointer_x}} og {{pointer_y}} for å sette inn posisjonen på musepekeren hvor menyen ble åpnet.",
             "name": "Kjør Commando",
             "description": "Kjør apper eller skripter.",
             "placeholder": "Skriv en kommando…",
             "isolated": "Kjør isolert",
-            "detached": "Kjør utenom Kando",
-            "detached-info": "Dette vil koble kommandoen fra Kando. Dette lar den kjøre selv om Kando lukkes. Slå dette av hvis kommandoer ikke starter ordentlig.",
+            "detached": "Kjør utenom RadGesture",
+            "detached-info": "Dette vil koble kommandoen fra RadGesture. Dette lar den kjøre selv om RadGesture lukkes. Slå dette av hvis kommandoer ikke starter ordentlig.",
             "tip-1": "Du kan bruke Kommando menyalternativet for å starte apper eller skripter.",
             "tip-2": "Hvis banen til en kjørbar fil inneholder mellomrom, burde du \"sette den i anførselstegn\".",
             "tip-3": "Bruk {{app_name}} for å sette inn navnet på appen som var i fokus når du åpnet menyen.",
@@ -326,11 +326,11 @@
         },
         "web-links": {
             "google": "Google",
-            "kando-on-youtube": "Kando på YouTube",
-            "kando-on-kofi": "Kando på Ko-fi",
+            "kando-on-youtube": "RadGesture på YouTube",
+            "kando-on-kofi": "RadGesture på Ko-fi",
             "submenu": "Weblenker",
-            "kando-on-github": "Kando på GitHub",
-            "kando-on-discord": "Kando på Discord"
+            "kando-on-github": "RadGesture på GitHub",
+            "kando-on-discord": "RadGesture på Discord"
         },
         "windows": {
             "mission-control": "Mission Control",
@@ -368,7 +368,7 @@
         }
     },
     "main": {
-        "new-version-notification-header": "En ny versjon av Kando er tilgjengelig!",
+        "new-version-notification-header": "En ny versjon av RadGesture er tilgjengelig!",
         "new-version-notification-body": "Få den på {{link}}.",
         "show-settings": "Vis innstillinger",
         "un-inhibit-shortcuts": "Slå på hurtigtaster",
@@ -376,17 +376,17 @@
         "quit": "Lukk",
         "invalid-link-header": "Ugyldig lenke",
         "invalid-link-message": "Den dype lenken kunne ikke leses.",
-        "failed-to-start-header": "Kando kunne ikke starte"
+        "failed-to-start-header": "RadGesture kunne ikke starte"
     },
     "backends": {
         "gnome": {
-            "error": "Kunne ikke koble til Kando Integrasjon GNOME Shell utvidelse. Du kan få den her: {{link}}"
+            "error": "Kunne ikke koble til RadGesture Integrasjon GNOME Shell utvidelse. Du kan få den her: {{link}}"
         },
         "hyprland": {
-            "shortcut-info": "Kando kan ikke koble globale hurtigtaster i Hyprland. I stedet, spesifiser en shortcut ID her og koble sammen en snarvei i din hyprland.conf med noe slik som \"bind = CTRL, Space, global, kando:eksempelmeny\". Bytt ut eksempelmeny med ID-en valgt her."
+            "shortcut-info": "RadGesture kan ikke koble globale hurtigtaster i Hyprland. I stedet, spesifiser en shortcut ID her og koble sammen en snarvei i din hyprland.conf med noe slik som \"bind = CTRL, Space, global, kando:eksempelmeny\". Bytt ut eksempelmeny med ID-en valgt her."
         },
         "kde-wayland": {
-            "shortcut-info": "Kando kan ikke koble globale hurtigtaster i KDE/Wayland. I stedet, spesifiser en shortcut ID her og søk etter den i KWin delen av de globale snarveiene i KDE's systeminnstillinger. Der kan du sette hurtigtasten som åpner denne menyen."
+            "shortcut-info": "RadGesture kan ikke koble globale hurtigtaster i KDE/Wayland. I stedet, spesifiser en shortcut ID her og søk etter den i KWin delen av de globale snarveiene i KDE's systeminnstillinger. Der kan du sette hurtigtasten som åpner denne menyen."
         }
     }
 }

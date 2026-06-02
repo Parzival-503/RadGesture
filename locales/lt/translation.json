@@ -44,7 +44,7 @@
         }
     },
     "main": {
-        "failed-to-start-header": "Nepavyko paleisti Kando"
+        "failed-to-start-header": "Nepavyko paleisti RadGesture"
     },
     "menu-items": {
         "command": {
@@ -119,19 +119,19 @@
             "select-directory": "Pasirinkti katalogą"
         },
         "about-dialog": {
-            "title": "Apie Kando",
-            "message": "Aš kuriu Kando vedamas vien tik aistros. Jeigu jums patinka naudotis šia programa taip pat, kaip man patinka ją kurti, tada galite [pavaišinti mane kava]({{link}})!\n\n💖 Simon",
-            "kando-version": "Kando versija",
+            "title": "Apie RadGesture",
+            "message": "Aš kuriu RadGesture vedamas vien tik aistros. Jeigu jums patinka naudotis šia programa taip pat, kaip man patinka ją kurti, tada galite [pavaišinti mane kava]({{link}})!\n\n💖 Simon",
+            "kando-version": "RadGesture versija",
             "electron-version": "Electron versija",
             "chrome-version": "Chrome versija"
         },
         "general-settings-dialog": {
             "none": "Nėra",
             "auto-language": "Naudoti sistemos kalbą",
-            "localization-info": "Paleiskite Kando iš naujo norėdami pritaikyti naują kalbą.",
+            "localization-info": "Paleiskite RadGesture iš naujo norėdami pritaikyti naują kalbą.",
             "localization-label": "Kalba",
             "hardware-acceleration": "Įjungti aparatinės įrangos spartinimą",
-            "check-for-new-versions-info": "Jei įjungta, Kando rodys pranešimą, kai bus prieinama nauja versija.",
+            "check-for-new-versions-info": "Jei įjungta, RadGesture rodys pranešimą, kai bus prieinama nauja versija.",
             "check-for-new-versions": "Tikrinti, ar yra naujų versijų",
             "invisible-settings-button-info": "Jūs vis tiek galite naudoti mygtuką, jis atsiras, kai virš jo judinsite pelės rodyklę.",
             "top-left": "Viršuje kairėje",
@@ -150,12 +150,12 @@
             "restore-settings": "Atkurti config.json…"
         },
         "introduction-dialog": {
-            "slide1-title": "Kando pateikia išskirtinį ir efektyvų būdą sąveikauti su savo kompiuteriu.",
+            "slide1-title": "RadGesture pateikia išskirtinį ir efektyvų būdą sąveikauti su savo kompiuteriu.",
             "slide3-hint1": "Taip pat galite spustelėti čia norėdami užverti meniu.",
             "slide3-hint2": "Spustelėkite čia bet kurioje vietoje norėdami pasirinkti elementą.",
             "slide5-hint": "Spustelėkite čia bet kurioje vietoje norėdami eiti vienu lygiu aukštyn.",
             "slide13-text": "Jeigu jums prireiks kažkokios pagalbos, nesivaržykite prisijungti prie mūsų [Discord serverio]({{link1}}) arba pasiskaitykite [dokumentaciją]({{link2}})!",
-            "title": "Jus sveikina Kando!",
+            "title": "Jus sveikina RadGesture!",
             "show-again": "Rodyti šį dialogą dar kartą"
         },
         "menu-themes-dialog": {
