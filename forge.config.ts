@@ -15,6 +15,9 @@ import { rendererConfig } from './webpack.renderer.config';
 // This is used to create the Windows installer. See the link below for the available options.
 // https://js.electronforge.io/interfaces/_electron_forge_maker_squirrel.InternalOptions.SquirrelWindowsOptions.html
 const makerSquirrel = new MakerSquirrel({
+  name: 'RadGesture',
+  title: 'RadGesture',
+  setupExe: 'RadGesture-Setup.exe',
   loadingGif: 'assets/installer/loading.gif',
   setupIcon: 'assets/icons/icon.ico',
   iconUrl:
