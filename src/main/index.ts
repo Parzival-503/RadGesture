@@ -80,6 +80,7 @@ import { installExtension, REACT_DEVELOPER_TOOLS } from 'electron-devtools-insta
 import { Notification } from './utils/notification';
 import { getBackend } from './backends';
 import { KandoApp } from './app';
+import { showGallery } from './gallery-window';
 import { getGeneralSettings, getMenuSettings, getConfigDirectory } from './settings';
 
 // Initialize the notification system. This will queue notifications until the app is
@@ -180,6 +181,13 @@ try {
   ) => {
     if (deepLink && deepLink.startsWith('kando://')) {
       const parsedUrl = new URL(deepLink);
+
+      // RadGesture: a kando://gallery deep link opens the Reference Gallery window.
+      if (parsedUrl.host === 'gallery') {
+        showGallery();
+        return;
+      }
+
       const options = {
         menu: parsedUrl.host === 'menu' && parsedUrl.searchParams.get('name'),
         trigger: parsedUrl.host === 'menu' && parsedUrl.searchParams.get('trigger'),

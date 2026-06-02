@@ -20,6 +20,7 @@ import type { ParseKeys } from 'i18next';
 
 import { MenuWindow } from './menu-window';
 import { SettingsWindow } from './settings-window';
+import { showGallery } from './gallery-window';
 import { Backend } from './backends';
 import {
   MenuItem,
@@ -1336,6 +1337,12 @@ export class KandoApp {
     template.push({
       label: i18next.t('main.show-settings'),
       click: () => this.showSettings(),
+    });
+
+    // RadGesture: add an entry to open the Reference Gallery window.
+    template.push({
+      label: 'Reference Gallery',
+      click: () => showGallery(),
     });
 
     // Add an entry to pause or unpause the shortcuts.

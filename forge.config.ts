@@ -151,6 +151,14 @@ const config: ForgeConfig = {
               js: './src/settings-renderer/preload.ts',
             },
           },
+          {
+            html: './src/gallery-renderer/index.html',
+            js: './src/gallery-renderer/index.tsx',
+            name: 'gallery_window',
+            preload: {
+              js: './src/gallery-renderer/preload.ts',
+            },
+          },
         ],
       },
       devServer: {
