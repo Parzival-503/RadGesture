@@ -1,0 +1,44 @@
+# SPDX-FileCopyrightText: 2026 Sina Mazaheri
+# SPDX-License-Identifier: CC0-1.0
+
+name: Build Windows
+
+# One-click manual build. Run it from GitHub:
+#   Actions tab  ->  "Build Windows"  ->  "Run workflow".
+# When it finishes, download the "RadGesture-Windows-x64" artifact and run the
+# "...Setup.exe" inside it on your Windows PC.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    name: Build Windows (x64)
+    runs-on: windows-2022
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v4
+
+      - name: Set up Node (version from .node-version)
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+
+      - name: Install dependencies (also compiles the native module)
+        run: npm install
+
+      - name: Build the Windows app
+        run: npm run make
+
+      - name: Upload the installer + portable build
+        uses: actions/upload-artifact@v4
+        with:
+          name: RadGesture-Windows-x64
+          path: |
+            out/make/squirrel.windows/**/*.exe
+            out/make/squirrel.windows/**/*.nupkg
+            out/make/zip/win32/**/*.zip
+          if-no-files-found: error
+          retention-days: 30
