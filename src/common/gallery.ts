@@ -10,6 +10,9 @@
 
 /** A single reference card shown in the carousel. */
 export type GalleryCard = {
+  /** Stable unique id, used as a React key. Generated when the card is created. */
+  id?: string;
+
   /** Determines how the card is rendered. */
   type: 'table' | 'note' | 'link' | 'image';
 

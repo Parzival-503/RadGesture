@@ -3,27 +3,70 @@
 
 import './index.scss';
 import 'swiper/css';
-import 'swiper/css/effect-cards';
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { EffectCards, Keyboard } from 'swiper/modules';
+import { Keyboard, Mousewheel } from 'swiper/modules';
 
 import { GalleryWindowWithAPI } from './gallery-window-api';
-import { GalleryData, GalleryCard } from '../common/gallery';
+import { GalleryData, GalleryCard, GallerySection } from '../common/gallery';
 
 declare const window: GalleryWindowWithAPI;
 
-/** Renders a single reference card based on its type. */
+const EMOJI_CHOICES = [
+  '🫁',
+  '🧠',
+  '🦴',
+  '❤️',
+  '🩻',
+  '🩺',
+  '🟧',
+  '🔵',
+  '🧪',
+  '🧬',
+  '📄',
+  '🖼️',
+  '⭐',
+  '📁',
+];
+
+const COLOR_CHOICES = [
+  '#38bdf8',
+  '#f59e0b',
+  '#a78bfa',
+  '#34d399',
+  '#f472b6',
+  '#facc15',
+  '#60a5fa',
+  '#fb7185',
+];
+
+/** Ensures every card has a stable id (used as a React key). */
+function withIds(data: GalleryData): GalleryData {
+  return {
+    sections: data.sections.map((s) => ({
+      ...s,
+      cards: s.cards.map((c) => (c.id ? c : { ...c, id: crypto.randomUUID() })),
+    })),
+  };
+}
+
+/** A single reference card. In edit mode its fields become editable in place. */
 function CardView({
   card,
   isEditing,
+  onChange,
+  onCommit,
   onDelete,
+  onOpenImage,
 }: {
   readonly card: GalleryCard;
   readonly isEditing: boolean;
+  readonly onChange: (patch: Partial<GalleryCard>) => void;
+  readonly onCommit: () => void;
   readonly onDelete: () => void;
+  readonly onOpenImage: () => void;
 }) {
   let body: React.ReactNode = null;
 
@@ -41,9 +84,34 @@ function CardView({
       </table>
     );
   } else if (card.type === 'note') {
-    body = <div className="note">{card.text}</div>;
+    body = isEditing ? (
+      <textarea
+        className="edit-note"
+        placeholder="Write a note, value, or formula…"
+        value={card.text ?? ''}
+        onBlur={onCommit}
+        onChange={(e) => onChange({ text: e.target.value })}
+      />
+    ) : (
+      <div className="note">{card.text}</div>
+    );
   } else if (card.type === 'link') {
-    body = (
+    body = isEditing ? (
+      <div className="edit-fields">
+        <input
+          placeholder="https://…"
+          value={card.url ?? ''}
+          onBlur={onCommit}
+          onChange={(e) => onChange({ url: e.target.value })}
+        />
+        <input
+          placeholder="Source (e.g. Radiopaedia)"
+          value={card.source ?? ''}
+          onBlur={onCommit}
+          onChange={(e) => onChange({ source: e.target.value })}
+        />
+      </div>
+    ) : (
       <>
         {card.source ? <span className="src">◈ {card.source}</span> : null}
         <button
@@ -59,8 +127,8 @@ function CardView({
       <img
         className="shot-img"
         src={card.dataUrl}
-        title="Click to open full size"
-        onClick={() => card.resolvedPath && window.galleryAPI.openPath(card.resolvedPath)}
+        title="Click to enlarge"
+        onClick={onOpenImage}
       />
     ) : (
       <div className="shot">image not found</div>
@@ -70,7 +138,16 @@ function CardView({
   return (
     <div className="card">
       <div className="head">
-        <span className="ttl">{card.title}</span>
+        {isEditing ? (
+          <input
+            className="edit-title"
+            value={card.title}
+            onBlur={onCommit}
+            onChange={(e) => onChange({ title: e.target.value })}
+          />
+        ) : (
+          <span className="ttl">{card.title}</span>
+        )}
         {isEditing ? (
           <button className="del" title="Delete card" type="button" onClick={onDelete}>
             ✕
@@ -84,7 +161,7 @@ function CardView({
   );
 }
 
-/** The whole gallery: a sidebar of sections + a bouncy card carousel, with edit mode. */
+/** The whole gallery: editable sections + a side-by-side carousel + an image lightbox. */
 function App({ initial }: { readonly initial: GalleryData }) {
   const [data, setData] = React.useState<GalleryData>(initial);
   const [active, setActive] = React.useState(0);
@@ -97,16 +174,10 @@ function App({ initial }: { readonly initial: GalleryData }) {
   const [fSource, setFSource] = React.useState('');
   const [newSection, setNewSection] = React.useState('');
   const [dragOver, setDragOver] = React.useState(false);
-
-  React.useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        window.galleryAPI.close();
-      }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, []);
+  const [lightbox, setLightbox] = React.useState<{
+    dataUrl: string;
+    path?: string;
+  } | null>(null);
 
   const sections = data.sections || [];
   const safeActive = Math.min(active, Math.max(0, sections.length - 1));
@@ -116,10 +187,35 @@ function App({ initial }: { readonly initial: GalleryData }) {
   // eslint-disable-next-line @typescript-eslint/naming-convention
   const stageStyle = { '--accent': accent } as React.CSSProperties;
 
-  // Optimistically update local state, then persist and adopt the canonical result.
+  React.useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (lightbox) {
+          setLightbox(null);
+        } else {
+          window.galleryAPI.close();
+        }
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [lightbox]);
+
+  // Persist `next` to disk and adopt the canonical (image-resolved) result.
   const persist = (next: GalleryData) => {
     setData(next);
-    window.galleryAPI.save(next).then(setData).catch(console.error);
+    window.galleryAPI
+      .save(next)
+      .then((fresh) => setData(withIds(fresh)))
+      .catch(console.error);
+  };
+
+  // Save the current in-memory state (used on blur after typing in a field).
+  const commit = () => {
+    window.galleryAPI
+      .save(data)
+      .then((fresh) => setData(withIds(fresh)))
+      .catch(console.error);
   };
 
   const resetForm = () => {
@@ -130,11 +226,37 @@ function App({ initial }: { readonly initial: GalleryData }) {
     setFSource('');
   };
 
+  const updateSection = (patch: Partial<GallerySection>, save = true) => {
+    const next: GalleryData = {
+      sections: sections.map((s, i) => (i === safeActive ? { ...s, ...patch } : s)),
+    };
+    if (save) {
+      persist(next);
+    } else {
+      setData(next);
+    }
+  };
+
+  const updateCard = (cardIndex: number, patch: Partial<GalleryCard>) => {
+    setData({
+      sections: sections.map((s, i) =>
+        i === safeActive
+          ? {
+              ...s,
+              cards: s.cards.map((c, ci) => (ci === cardIndex ? { ...c, ...patch } : c)),
+            }
+          : s
+      ),
+    });
+  };
+
   const addSection = () => {
     const label = newSection.trim() || 'New Section';
-    const id = 'sec-' + Date.now();
     const next: GalleryData = {
-      sections: [...sections, { id, label, color: '#38bdf8', icon: '📁', cards: [] }],
+      sections: [
+        ...sections,
+        { id: crypto.randomUUID(), label, color: '#38bdf8', icon: '📁', cards: [] },
+      ],
     };
     setNewSection('');
     setActive(next.sections.length - 1);
@@ -155,7 +277,9 @@ function App({ initial }: { readonly initial: GalleryData }) {
     }
     const next: GalleryData = {
       sections: sections.map((s, i) =>
-        i === safeActive ? { ...s, cards: [...s.cards, card] } : s
+        i === safeActive
+          ? { ...s, cards: [...s.cards, { ...card, id: crypto.randomUUID() }] }
+          : s
       ),
     };
     resetForm();
@@ -182,12 +306,13 @@ function App({ initial }: { readonly initial: GalleryData }) {
 
   const addImages = () => {
     if (section) {
-      window.galleryAPI.pickAndAddImages(section.id).then(setData).catch(console.error);
+      window.galleryAPI
+        .pickAndAddImages(section.id)
+        .then((fresh) => setData(withIds(fresh)))
+        .catch(console.error);
     }
   };
 
-  // Read dropped image files in the renderer and stream their bytes (base64) to the main
-  // process — avoids fragile file-path extraction in a sandboxed window.
   const readImages = (
     fileList: FileList
   ): Promise<Array<{ name: string; base64: string }>> => {
@@ -218,7 +343,13 @@ function App({ initial }: { readonly initial: GalleryData }) {
     const images = await readImages(e.dataTransfer.files);
     if (images.length) {
       const fresh = await window.galleryAPI.addImageData(section.id, images);
-      setData(fresh);
+      setData(withIds(fresh));
+    }
+  };
+
+  const openImage = (card: GalleryCard) => {
+    if (card.dataUrl) {
+      setLightbox({ dataUrl: card.dataUrl, path: card.resolvedPath });
     }
   };
 
@@ -240,6 +371,31 @@ function App({ initial }: { readonly initial: GalleryData }) {
           Drop images to add to {section?.label || 'this section'}
         </div>
       ) : null}
+
+      {lightbox ? (
+        <div className="lightbox" onClick={() => setLightbox(null)}>
+          <img
+            className="lightbox-img"
+            src={lightbox.dataUrl}
+            onClick={(e) => e.stopPropagation()}
+          />
+          <div className="lightbox-bar" onClick={(e) => e.stopPropagation()}>
+            {lightbox.path ? (
+              <button
+                type="button"
+                onClick={() =>
+                  lightbox.path && window.galleryAPI.openPath(lightbox.path)
+                }>
+                Open externally ↗
+              </button>
+            ) : null}
+            <button type="button" onClick={() => setLightbox(null)}>
+              Close ✕
+            </button>
+          </div>
+        </div>
+      ) : null}
+
       <div className="titlebar">
         <span className="logo" />
         <span className="title">
@@ -259,6 +415,7 @@ function App({ initial }: { readonly initial: GalleryData }) {
           ✕
         </span>
       </div>
+
       <div className="body">
         <aside className="sidebar">
           <h4>Sections</h4>
@@ -312,32 +469,87 @@ function App({ initial }: { readonly initial: GalleryData }) {
             {editing ? 'Editing — changes save automatically' : 'Esc to close'}
           </div>
         </aside>
+
         <main className="stage" style={stageStyle}>
-          <div className="sectiontitle">
-            {section ? `${section.icon || ''} ${section.label}` : ''}
-          </div>
+          {editing && section ? (
+            <div className="section-editor">
+              <div className="emoji-row">
+                {EMOJI_CHOICES.map((em) => (
+                  <button
+                    key={em}
+                    className={em === section.icon ? 'on' : ''}
+                    type="button"
+                    onClick={() => updateSection({ icon: em })}>
+                    {em}
+                  </button>
+                ))}
+              </div>
+              <div className="se-fields">
+                <input
+                  className="se-name"
+                  placeholder="Section name"
+                  value={section.label}
+                  onBlur={commit}
+                  onChange={(e) => updateSection({ label: e.target.value }, false)}
+                />
+                <input
+                  className="se-emoji"
+                  maxLength={4}
+                  placeholder="emoji"
+                  value={section.icon ?? ''}
+                  onBlur={commit}
+                  onChange={(e) => updateSection({ icon: e.target.value }, false)}
+                />
+                <div className="color-row">
+                  {COLOR_CHOICES.map((c) => (
+                    <button
+                      key={c}
+                      className={'sw' + (c === section.color ? ' on' : '')}
+                      style={{ background: c }}
+                      title={c}
+                      type="button"
+                      onClick={() => updateSection({ color: c })}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="sectiontitle">
+              {section ? `${section.icon || ''} ${section.label}` : ''}
+            </div>
+          )}
 
           {cards.length > 0 ? (
             <Swiper
               key={`${safeActive}-${cards.length}`}
+              centeredSlides
               grabCursor
+              slideToClickedSlide
               className="swiper"
-              effect="cards"
               keyboard={{ enabled: true }}
-              modules={[EffectCards, Keyboard]}
+              modules={[Keyboard, Mousewheel]}
+              mousewheel={{ forceToAxis: true }}
+              slidesPerView="auto"
+              spaceBetween={18}
               onSlideChange={(s) => setIndex(s.activeIndex)}>
               {cards.map((card, i) => (
-                <SwiperSlide key={`${card.type}:${card.title}`}>
+                <SwiperSlide key={card.id}>
                   <CardView
                     card={card}
                     isEditing={editing}
+                    onChange={(patch) => updateCard(i, patch)}
+                    onCommit={commit}
                     onDelete={() => deleteCard(i)}
+                    onOpenImage={() => openImage(card)}
                   />
                 </SwiperSlide>
               ))}
             </Swiper>
           ) : (
-            <div className="empty">No cards in this section yet.</div>
+            <div className="empty">
+              No cards yet — drop an image, or use ✏️ edit mode.
+            </div>
           )}
 
           <div className="counter">
@@ -401,7 +613,7 @@ function App({ initial }: { readonly initial: GalleryData }) {
               )}
             </div>
           ) : (
-            <div className="hint">← → flip · drag to swipe · click a section to jump</div>
+            <div className="hint">← → flip · drag to swipe · drop images to add</div>
           )}
         </main>
       </div>
@@ -418,7 +630,7 @@ async function boot() {
   }
   const container = document.getElementById('root');
   if (container) {
-    createRoot(container).render(<App initial={data} />);
+    createRoot(container).render(<App initial={withIds(data)} />);
   }
   window.galleryAPI.galleryWindowReady();
 }

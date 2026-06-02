@@ -3,6 +3,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { randomUUID } from 'node:crypto';
 
 import { getConfigDirectory } from './settings';
 import { GalleryData, GalleryCard } from '../common/gallery';
@@ -159,6 +160,9 @@ export function saveGallery(data: GalleryData): void {
       ...section,
       cards: section.cards.map((card) => {
         const copy: GalleryCard = { type: card.type, title: card.title };
+        if (card.id) {
+          copy.id = card.id;
+        }
         if (card.rows) {
           copy.rows = card.rows;
         }
@@ -203,7 +207,12 @@ export function importImages(sectionId: string, sourcePaths: string[]): GalleryD
           n++;
         }
         fs.copyFileSync(src, path.join(dir, target));
-        section.cards.push({ type: 'image', title: stem, path: target });
+        section.cards.push({
+          id: randomUUID(),
+          type: 'image',
+          title: stem,
+          path: target,
+        });
       } catch (error) {
         console.error(`Failed to import image "${src}":`, error);
       }
@@ -238,7 +247,12 @@ export function importImageData(
           n++;
         }
         fs.writeFileSync(path.join(dir, target), Buffer.from(img.base64, 'base64'));
-        section.cards.push({ type: 'image', title: stem, path: target });
+        section.cards.push({
+          id: randomUUID(),
+          type: 'image',
+          title: stem,
+          path: target,
+        });
       } catch (error) {
         console.error(`Failed to save dropped image "${img.name}":`, error);
       }
