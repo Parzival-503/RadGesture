@@ -20,6 +20,7 @@ import { TextItemAction } from './text-item-action';
 import { URIItemAction } from './uri-item-action';
 import { RedirectItemAction } from './redirect-item-action';
 import { SettingsItemAction } from './settings-item-action';
+import { GalleryItemAction } from './gallery-item-action';
 
 /**
  * This type describes the action of a menu item. The action is what happens when the menu
@@ -74,6 +75,7 @@ export class ItemActionRegistry {
     this.actions.set('uri', new URIItemAction());
     this.actions.set('redirect', new RedirectItemAction());
     this.actions.set('settings', new SettingsItemAction());
+    this.actions.set('gallery', new GalleryItemAction());
     this.actions.set('simple-button', new NoItemAction());
   }
 
