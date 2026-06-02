@@ -18,12 +18,12 @@ declare const window: GalleryWindowWithAPI;
 /** Renders a single reference card based on its type. */
 function CardView({
   card,
-  editing,
+  isEditing,
   onDelete,
 }: {
-  card: GalleryCard;
-  editing: boolean;
-  onDelete: () => void;
+  readonly card: GalleryCard;
+  readonly isEditing: boolean;
+  readonly onDelete: () => void;
 }) {
   let body: React.ReactNode = null;
 
@@ -31,8 +31,8 @@ function CardView({
     body = (
       <table>
         <tbody>
-          {card.rows.map((row, i) => (
-            <tr key={i}>
+          {card.rows.map((row) => (
+            <tr key={row[0]}>
               <td className="k">{row[0]}</td>
               <td>{row[1]}</td>
             </tr>
@@ -45,9 +45,10 @@ function CardView({
   } else if (card.type === 'link') {
     body = (
       <>
-        {card.source && <span className="src">◈ {card.source}</span>}
+        {card.source ? <span className="src">◈ {card.source}</span> : null}
         <button
           className="openbtn"
+          type="button"
           onClick={() => card.url && window.galleryAPI.openURI(card.url)}>
           Open ↗
         </button>
@@ -70,8 +71,8 @@ function CardView({
     <div className="card">
       <div className="head">
         <span className="ttl">{card.title}</span>
-        {editing ? (
-          <button className="del" title="Delete card" onClick={onDelete}>
+        {isEditing ? (
+          <button className="del" title="Delete card" type="button" onClick={onDelete}>
             ✕
           </button>
         ) : (
@@ -84,7 +85,7 @@ function CardView({
 }
 
 /** The whole gallery: a sidebar of sections + a bouncy card carousel, with edit mode. */
-function App({ initial }: { initial: GalleryData }) {
+function App({ initial }: { readonly initial: GalleryData }) {
   const [data, setData] = React.useState<GalleryData>(initial);
   const [active, setActive] = React.useState(0);
   const [index, setIndex] = React.useState(0);
@@ -112,6 +113,8 @@ function App({ initial }: { initial: GalleryData }) {
   const section = sections[safeActive];
   const cards = section?.cards || [];
   const accent = section?.color || '#38bdf8';
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  const stageStyle = { '--accent': accent } as React.CSSProperties;
 
   // Optimistically update local state, then persist and adopt the canonical result.
   const persist = (next: GalleryData) => {
@@ -222,21 +225,21 @@ function App({ initial }: { initial: GalleryData }) {
   return (
     <div
       className="window"
-      onDragOver={(e) => {
-        e.preventDefault();
-        setDragOver(true);
-      }}
       onDragLeave={(e) => {
         if (e.target === e.currentTarget) {
           setDragOver(false);
         }
       }}
+      onDragOver={(e) => {
+        e.preventDefault();
+        setDragOver(true);
+      }}
       onDrop={onDrop}>
-      {dragOver && (
+      {dragOver ? (
         <div className="dropzone">
           Drop images to add to {section?.label || 'this section'}
         </div>
-      )}
+      ) : null}
       <div className="titlebar">
         <span className="logo" />
         <span className="title">
@@ -245,6 +248,7 @@ function App({ initial }: { initial: GalleryData }) {
         <button
           className={'edit' + (editing ? ' on' : '')}
           title="Toggle edit mode"
+          type="button"
           onClick={() => {
             setEditing((v) => !v);
             resetForm();
@@ -275,6 +279,7 @@ function App({ initial }: { initial: GalleryData }) {
                 <button
                   className="del"
                   title="Delete section"
+                  type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     deleteSection(i);
@@ -286,11 +291,11 @@ function App({ initial }: { initial: GalleryData }) {
               )}
             </div>
           ))}
-          {editing && (
+          {editing ? (
             <div className="addsection">
               <input
-                value={newSection}
                 placeholder="New section…"
+                value={newSection}
                 onChange={(e) => setNewSection(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
@@ -298,14 +303,16 @@ function App({ initial }: { initial: GalleryData }) {
                   }
                 }}
               />
-              <button onClick={addSection}>＋</button>
+              <button type="button" onClick={addSection}>
+                ＋
+              </button>
             </div>
-          )}
+          ) : null}
           <div className="foot">
             {editing ? 'Editing — changes save automatically' : 'Esc to close'}
           </div>
         </aside>
-        <main className="stage" style={{ '--accent': accent } as React.CSSProperties}>
+        <main className="stage" style={stageStyle}>
           <div className="sectiontitle">
             {section ? `${section.icon || ''} ${section.label}` : ''}
           </div>
@@ -313,17 +320,17 @@ function App({ initial }: { initial: GalleryData }) {
           {cards.length > 0 ? (
             <Swiper
               key={`${safeActive}-${cards.length}`}
+              grabCursor
               className="swiper"
               effect="cards"
-              grabCursor
               keyboard={{ enabled: true }}
               modules={[EffectCards, Keyboard]}
               onSlideChange={(s) => setIndex(s.activeIndex)}>
               {cards.map((card, i) => (
-                <SwiperSlide key={i}>
+                <SwiperSlide key={`${card.type}:${card.title}`}>
                   <CardView
                     card={card}
-                    editing={editing}
+                    isEditing={editing}
                     onDelete={() => deleteCard(i)}
                   />
                 </SwiperSlide>
@@ -341,45 +348,55 @@ function App({ initial }: { initial: GalleryData }) {
             <div className="editbar">
               {addType === null ? (
                 <>
-                  <button onClick={addImages} disabled={!section}>
+                  <button disabled={!section} type="button" onClick={addImages}>
                     ＋ Image
                   </button>
-                  <button onClick={() => setAddType('note')} disabled={!section}>
+                  <button
+                    disabled={!section}
+                    type="button"
+                    onClick={() => setAddType('note')}>
                     ＋ Note
                   </button>
-                  <button onClick={() => setAddType('link')} disabled={!section}>
+                  <button
+                    disabled={!section}
+                    type="button"
+                    onClick={() => setAddType('link')}>
                     ＋ Link
                   </button>
                 </>
               ) : (
                 <div className="addform">
                   <input
-                    value={fTitle}
                     placeholder="Title"
+                    value={fTitle}
                     onChange={(e) => setFTitle(e.target.value)}
                   />
                   {addType === 'note' ? (
                     <input
-                      value={fText}
                       placeholder="Text / value / formula"
+                      value={fText}
                       onChange={(e) => setFText(e.target.value)}
                     />
                   ) : (
                     <>
                       <input
-                        value={fUrl}
                         placeholder="https://…"
+                        value={fUrl}
                         onChange={(e) => setFUrl(e.target.value)}
                       />
                       <input
-                        value={fSource}
                         placeholder="Source (e.g. Radiopaedia)"
+                        value={fSource}
                         onChange={(e) => setFSource(e.target.value)}
                       />
                     </>
                   )}
-                  <button onClick={submitForm}>Add</button>
-                  <button onClick={resetForm}>Cancel</button>
+                  <button type="button" onClick={submitForm}>
+                    Add
+                  </button>
+                  <button type="button" onClick={resetForm}>
+                    Cancel
+                  </button>
                 </div>
               )}
             </div>

@@ -159,11 +159,21 @@ export function saveGallery(data: GalleryData): void {
       ...section,
       cards: section.cards.map((card) => {
         const copy: GalleryCard = { type: card.type, title: card.title };
-        if (card.rows) copy.rows = card.rows;
-        if (card.text) copy.text = card.text;
-        if (card.url) copy.url = card.url;
-        if (card.source) copy.source = card.source;
-        if (card.path) copy.path = card.path;
+        if (card.rows) {
+          copy.rows = card.rows;
+        }
+        if (card.text) {
+          copy.text = card.text;
+        }
+        if (card.url) {
+          copy.url = card.url;
+        }
+        if (card.source) {
+          copy.source = card.source;
+        }
+        if (card.path) {
+          copy.path = card.path;
+        }
         return copy;
       }),
     })),

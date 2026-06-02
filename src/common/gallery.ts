@@ -9,7 +9,7 @@
  */
 
 /** A single reference card shown in the carousel. */
-export interface GalleryCard {
+export type GalleryCard = {
   /** Determines how the card is rendered. */
   type: 'table' | 'note' | 'link' | 'image';
 
@@ -37,10 +37,10 @@ export interface GalleryCard {
 
   /** Filled in by the main process for `image` cards — the resolved absolute path. */
   resolvedPath?: string;
-}
+};
 
 /** A named group of cards (e.g. "Lung", "Liver", "Articles"). */
-export interface GallerySection {
+export type GallerySection = {
   /** Stable identifier. */
   id: string;
 
@@ -55,9 +55,9 @@ export interface GallerySection {
 
   /** The cards in this section. */
   cards: GalleryCard[];
-}
+};
 
 /** The whole gallery database. */
-export interface GalleryData {
+export type GalleryData = {
   sections: GallerySection[];
-}
+};
