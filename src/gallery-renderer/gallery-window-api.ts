@@ -24,6 +24,13 @@ export const GALLERY_WINDOW_API = {
   pickAndAddImages: (sectionId: string): Promise<GalleryData> =>
     ipcRenderer.invoke('gallery-window.pick-and-add-images', sectionId),
 
+  /** Save dropped image files (as base64) into a section; resolves with refreshed data. */
+  addImageData: (
+    sectionId: string,
+    images: Array<{ name: string; base64: string }>
+  ): Promise<GalleryData> =>
+    ipcRenderer.invoke('gallery-window.add-image-data', { sectionId, images }),
+
   /** Open a URL (article link) in the default browser. */
   openURI: (uri: string) => ipcRenderer.send('gallery-window.open-uri', uri),
 

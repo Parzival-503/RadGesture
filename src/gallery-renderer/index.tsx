@@ -95,6 +95,7 @@ function App({ initial }: { initial: GalleryData }) {
   const [fUrl, setFUrl] = React.useState('');
   const [fSource, setFSource] = React.useState('');
   const [newSection, setNewSection] = React.useState('');
+  const [dragOver, setDragOver] = React.useState(false);
 
   React.useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -182,8 +183,60 @@ function App({ initial }: { initial: GalleryData }) {
     }
   };
 
+  // Read dropped image files in the renderer and stream their bytes (base64) to the main
+  // process — avoids fragile file-path extraction in a sandboxed window.
+  const readImages = (
+    fileList: FileList
+  ): Promise<Array<{ name: string; base64: string }>> => {
+    const files = Array.from(fileList).filter((f) => f.type.startsWith('image/'));
+    return Promise.all(
+      files.map(
+        (file) =>
+          new Promise<{ name: string; base64: string }>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () =>
+              resolve({
+                name: file.name,
+                base64: (reader.result as string).split(',')[1] || '',
+              });
+            reader.onerror = () => reject(reader.error);
+            reader.readAsDataURL(file);
+          })
+      )
+    );
+  };
+
+  const onDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    if (!section || !e.dataTransfer?.files?.length) {
+      return;
+    }
+    const images = await readImages(e.dataTransfer.files);
+    if (images.length) {
+      const fresh = await window.galleryAPI.addImageData(section.id, images);
+      setData(fresh);
+    }
+  };
+
   return (
-    <div className="window">
+    <div
+      className="window"
+      onDragOver={(e) => {
+        e.preventDefault();
+        setDragOver(true);
+      }}
+      onDragLeave={(e) => {
+        if (e.target === e.currentTarget) {
+          setDragOver(false);
+        }
+      }}
+      onDrop={onDrop}>
+      {dragOver && (
+        <div className="dropzone">
+          Drop images to add to {section?.label || 'this section'}
+        </div>
+      )}
       <div className="titlebar">
         <span className="logo" />
         <span className="title">

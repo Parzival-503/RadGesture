@@ -3,7 +3,12 @@
 
 import { BrowserWindow, shell, ipcMain, dialog } from 'electron';
 
-import { loadGalleryForRenderer, saveGallery, importImages } from './gallery-data';
+import {
+  loadGalleryForRenderer,
+  saveGallery,
+  importImages,
+  importImageData,
+} from './gallery-data';
 import { GalleryData } from '../common/gallery';
 
 // These constants are injected by Electron Forge's webpack plugin based on the
@@ -101,6 +106,16 @@ function registerGalleryIPC() {
         return loadGalleryForRenderer();
       }
       return importImages(sectionId, result.filePaths);
+    }
+  );
+
+  ipcMain.handle(
+    'gallery-window.add-image-data',
+    (
+      _event,
+      payload: { sectionId: string; images: Array<{ name: string; base64: string }> }
+    ) => {
+      return importImageData(payload.sectionId, payload.images);
     }
   );
 

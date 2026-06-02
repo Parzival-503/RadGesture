@@ -96,7 +96,7 @@ function defaultGallery(): GalleryData {
           {
             type: 'note',
             title: 'Add your screenshots',
-            text: 'Drop measurement tables or value charts into the gallery/ folder and reference them as image cards in gallery.json. In-app drag-and-drop is coming next.',
+            text: 'Click the ✏️ button then ＋ Image to add screenshots — or just drag image files straight onto this window. They are saved automatically.',
           },
         ],
       },
@@ -196,6 +196,41 @@ export function importImages(sectionId: string, sourcePaths: string[]): GalleryD
         section.cards.push({ type: 'image', title: stem, path: target });
       } catch (error) {
         console.error(`Failed to import image "${src}":`, error);
+      }
+    }
+    saveGallery(data);
+  }
+  return loadGalleryForRenderer();
+}
+
+/**
+ * Saves dropped image files (provided as base64) into the gallery folder and appends an
+ * image card for each to the given section. Returns the refreshed gallery.
+ */
+export function importImageData(
+  sectionId: string,
+  images: Array<{ name: string; base64: string }>
+): GalleryData {
+  const data = loadGallery();
+  const section = data.sections.find((s) => s.id === sectionId);
+  if (section) {
+    const dir = galleryImageDir();
+    fs.mkdirSync(dir, { recursive: true });
+    for (const img of images) {
+      try {
+        const base = path.basename(img.name) || 'image.png';
+        const ext = path.extname(base) || '.png';
+        const stem = path.basename(base, ext);
+        let target = base;
+        let n = 1;
+        while (fs.existsSync(path.join(dir, target))) {
+          target = `${stem}-${n}${ext}`;
+          n++;
+        }
+        fs.writeFileSync(path.join(dir, target), Buffer.from(img.base64, 'base64'));
+        section.cards.push({ type: 'image', title: stem, path: target });
+      } catch (error) {
+        console.error(`Failed to save dropped image "${img.name}":`, error);
       }
     }
     saveGallery(data);
