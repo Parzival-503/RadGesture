@@ -8,6 +8,8 @@
 // SPDX-FileCopyrightText: Simon Schneegans <code@simonschneegans.de>
 // SPDX-License-Identifier: MIT
 
+import { clipboard } from 'electron';
+
 import { MenuItem } from '../../common/index';
 import { ItemAction } from './item-action-registry';
 import { DeepReadonly } from '../settings';
@@ -46,7 +48,8 @@ export class CommandItemAction implements ItemAction {
       .replace(/\{{app_name}}/g, app.getLastWMInfo().appName)
       .replace(/\{{window_name}}/g, app.getLastWMInfo().windowName)
       .replace(/\{{pointer_x}}/g, app.getLastWMInfo().pointerX.toString())
-      .replace(/\{{pointer_y}}/g, app.getLastWMInfo().pointerY.toString());
+      .replace(/\{{pointer_y}}/g, app.getLastWMInfo().pointerY.toString())
+      .replace(/\{{clipboard}}/g, clipboard.readText());
 
     return exec(command, {
       detach: (item.data as ItemData).detached,

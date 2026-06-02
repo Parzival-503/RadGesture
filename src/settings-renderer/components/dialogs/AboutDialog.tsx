@@ -102,6 +102,16 @@ export default function AboutDialog() {
             />
           </div>
         </div>
+        <Note
+          isCentered
+          useMarkdown
+          marginTop={16}
+          noteStyle="normal"
+          onLinkClick={(href) => window.open(href, '_blank')}>
+          {
+            'RadGesture is based on [Kando](https://github.com/kando-menu/kando) by Simon Schneegans. 💙'
+          }
+        </Note>
       </div>
     </Modal>
   );
