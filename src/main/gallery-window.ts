@@ -1,9 +1,10 @@
 // SPDX-FileCopyrightText: 2026 Sina Mazaheri
 // SPDX-License-Identifier: MIT
 
-import { BrowserWindow, shell, ipcMain } from 'electron';
+import { BrowserWindow, shell, ipcMain, dialog } from 'electron';
 
-import { loadGalleryForRenderer } from './gallery-data';
+import { loadGalleryForRenderer, saveGallery, importImages } from './gallery-data';
+import { GalleryData } from '../common/gallery';
 
 // These constants are injected by Electron Forge's webpack plugin based on the
 // `gallery_window` entry point defined in forge.config.ts.
@@ -77,6 +78,31 @@ function registerGalleryIPC() {
   ipcRegistered = true;
 
   ipcMain.handle('gallery-window.get-data', () => loadGalleryForRenderer());
+
+  ipcMain.handle('gallery-window.save', (_event, data: GalleryData) => {
+    saveGallery(data);
+    return loadGalleryForRenderer();
+  });
+
+  ipcMain.handle(
+    'gallery-window.pick-and-add-images',
+    async (_event, sectionId: string) => {
+      const result = await dialog.showOpenDialog({
+        title: 'Add images to the gallery',
+        properties: ['openFile', 'multiSelections'],
+        filters: [
+          {
+            name: 'Images',
+            extensions: ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg'],
+          },
+        ],
+      });
+      if (result.canceled || result.filePaths.length === 0) {
+        return loadGalleryForRenderer();
+      }
+      return importImages(sectionId, result.filePaths);
+    }
+  );
 
   ipcMain.on('gallery-window.open-uri', (_event, uri: string) => {
     if (uri) {

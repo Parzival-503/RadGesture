@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import { getConfigDirectory } from './settings';
-import { GalleryData } from '../common/gallery';
+import { GalleryData, GalleryCard } from '../common/gallery';
 
 /** The gallery database file, stored next to menus.json / config.json. */
 const GALLERY_FILE = 'gallery.json';
@@ -150,4 +150,55 @@ export function loadGalleryForRenderer(): GalleryData {
     }
   }
   return data;
+}
+
+/** Persists the gallery to disk, stripping runtime-only fields (resolved data-URLs/paths). */
+export function saveGallery(data: GalleryData): void {
+  const clean: GalleryData = {
+    sections: data.sections.map((section) => ({
+      ...section,
+      cards: section.cards.map((card) => {
+        const copy: GalleryCard = { type: card.type, title: card.title };
+        if (card.rows) copy.rows = card.rows;
+        if (card.text) copy.text = card.text;
+        if (card.url) copy.url = card.url;
+        if (card.source) copy.source = card.source;
+        if (card.path) copy.path = card.path;
+        return copy;
+      }),
+    })),
+  };
+  fs.writeFileSync(getGalleryFilePath(), JSON.stringify(clean, null, 2), 'utf-8');
+}
+
+/**
+ * Copies the given image files into the gallery folder and appends an image card for each
+ * to the section with the given id. Returns the refreshed (renderer-ready) gallery.
+ */
+export function importImages(sectionId: string, sourcePaths: string[]): GalleryData {
+  const data = loadGallery();
+  const section = data.sections.find((s) => s.id === sectionId);
+  if (section) {
+    const dir = galleryImageDir();
+    fs.mkdirSync(dir, { recursive: true });
+    for (const src of sourcePaths) {
+      try {
+        const base = path.basename(src);
+        const ext = path.extname(base);
+        const stem = path.basename(base, ext);
+        let target = base;
+        let n = 1;
+        while (fs.existsSync(path.join(dir, target))) {
+          target = `${stem}-${n}${ext}`;
+          n++;
+        }
+        fs.copyFileSync(src, path.join(dir, target));
+        section.cards.push({ type: 'image', title: stem, path: target });
+      } catch (error) {
+        console.error(`Failed to import image "${src}":`, error);
+      }
+    }
+    saveGallery(data);
+  }
+  return loadGalleryForRenderer();
 }

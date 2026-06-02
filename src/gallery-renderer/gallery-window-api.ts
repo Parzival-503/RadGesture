@@ -16,6 +16,14 @@ export const GALLERY_WINDOW_API = {
   /** Fetch the gallery contents (image cards arrive as data-URLs). */
   getData: (): Promise<GalleryData> => ipcRenderer.invoke('gallery-window.get-data'),
 
+  /** Persist the gallery; resolves with the refreshed data. */
+  save: (data: GalleryData): Promise<GalleryData> =>
+    ipcRenderer.invoke('gallery-window.save', data),
+
+  /** Open a file picker to add image cards to a section; resolves with refreshed data. */
+  pickAndAddImages: (sectionId: string): Promise<GalleryData> =>
+    ipcRenderer.invoke('gallery-window.pick-and-add-images', sectionId),
+
   /** Open a URL (article link) in the default browser. */
   openURI: (uri: string) => ipcRenderer.send('gallery-window.open-uri', uri),
 

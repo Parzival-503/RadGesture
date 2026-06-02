@@ -16,7 +16,15 @@ import { GalleryData, GalleryCard } from '../common/gallery';
 declare const window: GalleryWindowWithAPI;
 
 /** Renders a single reference card based on its type. */
-function CardView({ card }: { card: GalleryCard }) {
+function CardView({
+  card,
+  editing,
+  onDelete,
+}: {
+  card: GalleryCard;
+  editing: boolean;
+  onDelete: () => void;
+}) {
   let body: React.ReactNode = null;
 
   if (card.type === 'table' && card.rows) {
@@ -62,17 +70,31 @@ function CardView({ card }: { card: GalleryCard }) {
     <div className="card">
       <div className="head">
         <span className="ttl">{card.title}</span>
-        <span className="tag">{card.type}</span>
+        {editing ? (
+          <button className="del" title="Delete card" onClick={onDelete}>
+            ✕
+          </button>
+        ) : (
+          <span className="tag">{card.type}</span>
+        )}
       </div>
       <div className="content">{body}</div>
     </div>
   );
 }
 
-/** The whole gallery: a sidebar of sections + a bouncy card carousel. */
-function App({ data }: { data: GalleryData }) {
+/** The whole gallery: a sidebar of sections + a bouncy card carousel, with edit mode. */
+function App({ initial }: { initial: GalleryData }) {
+  const [data, setData] = React.useState<GalleryData>(initial);
   const [active, setActive] = React.useState(0);
   const [index, setIndex] = React.useState(0);
+  const [editing, setEditing] = React.useState(false);
+  const [addType, setAddType] = React.useState<'note' | 'link' | null>(null);
+  const [fTitle, setFTitle] = React.useState('');
+  const [fText, setFText] = React.useState('');
+  const [fUrl, setFUrl] = React.useState('');
+  const [fSource, setFSource] = React.useState('');
+  const [newSection, setNewSection] = React.useState('');
 
   React.useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -85,9 +107,80 @@ function App({ data }: { data: GalleryData }) {
   }, []);
 
   const sections = data.sections || [];
-  const section = sections[active];
+  const safeActive = Math.min(active, Math.max(0, sections.length - 1));
+  const section = sections[safeActive];
   const cards = section?.cards || [];
   const accent = section?.color || '#38bdf8';
+
+  // Optimistically update local state, then persist and adopt the canonical result.
+  const persist = (next: GalleryData) => {
+    setData(next);
+    window.galleryAPI.save(next).then(setData).catch(console.error);
+  };
+
+  const resetForm = () => {
+    setAddType(null);
+    setFTitle('');
+    setFText('');
+    setFUrl('');
+    setFSource('');
+  };
+
+  const addSection = () => {
+    const label = newSection.trim() || 'New Section';
+    const id = 'sec-' + Date.now();
+    const next: GalleryData = {
+      sections: [...sections, { id, label, color: '#38bdf8', icon: '📁', cards: [] }],
+    };
+    setNewSection('');
+    setActive(next.sections.length - 1);
+    setIndex(0);
+    persist(next);
+  };
+
+  const deleteSection = (i: number) => {
+    const next: GalleryData = { sections: sections.filter((_, idx) => idx !== i) };
+    setActive(Math.max(0, Math.min(safeActive, next.sections.length - 1)));
+    setIndex(0);
+    persist(next);
+  };
+
+  const addCard = (card: GalleryCard) => {
+    if (!section) {
+      return;
+    }
+    const next: GalleryData = {
+      sections: sections.map((s, i) =>
+        i === safeActive ? { ...s, cards: [...s.cards, card] } : s
+      ),
+    };
+    resetForm();
+    persist(next);
+  };
+
+  const submitForm = () => {
+    const title = fTitle.trim() || (addType === 'link' ? 'Link' : 'Note');
+    if (addType === 'note') {
+      addCard({ type: 'note', title, text: fText });
+    } else if (addType === 'link') {
+      addCard({ type: 'link', title, url: fUrl.trim(), source: fSource.trim() });
+    }
+  };
+
+  const deleteCard = (ci: number) => {
+    const next: GalleryData = {
+      sections: sections.map((s, i) =>
+        i === safeActive ? { ...s, cards: s.cards.filter((_, idx) => idx !== ci) } : s
+      ),
+    };
+    persist(next);
+  };
+
+  const addImages = () => {
+    if (section) {
+      window.galleryAPI.pickAndAddImages(section.id).then(setData).catch(console.error);
+    }
+  };
 
   return (
     <div className="window">
@@ -96,6 +189,15 @@ function App({ data }: { data: GalleryData }) {
         <span className="title">
           RadGesture <small>Reference Gallery</small>
         </span>
+        <button
+          className={'edit' + (editing ? ' on' : '')}
+          title="Toggle edit mode"
+          onClick={() => {
+            setEditing((v) => !v);
+            resetForm();
+          }}>
+          ✏️
+        </button>
         <span className="close" onClick={() => window.galleryAPI.close()}>
           ✕
         </span>
@@ -106,27 +208,58 @@ function App({ data }: { data: GalleryData }) {
           {sections.map((s, i) => (
             <div
               key={s.id}
-              className={'section' + (i === active ? ' active' : '')}
+              className={'section' + (i === safeActive ? ' active' : '')}
               onClick={() => {
                 setActive(i);
                 setIndex(0);
+                resetForm();
               }}>
               <span className="swatch" style={{ background: s.color || '#888' }} />
               <span className="label">
                 {s.icon} {s.label}
               </span>
-              <span className="count">{s.cards.length}</span>
+              {editing ? (
+                <button
+                  className="del"
+                  title="Delete section"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    deleteSection(i);
+                  }}>
+                  ✕
+                </button>
+              ) : (
+                <span className="count">{s.cards.length}</span>
+              )}
             </div>
           ))}
-          <div className="foot">Esc to close · edit gallery.json to customize</div>
+          {editing && (
+            <div className="addsection">
+              <input
+                value={newSection}
+                placeholder="New section…"
+                onChange={(e) => setNewSection(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    addSection();
+                  }
+                }}
+              />
+              <button onClick={addSection}>＋</button>
+            </div>
+          )}
+          <div className="foot">
+            {editing ? 'Editing — changes save automatically' : 'Esc to close'}
+          </div>
         </aside>
         <main className="stage" style={{ '--accent': accent } as React.CSSProperties}>
           <div className="sectiontitle">
             {section ? `${section.icon || ''} ${section.label}` : ''}
           </div>
+
           {cards.length > 0 ? (
             <Swiper
-              key={active}
+              key={`${safeActive}-${cards.length}`}
               className="swiper"
               effect="cards"
               grabCursor
@@ -135,17 +268,71 @@ function App({ data }: { data: GalleryData }) {
               onSlideChange={(s) => setIndex(s.activeIndex)}>
               {cards.map((card, i) => (
                 <SwiperSlide key={i}>
-                  <CardView card={card} />
+                  <CardView
+                    card={card}
+                    editing={editing}
+                    onDelete={() => deleteCard(i)}
+                  />
                 </SwiperSlide>
               ))}
             </Swiper>
           ) : (
             <div className="empty">No cards in this section yet.</div>
           )}
+
           <div className="counter">
             {cards.length ? `${index + 1} / ${cards.length}` : ''}
           </div>
-          <div className="hint">← → flip · drag to swipe · click a section to jump</div>
+
+          {editing ? (
+            <div className="editbar">
+              {addType === null ? (
+                <>
+                  <button onClick={addImages} disabled={!section}>
+                    ＋ Image
+                  </button>
+                  <button onClick={() => setAddType('note')} disabled={!section}>
+                    ＋ Note
+                  </button>
+                  <button onClick={() => setAddType('link')} disabled={!section}>
+                    ＋ Link
+                  </button>
+                </>
+              ) : (
+                <div className="addform">
+                  <input
+                    value={fTitle}
+                    placeholder="Title"
+                    onChange={(e) => setFTitle(e.target.value)}
+                  />
+                  {addType === 'note' ? (
+                    <input
+                      value={fText}
+                      placeholder="Text / value / formula"
+                      onChange={(e) => setFText(e.target.value)}
+                    />
+                  ) : (
+                    <>
+                      <input
+                        value={fUrl}
+                        placeholder="https://…"
+                        onChange={(e) => setFUrl(e.target.value)}
+                      />
+                      <input
+                        value={fSource}
+                        placeholder="Source (e.g. Radiopaedia)"
+                        onChange={(e) => setFSource(e.target.value)}
+                      />
+                    </>
+                  )}
+                  <button onClick={submitForm}>Add</button>
+                  <button onClick={resetForm}>Cancel</button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="hint">← → flip · drag to swipe · click a section to jump</div>
+          )}
         </main>
       </div>
     </div>
@@ -161,7 +348,7 @@ async function boot() {
   }
   const container = document.getElementById('root');
   if (container) {
-    createRoot(container).render(<App data={data} />);
+    createRoot(container).render(<App initial={data} />);
   }
   window.galleryAPI.galleryWindowReady();
 }
