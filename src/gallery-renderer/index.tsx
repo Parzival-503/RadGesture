@@ -1,34 +1,63 @@
 // SPDX-FileCopyrightText: 2026 Sina Mazaheri
 // SPDX-License-Identifier: MIT
 
-import './index.scss';
 import 'swiper/css';
+import 'swiper/css/effect-coverflow';
+import './index.scss';
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Keyboard, Mousewheel } from 'swiper/modules';
+import { Keyboard, Mousewheel, EffectCoverflow } from 'swiper/modules';
 
 import { GalleryWindowWithAPI } from './gallery-window-api';
 import { GalleryData, GalleryCard, GallerySection } from '../common/gallery';
 
 declare const window: GalleryWindowWithAPI;
 
+// A starter palette for quick picking. The free-text box accepts ANY emoji
+// (on Windows press Win + . to open the system emoji picker).
 const EMOJI_CHOICES = [
   '🫁',
+  '🫀',
   '🧠',
   '🦴',
-  '❤️',
+  '🦵',
+  '🦶',
+  '👁️',
+  '👂',
+  '👃',
+  '🦷',
   '🩻',
   '🩺',
-  '🟧',
-  '🔵',
+  '💉',
   '🧪',
   '🧬',
+  '💊',
+  '🩹',
+  '🌡️',
+  '🔬',
+  '⚕️',
+  '🚑',
+  '🏥',
+  '🦠',
+  '🧫',
   '📄',
-  '🖼️',
-  '⭐',
   '📁',
+  '🖼️',
+  '📊',
+  '📈',
+  '🧾',
+  '🗂️',
+  '⭐',
+  '🔖',
+  '📌',
+  '🔵',
+  '🟢',
+  '🟡',
+  '🟠',
+  '🔴',
+  '🟣',
 ];
 
 const COLOR_CHOICES = [
@@ -527,11 +556,18 @@ function App({ initial }: { readonly initial: GalleryData }) {
               grabCursor
               slideToClickedSlide
               className="swiper"
+              coverflowEffect={{
+                rotate: 36,
+                depth: 130,
+                modifier: 1,
+                stretch: 0,
+                slideShadows: false,
+              }}
+              effect="coverflow"
               keyboard={{ enabled: true }}
-              modules={[Keyboard, Mousewheel]}
+              modules={[Keyboard, Mousewheel, EffectCoverflow]}
               mousewheel={{ forceToAxis: true }}
               slidesPerView="auto"
-              spaceBetween={18}
               onSlideChange={(s) => setIndex(s.activeIndex)}>
               {cards.map((card, i) => (
                 <SwiperSlide key={card.id}>

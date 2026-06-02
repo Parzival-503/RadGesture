@@ -35,13 +35,9 @@ function defaultGallery(): GalleryData {
         color: '#38bdf8',
         cards: [
           {
-            type: 'table',
+            type: 'note',
             title: 'Fleischner — Incidental Solid Nodules',
-            rows: [
-              ['< 6 mm', 'No routine follow-up'],
-              ['6–8 mm', 'CT at 6–12 months'],
-              ['> 8 mm', 'Consider CT / PET-CT at 3 months'],
-            ],
+            text: '< 6 mm: no routine follow-up · 6–8 mm: CT at 6–12 months · > 8 mm: consider CT / PET-CT at 3 months.',
           },
           {
             type: 'note',
@@ -57,14 +53,9 @@ function defaultGallery(): GalleryData {
         color: '#f59e0b',
         cards: [
           {
-            type: 'table',
+            type: 'note',
             title: 'LI-RADS v2018 categories',
-            rows: [
-              ['LR-3', 'Intermediate probability'],
-              ['LR-4', 'Probably HCC'],
-              ['LR-5', 'Definitely HCC'],
-              ['LR-M', 'Probably malignant, non-HCC'],
-            ],
+            text: 'LR-3: intermediate · LR-4: probably HCC · LR-5: definitely HCC · LR-M: probably malignant, non-HCC.',
           },
         ],
       },
