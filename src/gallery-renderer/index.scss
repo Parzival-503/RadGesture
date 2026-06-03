@@ -316,7 +316,36 @@ table {
   font-size: 15px;
   color: var(--txt);
   line-height: 1.6;
-  white-space: pre-wrap; // honour the \n line breaks in note text
+
+  p {
+    margin: 0 0 9px;
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+  ul {
+    margin: 0 0 9px;
+    padding: 0;
+    list-style: none;
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+  li {
+    position: relative;
+    padding-left: 1.1em;
+    margin-bottom: 6px;
+    &:last-child {
+      margin-bottom: 0;
+    }
+    &::before {
+      content: '•';
+      position: absolute;
+      left: 0.15em;
+      color: var(--accent);
+      font-weight: 700;
+    }
+  }
 }
 
 .src {

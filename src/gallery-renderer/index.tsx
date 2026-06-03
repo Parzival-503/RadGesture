@@ -71,6 +71,47 @@ const COLOR_CHOICES = [
   '#fb7185',
 ];
 
+/**
+ * Renders note text into paragraphs + bullet lists. Lines starting with •, -, or * become
+ * bullet items; other non-empty lines become paragraphs.
+ */
+function renderNote(text: string): React.ReactNode {
+  type Block = { key: string; kind: 'ul' | 'p'; items: string[] };
+  const blocks: Block[] = [];
+  let bullets: string[] = [];
+  const flush = () => {
+    if (bullets.length > 0) {
+      blocks.push({ key: `ul${blocks.length}`, kind: 'ul', items: bullets });
+      bullets = [];
+    }
+  };
+  for (const raw of text.split('\n')) {
+    const line = raw.trim();
+    const isBullet =
+      line.startsWith('• ') || line.startsWith('- ') || line.startsWith('* ');
+    if (isBullet) {
+      bullets.push(line.slice(2).trim());
+    } else {
+      flush();
+      if (line) {
+        blocks.push({ key: `p${blocks.length}`, kind: 'p', items: [line] });
+      }
+    }
+  }
+  flush();
+  return blocks.map((b) =>
+    b.kind === 'ul' ? (
+      <ul key={b.key}>
+        {b.items.map((it) => (
+          <li key={it}>{it}</li>
+        ))}
+      </ul>
+    ) : (
+      <p key={b.key}>{b.items[0]}</p>
+    )
+  );
+}
+
 /** Ensures every card has a stable id (used as a React key). */
 function withIds(data: GalleryData): GalleryData {
   return {
@@ -137,7 +178,7 @@ function CardView({
       </div>
     ) : (
       <>
-        <div className="note">{card.text}</div>
+        <div className="note">{renderNote(card.text ?? '')}</div>
         {card.url ? (
           <button
             className="sourcebtn"
