@@ -244,6 +244,80 @@ body {
   opacity: 1;
 }
 
+/* --- image grid view (contact sheet) --- */
+.imagegrid {
+  width: 100%;
+  max-width: 900px;
+  height: 480px;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-auto-rows: min-content;
+  gap: 12px;
+  padding: 4px 8px;
+  align-content: start;
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: var(--line);
+    border-radius: 8px;
+  }
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition:
+    transform 0.15s,
+    border-color 0.15s;
+  &:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+  .tile-img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 8px;
+    background: #0b1220;
+  }
+  .tile-doc-icon {
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 44px;
+    background: #0b1220;
+    border-radius: 8px;
+  }
+  .tile-missing {
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    font-size: 12px;
+    border: 1px dashed var(--line);
+    border-radius: 8px;
+  }
+  .tile-cap {
+    font-size: 12px;
+    color: var(--txt);
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
 .card {
   width: 100%;
   height: 100%;
@@ -418,7 +492,8 @@ table {
 }
 
 /* --- edit mode --- */
-.titlebar .edit {
+.titlebar .edit,
+.titlebar .gridbtn {
   -webkit-app-region: no-drag;
   background: transparent;
   border: 0;
@@ -434,6 +509,7 @@ table {
   }
   &.on {
     background: var(--accent);
+    color: #06121f;
     opacity: 1;
   }
 }

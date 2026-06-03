@@ -288,6 +288,7 @@ function App({ initial }: { readonly initial: GalleryData }) {
   } | null>(null);
   const [storagePath, setStoragePath] = React.useState('');
   const [confirmReset, setConfirmReset] = React.useState(false);
+  const [gridView, setGridView] = React.useState(false);
 
   const sections = data.sections || [];
   const safeActive = Math.min(active, Math.max(0, sections.length - 1));
@@ -496,6 +497,84 @@ function App({ initial }: { readonly initial: GalleryData }) {
     }
   };
 
+  const mediaCards = cards.filter((c) => c.type === 'image' || c.type === 'pdf');
+
+  const carouselNode =
+    cards.length > 0 ? (
+      <Swiper
+        key={`${safeActive}-${cards.length}`}
+        centeredSlides
+        grabCursor
+        slideToClickedSlide
+        className="swiper"
+        coverflowEffect={{
+          rotate: 36,
+          depth: 130,
+          modifier: 1,
+          stretch: 0,
+          slideShadows: false,
+        }}
+        effect="coverflow"
+        keyboard={{ enabled: true }}
+        modules={[Keyboard, Mousewheel, EffectCoverflow]}
+        mousewheel={{ forceToAxis: false }}
+        slidesPerView="auto"
+        onSlideChange={(s) => setIndex(s.activeIndex)}>
+        {cards.map((card, i) => (
+          <SwiperSlide key={card.id}>
+            <CardView
+              card={card}
+              isEditing={editing}
+              onChange={(patch) => updateCard(i, patch)}
+              onCommit={commit}
+              onDelete={() => deleteCard(i)}
+              onOpenImage={() => openImage(card)}
+            />
+          </SwiperSlide>
+        ))}
+      </Swiper>
+    ) : (
+      <div className="empty">No cards yet — drop an image, or use ✏️ edit mode.</div>
+    );
+
+  const gridNode =
+    mediaCards.length > 0 ? (
+      <div className="imagegrid">
+        {mediaCards.map((c) =>
+          c.type === 'image' ? (
+            <button
+              key={c.id}
+              className="tile"
+              type="button"
+              onClick={() => openImage(c)}>
+              {c.dataUrl ? (
+                <img className="tile-img" src={c.dataUrl} title={c.title} />
+              ) : (
+                <span className="tile-missing">no preview</span>
+              )}
+              <span className="tile-cap">{c.title}</span>
+            </button>
+          ) : (
+            <button
+              key={c.id}
+              className="tile"
+              type="button"
+              onClick={() =>
+                c.resolvedPath && window.galleryAPI.openPath(c.resolvedPath)
+              }>
+              <span className="tile-doc-icon">📄</span>
+              <span className="tile-cap">{c.title}</span>
+            </button>
+          )
+        )}
+      </div>
+    ) : (
+      <div className="empty">
+        No images in this section yet — add screenshots with ✏️ edit mode (＋ File or
+        drag-and-drop).
+      </div>
+    );
+
   return (
     <div
       className="window"
@@ -544,12 +623,22 @@ function App({ initial }: { readonly initial: GalleryData }) {
         <span className="title">
           RadGesture <small>Reference Gallery</small>
         </span>
+        {editing ? null : (
+          <button
+            className={'gridbtn' + (gridView ? ' on' : '')}
+            title={gridView ? 'Show card carousel' : 'Show image grid'}
+            type="button"
+            onClick={() => setGridView((v) => !v)}>
+            {gridView ? '▭' : '▦'}
+          </button>
+        )}
         <button
           className={'edit' + (editing ? ' on' : '')}
           title="Toggle edit mode"
           type="button"
           onClick={() => {
             setEditing((v) => !v);
+            setGridView(false);
             resetForm();
           }}>
           ✏️
@@ -698,47 +787,10 @@ function App({ initial }: { readonly initial: GalleryData }) {
             </div>
           )}
 
-          {cards.length > 0 ? (
-            <Swiper
-              key={`${safeActive}-${cards.length}`}
-              centeredSlides
-              grabCursor
-              slideToClickedSlide
-              className="swiper"
-              coverflowEffect={{
-                rotate: 36,
-                depth: 130,
-                modifier: 1,
-                stretch: 0,
-                slideShadows: false,
-              }}
-              effect="coverflow"
-              keyboard={{ enabled: true }}
-              modules={[Keyboard, Mousewheel, EffectCoverflow]}
-              mousewheel={{ forceToAxis: false }}
-              slidesPerView="auto"
-              onSlideChange={(s) => setIndex(s.activeIndex)}>
-              {cards.map((card, i) => (
-                <SwiperSlide key={card.id}>
-                  <CardView
-                    card={card}
-                    isEditing={editing}
-                    onChange={(patch) => updateCard(i, patch)}
-                    onCommit={commit}
-                    onDelete={() => deleteCard(i)}
-                    onOpenImage={() => openImage(card)}
-                  />
-                </SwiperSlide>
-              ))}
-            </Swiper>
-          ) : (
-            <div className="empty">
-              No cards yet — drop an image, or use ✏️ edit mode.
-            </div>
-          )}
+          {!editing && gridView ? gridNode : carouselNode}
 
           <div className="counter">
-            {cards.length ? `${index + 1} / ${cards.length}` : ''}
+            {!gridView && cards.length ? `${index + 1} / ${cards.length}` : ''}
           </div>
 
           {editing ? (
@@ -787,7 +839,11 @@ function App({ initial }: { readonly initial: GalleryData }) {
               )}
             </div>
           ) : (
-            <div className="hint">↕ scroll or ← → to flip · drag · drop to add</div>
+            <div className="hint">
+              {gridView
+                ? 'click an image to enlarge'
+                : '↕ scroll or ← → to flip · drag · drop to add'}
+            </div>
           )}
         </main>
       </div>
