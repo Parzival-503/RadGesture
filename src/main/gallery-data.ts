@@ -329,6 +329,25 @@ export function saveGallery(data: GalleryData): void {
 }
 
 /**
+ * Overwrites gallery.json with the built-in default seed (the latest bundled reference
+ * content). Imported media in the gallery/ folder is left untouched. Returns the
+ * refreshed gallery for the renderer. Used by the "Reset to default gallery" button so
+ * the user can pick up updated defaults without hunting for the file on disk.
+ */
+export function resetGallery(): GalleryData {
+  try {
+    fs.writeFileSync(
+      getGalleryFilePath(),
+      JSON.stringify(defaultGallery(), null, 2),
+      'utf-8'
+    );
+  } catch (error) {
+    console.error('Failed to reset gallery to defaults:', error);
+  }
+  return loadGalleryForRenderer();
+}
+
+/**
  * Points the gallery storage at a new directory, migrating the existing gallery.json +
  * media into it if the destination has none yet. Returns the refreshed gallery.
  */

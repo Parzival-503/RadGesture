@@ -692,3 +692,38 @@ table {
     }
   }
 }
+
+.reset {
+  margin-top: 10px;
+  .reset-label {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 6px;
+    line-height: 1.4;
+  }
+  .reset-actions {
+    display: flex;
+    gap: 6px;
+  }
+  button {
+    background: var(--panel2);
+    color: var(--muted);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    &:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    &.danger {
+      color: #fca5a5;
+      &:hover {
+        border-color: #f87171;
+        color: #fecaca;
+      }
+    }
+  }
+}

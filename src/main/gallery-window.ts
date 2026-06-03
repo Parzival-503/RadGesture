@@ -6,6 +6,7 @@ import { BrowserWindow, shell, ipcMain, dialog } from 'electron';
 import {
   loadGalleryForRenderer,
   saveGallery,
+  resetGallery,
   importImages,
   importImageData,
   getStoragePath,
@@ -120,6 +121,8 @@ function registerGalleryIPC() {
       return importImageData(payload.sectionId, payload.images);
     }
   );
+
+  ipcMain.handle('gallery-window.reset', () => resetGallery());
 
   ipcMain.handle('gallery-window.get-storage-path', () => getStoragePath());
 

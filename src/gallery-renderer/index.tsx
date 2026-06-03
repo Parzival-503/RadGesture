@@ -222,6 +222,7 @@ function App({ initial }: { readonly initial: GalleryData }) {
     path?: string;
   } | null>(null);
   const [storagePath, setStoragePath] = React.useState('');
+  const [confirmReset, setConfirmReset] = React.useState(false);
 
   const sections = data.sections || [];
   const safeActive = Math.min(active, Math.max(0, sections.length - 1));
@@ -273,6 +274,20 @@ function App({ initial }: { readonly initial: GalleryData }) {
       .then(({ path: newPath, data: fresh }) => {
         setStoragePath(newPath);
         setData(withIds(fresh));
+      })
+      .catch(console.error);
+  };
+
+  // Overwrite the gallery with the latest built-in default seed. Imported media files are
+  // kept; custom sections/cards are replaced. Two-step (the button flips to a confirm row).
+  const resetToDefaults = () => {
+    window.galleryAPI
+      .resetToDefaults()
+      .then((fresh) => {
+        setData(withIds(fresh));
+        setActive(0);
+        setIndex(0);
+        setConfirmReset(false);
       })
       .catch(console.error);
   };
@@ -535,6 +550,30 @@ function App({ initial }: { readonly initial: GalleryData }) {
               <button type="button" onClick={changeStorage}>
                 Change…
               </button>
+            </div>
+          ) : null}
+          {editing ? (
+            <div className="reset">
+              {confirmReset ? (
+                <>
+                  <div className="reset-label">
+                    Replace with the built-in radiology defaults? Custom sections and
+                    cards are removed; imported image/PDF files stay on disk.
+                  </div>
+                  <div className="reset-actions">
+                    <button className="danger" type="button" onClick={resetToDefaults}>
+                      Yes, reset
+                    </button>
+                    <button type="button" onClick={() => setConfirmReset(false)}>
+                      Cancel
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <button type="button" onClick={() => setConfirmReset(true)}>
+                  ↺ Reset to default gallery
+                </button>
+              )}
             </div>
           ) : null}
           <div className="foot">

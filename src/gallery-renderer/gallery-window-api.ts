@@ -31,6 +31,9 @@ export const GALLERY_WINDOW_API = {
   ): Promise<GalleryData> =>
     ipcRenderer.invoke('gallery-window.add-image-data', { sectionId, images }),
 
+  /** Overwrite the gallery with the built-in default seed; resolves with refreshed data. */
+  resetToDefaults: (): Promise<GalleryData> => ipcRenderer.invoke('gallery-window.reset'),
+
   /** Get the current gallery storage folder path. */
   getStoragePath: (): Promise<string> =>
     ipcRenderer.invoke('gallery-window.get-storage-path'),
