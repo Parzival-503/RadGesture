@@ -114,15 +114,39 @@ function CardView({
     );
   } else if (card.type === 'note') {
     body = isEditing ? (
-      <textarea
-        className="edit-note"
-        placeholder="Write a note, value, or formula…"
-        value={card.text ?? ''}
-        onBlur={onCommit}
-        onChange={(e) => onChange({ text: e.target.value })}
-      />
+      <div className="edit-fields note-edit">
+        <textarea
+          className="edit-note"
+          placeholder="Write a note, value, or formula…"
+          value={card.text ?? ''}
+          onBlur={onCommit}
+          onChange={(e) => onChange({ text: e.target.value })}
+        />
+        <input
+          placeholder="Source link https://… (optional)"
+          value={card.url ?? ''}
+          onBlur={onCommit}
+          onChange={(e) => onChange({ url: e.target.value })}
+        />
+        <input
+          placeholder="Source label (optional)"
+          value={card.source ?? ''}
+          onBlur={onCommit}
+          onChange={(e) => onChange({ source: e.target.value })}
+        />
+      </div>
     ) : (
-      <div className="note">{card.text}</div>
+      <>
+        <div className="note">{card.text}</div>
+        {card.url ? (
+          <button
+            className="sourcebtn"
+            type="button"
+            onClick={() => card.url && window.galleryAPI.openURI(card.url)}>
+            ◈ {card.source || 'Open source'} ↗
+          </button>
+        ) : null}
+      </>
     );
   } else if (card.type === 'link') {
     body = isEditing ? (
@@ -210,7 +234,7 @@ function App({ initial }: { readonly initial: GalleryData }) {
   const [active, setActive] = React.useState(0);
   const [index, setIndex] = React.useState(0);
   const [editing, setEditing] = React.useState(false);
-  const [addType, setAddType] = React.useState<'note' | 'link' | null>(null);
+  const [addType, setAddType] = React.useState<'note' | null>(null);
   const [fTitle, setFTitle] = React.useState('');
   const [fText, setFText] = React.useState('');
   const [fUrl, setFUrl] = React.useState('');
@@ -361,12 +385,14 @@ function App({ initial }: { readonly initial: GalleryData }) {
   };
 
   const submitForm = () => {
-    const title = fTitle.trim() || (addType === 'link' ? 'Link' : 'Note');
-    if (addType === 'note') {
-      addCard({ type: 'note', title, text: fText });
-    } else if (addType === 'link') {
-      addCard({ type: 'link', title, url: fUrl.trim(), source: fSource.trim() });
-    }
+    const title = fTitle.trim() || 'Note';
+    addCard({
+      type: 'note',
+      title,
+      text: fText,
+      url: fUrl.trim(),
+      source: fSource.trim(),
+    });
   };
 
   const deleteCard = (ci: number) => {
@@ -648,7 +674,7 @@ function App({ initial }: { readonly initial: GalleryData }) {
               effect="coverflow"
               keyboard={{ enabled: true }}
               modules={[Keyboard, Mousewheel, EffectCoverflow]}
-              mousewheel={{ forceToAxis: true }}
+              mousewheel={{ forceToAxis: false }}
               slidesPerView="auto"
               onSlideChange={(s) => setIndex(s.activeIndex)}>
               {cards.map((card, i) => (
@@ -685,13 +711,7 @@ function App({ initial }: { readonly initial: GalleryData }) {
                     disabled={!section}
                     type="button"
                     onClick={() => setAddType('note')}>
-                    ＋ Note
-                  </button>
-                  <button
-                    disabled={!section}
-                    type="button"
-                    onClick={() => setAddType('link')}>
-                    ＋ Link
+                    ＋ Card
                   </button>
                 </>
               ) : (
@@ -701,26 +721,21 @@ function App({ initial }: { readonly initial: GalleryData }) {
                     value={fTitle}
                     onChange={(e) => setFTitle(e.target.value)}
                   />
-                  {addType === 'note' ? (
-                    <input
-                      placeholder="Text / value / formula"
-                      value={fText}
-                      onChange={(e) => setFText(e.target.value)}
-                    />
-                  ) : (
-                    <>
-                      <input
-                        placeholder="https://…"
-                        value={fUrl}
-                        onChange={(e) => setFUrl(e.target.value)}
-                      />
-                      <input
-                        placeholder="Source (e.g. Radiopaedia)"
-                        value={fSource}
-                        onChange={(e) => setFSource(e.target.value)}
-                      />
-                    </>
-                  )}
+                  <input
+                    placeholder="Text / value / formula"
+                    value={fText}
+                    onChange={(e) => setFText(e.target.value)}
+                  />
+                  <input
+                    placeholder="Source link https://… (optional)"
+                    value={fUrl}
+                    onChange={(e) => setFUrl(e.target.value)}
+                  />
+                  <input
+                    placeholder="Source label (optional)"
+                    value={fSource}
+                    onChange={(e) => setFSource(e.target.value)}
+                  />
                   <button type="button" onClick={submitForm}>
                     Add
                   </button>
@@ -731,7 +746,7 @@ function App({ initial }: { readonly initial: GalleryData }) {
               )}
             </div>
           ) : (
-            <div className="hint">← → flip · drag to swipe · drop images to add</div>
+            <div className="hint">↕ scroll or ← → to flip · drag · drop to add</div>
           )}
         </main>
       </div>
