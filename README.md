@@ -14,11 +14,11 @@ Scroll or click the center to switch rings.
 1. Quit the **old** RadGesture (the Kando one) and the standalone RadProofread /
    RadOneLiner / Lung-RADS scripts if they are running. They grab the same keys.
    (The new one also finds them for you: Settings > Status.)
-2. Download https://github.com/Parzival-503/rad-gesture/releases/download/radgesture-latest/RadGesture-Setup.exe
+2. Download https://github.com/Parzival-503/RadGesture/releases/download/radgesture-latest/RadGesture-Setup.exe
    and run it. No admin needed, nothing else to install.
 
    **PC blocks installers?** Download
-   https://github.com/Parzival-503/rad-gesture/releases/download/radgesture-latest/RadGesture-portable.zip
+   https://github.com/Parzival-503/RadGesture/releases/download/radgesture-latest/RadGesture-portable.zip
    instead: unzip it somewhere permanent (e.g. `Documents\RadGesture`) and open
    `RadGesture.exe`. Same app, nothing installed. To update, quit it from the
    tray and replace the folder; your rings and settings are kept.

@@ -12,12 +12,12 @@ are meant to be developed together, usually in one Claude Code cloud project
 |---|---|---|---|
 | `rad-stopwatch` | `RadStopwatch` | Per-study timer, focus "par", daily goals and wellness card for the reading workstation; reads exam titles from PowerScribe | Electron app + AutoHotkey **v1.1** helper, Windows; one `Setup.exe` or portable `.exe` (the classic `.ahk` is kept alongside) |
 | `rad-base` | `radabase` | Personal StatDx-style reference site built from Obsidian notes | Node static-site build, deployed on Vercel |
-| `rad-gesture` | `RadGesture` | **The hub, where new tools go.** Our own radial menu (hold Ctrl+CapsLock) drawn by an Electron app, over an AutoHotkey helper that holds the AI tools (proofread, prior checklist, one-liner, impression) and does all PowerScribe work. Also the shortcut gallery | Electron + AutoHotkey **v1.1**, Windows |
+| `RadGesture` | `RadGesture` | **The hub, where new tools go.** Our own radial menu (hold Ctrl+CapsLock) drawn by an Electron app, over an AutoHotkey helper that holds the AI tools (proofread, prior checklist, one-liner, impression) and does all PowerScribe work. Also the shortcut gallery | Electron + AutoHotkey **v1.1**, Windows |
 | `rad-proofread` | `RadProofread` | **Merged into RadGesture** (`helper/RadGestureHelper.ahk`). Keeps the last standalone script for reference | AutoHotkey **v1.1**, Windows only |
 | `rad-oneliner` | `RadOneLiner` | **Merged into RadGesture.** Keeps the original standalone one-liner script for reference | AutoHotkey **v1.1**, Windows only |
 | `rad-evidence` | `RadEvidence` | **Shelved 2026-10-23** (the owner uses OpenEvidence instead). Guideline library + cited Claude Q&A + guideline watcher; code kept, nothing runs. Don't build on it unless he revives it | Python (stopped) |
 
-`rad-gesture` began as a fork of the Kando pie-menu app. Since v3 it is
+`RadGesture` began as a fork of the Kando pie-menu app. Since v3 it is
 the owner's own code, inspired by Kando and DragShift but sharing no code with them.
 Its repository was started afresh on 2026-11-02: no Kando history, no fork link.
 (An "Ask the guidelines" ring item that would send selected text to

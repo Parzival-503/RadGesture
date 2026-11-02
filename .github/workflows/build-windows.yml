@@ -7,7 +7,7 @@
 #      into RadGestureHelper.exe, build the app, then run the end-to-end test
 #      again with the helper running and REAL Ctrl+CapsLock presses injected.
 #      Only if all of that passes does the installer get published to
-#        https://github.com/Parzival-503/rad-gesture/releases/download/radgesture-latest/RadGesture-Setup.exe
+#        https://github.com/Parzival-503/RadGesture/releases/download/radgesture-latest/RadGesture-Setup.exe
 #   Screenshots from both runs are kept as the "e2e-screenshots-*" artifacts.
 name: Build Windows
 
