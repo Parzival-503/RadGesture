@@ -1,0 +1,66 @@
+{
+  "name": "radgesture",
+  "productName": "RadGesture",
+  "version": "3.0.0",
+  "description": "A radiology tool hub: a radial menu (Ctrl+CapsLock) over an AutoHotkey helper that holds the AI tools.",
+  "author": "Avecina Studio",
+  "license": "UNLICENSED",
+  "private": true,
+  "main": "src/main/main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test test/*.test.js",
+    "check:ahk": "python3 tools/ahk_check.py helper/RadGestureHelper.ahk",
+    "preview": "node scripts/preview.js",
+    "predist": "node scripts/extract-library-code.js",
+    "dist": "electron-builder --win nsis zip --x64 --publish never",
+    "test:e2e": "node tests-e2e/run.js"
+  },
+  "devDependencies": {
+    "electron": "44.6.0",
+    "electron-builder": "26.15.3",
+    "playwright": "1.56.1"
+  },
+  "build": {
+    "appId": "menu.radgesture.hub",
+    "productName": "RadGesture",
+    "artifactName": "RadGesture-${version}-${os}-${arch}.${ext}",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**",
+      "config/**",
+      "assets/**",
+      "tools/external_hotkeys.json",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "helper",
+        "to": "helper",
+        "filter": [
+          "*.ahk",
+          "*.exe",
+          "*.interpreter"
+        ]
+      }
+    ],
+    "win": {
+      "icon": "assets/icon.ico",
+      "target": [
+        "nsis",
+        "zip"
+      ]
+    },
+    "nsis": {
+      "artifactName": "RadGesture-Setup.${ext}",
+      "oneClick": true,
+      "perMachine": false,
+      "runAfterFinish": true,
+      "shortcutName": "RadGesture",
+      "include": "build/installer.nsh"
+    },
+    "copyright": "Copyright © Avecina Studio"
+  }
+}

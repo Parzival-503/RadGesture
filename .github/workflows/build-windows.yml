@@ -1,0 +1,247 @@
+# RadGesture: checks, real-Windows end-to-end test, installer.
+#
+# Every push:
+#   1. Linux: unit tests, AutoHotkey static checks, shortcut audit, and the
+#      end-to-end test of the real app (tray, Settings, ring) under a virtual screen.
+#   2. Windows: load the helper in real AutoHotkey v1.1 (--selftest), compile it
+#      into RadGestureHelper.exe, build the app, then run the end-to-end test
+#      again with the helper running and REAL Ctrl+CapsLock presses injected.
+#      Only if all of that passes does the installer get published to
+#        https://github.com/Parzival-503/rad-gesture/releases/download/radgesture-latest/RadGesture-Setup.exe
+#   Screenshots from both runs are kept as the "e2e-screenshots-*" artifacts.
+name: Build Windows
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, 'claude/**']
+
+permissions:
+  contents: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  AHK_VERSION: 1.1.37.02
+
+jobs:
+  checks:
+    name: Checks + Linux end-to-end
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .node-version
+      - run: npm ci
+      - name: Unit tests
+        run: npm test
+      - name: AutoHotkey helper static checks
+        run: python3 tools/ahk_check.py helper/RadGestureHelper.ahk
+      - name: Shortcut clash audit
+        run: python3 tools/hotkey_audit.py --check
+      - name: End-to-end (real app, virtual screen)
+        run: |
+          sudo apt-get install -y xvfb >/dev/null 2>&1 || true
+          xvfb-run -a -s "-screen 0 1400x900x24" node tests-e2e/run.js
+      - name: Keep the screenshots
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-screenshots-linux
+          path: e2e-shots/
+          if-no-files-found: ignore
+          retention-days: 14
+
+  windows:
+    name: Windows - helper check, build, real-key end-to-end
+    needs: checks
+    runs-on: windows-2022
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .node-version
+      - run: npm ci
+
+      - name: Get AutoHotkey v1.1 (to check and compile the helper)
+        shell: pwsh
+        run: |
+          $dir = Join-Path $env:RUNNER_TEMP 'ahk'
+          $zip = Join-Path $env:RUNNER_TEMP 'ahk.zip'
+          $urls = @(
+            "https://github.com/AutoHotkey/AutoHotkey/releases/download/v$env:AHK_VERSION/AutoHotkey_$env:AHK_VERSION.zip",
+            "https://www.autohotkey.com/download/1.1/AutoHotkey_$env:AHK_VERSION.zip")
+          foreach ($u in $urls) { try { Invoke-WebRequest $u -OutFile $zip -UseBasicParsing; break } catch { Write-Host "failed: $u" } }
+          Expand-Archive $zip -DestinationPath $dir -Force
+          Get-ChildItem -Recurse $dir | Select-Object FullName | Format-Table -HideTableHeaders
+          "AHK_DIR=$dir" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Helper loads in real AutoHotkey (syntax + startup)
+        shell: pwsh
+        timeout-minutes: 3
+        run: |
+          $out = & "$env:AHK_DIR\AutoHotkeyU64.exe" /ErrorStdOut helper\RadGestureHelper.ahk --selftest 2>&1 | Out-String
+          Write-Host $out
+          if ($out -notmatch 'SELFTEST OK') { throw 'The helper did not load cleanly in AutoHotkey.' }
+
+      - name: Compile the helper into RadGestureHelper.exe
+        shell: pwsh
+        timeout-minutes: 6
+        run: |
+          # Every wait here has a deadline: a dialog on the runner's desktop
+          # would otherwise hang the job for hours with an empty log.
+          function Shot($name) {
+            Add-Type -AssemblyName System.Windows.Forms, System.Drawing
+            $b = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+            $bmp = New-Object System.Drawing.Bitmap $b.Width, $b.Height
+            [System.Drawing.Graphics]::FromImage($bmp).CopyFromScreen($b.Location, [System.Drawing.Point]::Empty, $b.Size)
+            New-Item -ItemType Directory -Force e2e-shots | Out-Null
+            $bmp.Save("e2e-shots\$name.png"); Write-Host "screenshot: e2e-shots\$name.png"
+          }
+          function RunFor($exe, $argList, $secs) {
+            $psi = New-Object System.Diagnostics.ProcessStartInfo $exe
+            $psi.Arguments = $argList; $psi.UseShellExecute = $false
+            $psi.RedirectStandardOutput = $true; $psi.RedirectStandardError = $true
+            $p = [System.Diagnostics.Process]::Start($psi)
+            $o = $p.StandardOutput.ReadToEndAsync(); $e = $p.StandardError.ReadToEndAsync()
+            if (-not $p.WaitForExit($secs * 1000)) { return @{ timedOut = $true; proc = $p; out = '' } }
+            return @{ timedOut = $false; code = $p.ExitCode; out = ($o.Result + $e.Result) }
+          }
+          $ahk2exe = Get-ChildItem -Recurse $env:AHK_DIR -Filter Ahk2Exe.exe | Select-Object -First 1
+          $base = Get-ChildItem -Recurse $env:AHK_DIR -Filter 'Unicode 64-bit.bin' | Select-Object -First 1
+          Write-Host "Ahk2Exe: $($ahk2exe.FullName)  base: $($base.FullName)"
+          $mode = 'none'
+          if ($ahk2exe) {
+            $baseArg = if ($base) { "/bin `"$($base.FullName)`"" } else { "/base `"$env:AHK_DIR\AutoHotkeyU64.exe`"" }
+            $r = RunFor $ahk2exe.FullName "/in helper\RadGestureHelper.ahk /out helper\RadGestureHelper.exe /icon assets\icon.ico $baseArg /silent verbose" 120
+            if ($r.timedOut) { Shot 'ahk2exe-stuck'; $r.proc.Kill(); Write-Host 'Ahk2Exe did not finish in 2 minutes (screenshot kept).' }
+            else { Write-Host "Ahk2Exe exit $($r.code): $($r.out)" }
+            if ((Test-Path helper\RadGestureHelper.exe) -and -not $r.timedOut -and $r.code -eq 0) { $mode = 'compiled' }
+          }
+          if ($mode -ne 'compiled') {
+            # Fallback that needs no compiler: AutoHotkey renamed to
+            # RadGestureHelper.exe runs RadGestureHelper.ahk from its own folder.
+            Remove-Item -Force -ErrorAction SilentlyContinue helper\RadGestureHelper.exe
+            Copy-Item "$env:AHK_DIR\AutoHotkeyU64.exe" helper\RadGestureHelper.exe
+            Set-Content helper\RadGestureHelper.interpreter 'AutoHotkey v1.1 renamed; the hub passes it the script.'
+            $mode = 'bundled-interpreter'
+          }
+          Write-Host "helper mode: $mode"
+          # "My functions" (Settings > Library) are scripts a person writes;
+          # this AutoHotkey runs them, each as its own process.
+          Copy-Item "$env:AHK_DIR\AutoHotkeyU64.exe" helper\AutoHotkeyU64.exe
+          "HELPER_MODE=$mode" | Out-File -FilePath $env:GITHUB_ENV -Append
+          # The exe must start and leave cleanly on its own.
+          $st = if ($mode -eq 'compiled') { RunFor (Resolve-Path helper\RadGestureHelper.exe) '--selftest' 60 } else { RunFor (Resolve-Path helper\RadGestureHelper.exe) '/ErrorStdOut helper\RadGestureHelper.ahk --selftest' 60 }
+          if ($st.timedOut) { Shot 'helper-selftest-stuck'; $st.proc.Kill(); throw 'The helper exe did not exit from --selftest within 60 s (a dialog?). See the screenshot artifact.' }
+          Write-Host "selftest exit $($st.code): $($st.out)"
+          if ($st.code -ne 0) { throw "helper exe selftest exit $($st.code)" }
+
+      - name: Stamp the build (date + commit, shown in Settings next to the version)
+        shell: pwsh
+        run: |
+          $d = (Get-Date).ToUniversalTime().ToString('yyyy-MM-dd HH:mm')
+          @{ date = $d; commit = "$env:GITHUB_SHA".Substring(0, 7) } | ConvertTo-Json | Set-Content -Encoding utf8 config/build-info.json
+
+      - name: Ship only the compiled helper (no loose script beside it)
+        # A compiled .exe is self-contained; shipping the loose .ahk next to
+        # it is a renamed-script-engine pattern endpoint security flags. Only
+        # the interpreter-fallback build still needs the script shipped.
+        if: env.HELPER_MODE == 'compiled'
+        shell: pwsh
+        run: |
+          # Settings > Functions > Code reads this copy once the script is gone.
+          node scripts/extract-library-code.js
+          if ($LASTEXITCODE -ne 0) { throw 'could not extract the library code' }
+          Remove-Item -Force helper\RadGestureHelper.ahk
+
+      - name: Build the app (installer + portable zip, helper inside)
+        run: npm run dist
+
+      - name: End-to-end on Windows (helper running, real Ctrl+CapsLock)
+        shell: pwsh
+        timeout-minutes: 10
+        run: |
+          $env:RG_APP_EXE = (Resolve-Path 'dist\win-unpacked\RadGesture.exe').Path
+          $env:AHK_EXE = "$env:AHK_DIR\AutoHotkeyU64.exe"
+          # Run it under a watch from outside: a hang inside the test (or the
+          # app) still ends here with the full log, a picture of the screen
+          # and what was running, instead of a cancelled job with no log.
+          New-Item -ItemType Directory -Force e2e-shots | Out-Null
+          $p = Start-Process node -ArgumentList 'tests-e2e\run.js' -NoNewWindow -PassThru -RedirectStandardOutput e2e-shots\e2e-log.txt -RedirectStandardError e2e-shots\e2e-err.txt
+          $done = $p.WaitForExit(480000)
+          Get-Content e2e-shots\e2e-log.txt, e2e-shots\e2e-err.txt -ErrorAction SilentlyContinue
+          if (-not $done) {
+            Write-Host "::error::the end-to-end test was still running after 8 minutes (last lines above)"
+            Add-Type -AssemblyName System.Windows.Forms, System.Drawing
+            $b = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+            $bmp = New-Object System.Drawing.Bitmap $b.Width, $b.Height
+            [System.Drawing.Graphics]::FromImage($bmp).CopyFromScreen($b.Location, [System.Drawing.Point]::Empty, $b.Size)
+            $bmp.Save("$PWD\e2e-shots\hang-screen.png")
+            Get-Process | Where-Object { $_.ProcessName -match 'RadGesture|AutoHotkey|node|notepad|electron' } | Format-Table Id, ProcessName, CPU, WorkingSet64, MainWindowTitle -AutoSize | Out-String -Width 200 | Write-Host
+            taskkill /F /T /PID $p.Id 2>$null
+          }
+          # Anything still running would hold this step open (that is how a
+          # finished test once ran out the job's clock): list it, end it.
+          $left = Get-Process RadGesture, RadGestureHelper, AutoHotkeyU64, notepad -ErrorAction SilentlyContinue
+          if ($left) {
+            Write-Host "::warning::still running after the test: $($left.ProcessName -join ', ')"
+            $left | Stop-Process -Force
+          }
+          if (-not $done) { exit 1 }
+          exit $p.ExitCode
+
+      - name: Install over a running copy, then uninstall it while running
+        shell: pwsh
+        timeout-minutes: 10
+        run: ./tests-e2e/installer.ps1
+
+      - name: Keep the screenshots
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-screenshots-windows
+          path: e2e-shots/
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload the installer + portable zip
+        uses: actions/upload-artifact@v7
+        with:
+          name: RadGesture-Windows
+          path: |
+            dist/RadGesture-Setup.exe
+            dist/RadGesture-*-win-x64.zip
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publish to the "radgesture-latest" release (fixed download link)
+        uses: svenstaro/upload-release-action@2.11.5
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: radgesture-latest
+          release_name: RadGesture (latest build)
+          body: |
+            Latest RadGesture. Two ways to get it, same app:
+            - "RadGesture-Setup.exe": run it; installs for your Windows user only (no admin).
+            - "RadGesture-portable.zip": nothing to install. Unzip it somewhere permanent (e.g. Documents\RadGesture) and open RadGesture.exe. For PCs that block installers. To update: quit RadGesture from the tray, replace the folder; your rings and settings stay.
+            Everything it needs is inside (including the AutoHotkey helper).
+            This build passed the end-to-end test on a Windows machine with real Ctrl+CapsLock presses.
+          prerelease: true
+          overwrite: true
+          file: dist/RadGesture-Setup.exe
+
+      - name: Publish the portable zip too (fixed link, nothing to install)
+        shell: pwsh
+        run: Copy-Item (Get-ChildItem dist\RadGesture-*-win-x64.zip | Select-Object -First 1).FullName dist\RadGesture-portable.zip
+
+      - name: Upload the portable zip to "radgesture-latest"
+        uses: svenstaro/upload-release-action@2.11.5
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: radgesture-latest
+          prerelease: true
+          overwrite: true
+          file: dist/RadGesture-portable.zip
+          asset_name: RadGesture-portable.zip

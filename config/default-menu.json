@@ -1,0 +1,508 @@
+{
+  "version": 2,
+  "labels": "pause",
+  "ringScale": 1,
+  "startAtLogin": true,
+  "helper": {
+    "autoStart": true,
+    "ahkPath": ""
+  },
+  "categories": [
+    {
+      "id": "pacs",
+      "name": "PACS",
+      "color": "#c79bff",
+      "icon": "grid_view",
+      "items": [
+        {
+          "name": "Window / level",
+          "icon": "contrast",
+          "items": [
+            {
+              "name": "Soft tissue",
+              "icon": "gastroenterology",
+              "action": "helper:lib:PACS_WL_SoftTissue"
+            },
+            {
+              "name": "Lung",
+              "icon": "pulmonology",
+              "action": "helper:lib:PACS_WL_Lung"
+            },
+            {
+              "name": "Bone",
+              "icon": "ti:bone",
+              "action": "helper:lib:PACS_WL_Bone"
+            },
+            {
+              "name": "Brain",
+              "icon": "ti:brain",
+              "action": "helper:lib:PACS_WL_Brain"
+            },
+            {
+              "name": "Stroke",
+              "icon": "ti:brain",
+              "action": "helper:lib:PACS_WL_Stroke"
+            }
+          ]
+        },
+        {
+          "name": "Measure",
+          "icon": "straighten",
+          "items": [
+            {
+              "name": "Distance",
+              "icon": "straighten",
+              "action": "helper:lib:PACS_Distance"
+            },
+            {
+              "name": "Orthogonal",
+              "icon": "ti:ruler",
+              "action": "helper:lib:PACS_Orthogonal"
+            },
+            {
+              "name": "ROI",
+              "icon": "adjust",
+              "action": "helper:lib:PACS_ROI"
+            },
+            {
+              "name": "Arrow",
+              "icon": "north_east",
+              "action": "helper:lib:PACS_Arrow"
+            },
+            {
+              "name": "Circle",
+              "icon": "circle",
+              "action": "helper:lib:PACS_Circle"
+            },
+            {
+              "name": "Insert measurement",
+              "icon": "add_box",
+              "action": "helper:lib:PACS_Insert_Measurement"
+            }
+          ]
+        },
+        {
+          "name": "Crosshair & link",
+          "icon": "my_location",
+          "items": [
+            {
+              "name": "Crosshair",
+              "icon": "ti:plus",
+              "action": "helper:lib:PACS_Crosshair"
+            },
+            {
+              "name": "Link priors",
+              "icon": "ti:link",
+              "action": "helper:lib:PACS_LinkCrosshair"
+            },
+            {
+              "name": "Pinpoint",
+              "icon": "my_location",
+              "action": "helper:lib:PACS_Pinpoint"
+            }
+          ]
+        },
+        {
+          "name": "Layout",
+          "icon": "dashboard",
+          "items": [
+            {
+              "name": "Previous layout",
+              "icon": "skip_previous",
+              "action": "helper:lib:PACS_Prev_Layout",
+              "stay": true
+            },
+            {
+              "name": "Next layout",
+              "icon": "skip_next",
+              "action": "helper:lib:PACS_Next_Layout",
+              "stay": true
+            },
+            {
+              "name": "Grid",
+              "icon": "view_comfy",
+              "items": [
+                {
+                  "name": "2 × 2",
+                  "icon": "grid:2x2",
+                  "action": "helper:lib:PACS_Layout_2x2"
+                },
+                {
+                  "name": "3 × 2",
+                  "icon": "grid:3x2",
+                  "action": "helper:lib:PACS_Layout_3x2"
+                },
+                {
+                  "name": "3 × 3",
+                  "icon": "grid:3x3",
+                  "action": "helper:lib:PACS_Layout_3x3"
+                }
+              ]
+            },
+            {
+              "name": "Matrix",
+              "icon": "grid_view",
+              "action": "helper:lib:PACS_Matrix"
+            },
+            {
+              "name": "Image window",
+              "icon": "web",
+              "action": "helper:lib:PACS_ImageWindow"
+            }
+          ]
+        },
+        {
+          "name": "Key images & exams",
+          "icon": "key",
+          "items": [
+            {
+              "name": "Next key image",
+              "icon": "fast_forward",
+              "action": "helper:lib:PACS_Next_Key_Image",
+              "stay": true
+            },
+            {
+              "name": "Previous key image",
+              "icon": "fast_rewind",
+              "action": "helper:lib:PACS_Prev_Key_Image",
+              "stay": true
+            },
+            {
+              "name": "Previous exam",
+              "icon": "arrow_downward",
+              "action": "helper:lib:PACS_Prev_Exam",
+              "stay": true
+            },
+            {
+              "name": "Next exam",
+              "icon": "arrow_upward",
+              "action": "helper:lib:PACS_Next_Exam",
+              "stay": true
+            }
+          ]
+        },
+        {
+          "name": "Image",
+          "icon": "tune",
+          "items": [
+            {
+              "name": "MPR",
+              "icon": "view_in_ar",
+              "action": "helper:lib:PACS_MPR"
+            },
+            {
+              "name": "Thick slab",
+              "icon": "ti:stack-2",
+              "action": "helper:lib:PACS_Thick_Slab"
+            },
+            {
+              "name": "Slab off",
+              "icon": "ti:minus",
+              "action": "helper:lib:PACS_Slab_Off"
+            },
+            {
+              "name": "Invert",
+              "icon": "invert_colors",
+              "action": "helper:lib:PACS_Invert"
+            },
+            {
+              "name": "Enhance",
+              "icon": "wand_stars",
+              "action": "helper:lib:PACS_Enhance"
+            },
+            {
+              "name": "Sharpen",
+              "icon": "filter_center_focus",
+              "action": "helper:lib:PACS_Sharpen"
+            },
+            {
+              "name": "Reset",
+              "icon": "restart_alt",
+              "action": "helper:lib:PACS_Reset"
+            }
+          ]
+        },
+        {
+          "name": "Insert priors",
+          "icon": "history",
+          "action": "helper:lib:PACS_Insert_Priors"
+        },
+        {
+          "name": "Show report",
+          "icon": "description",
+          "action": "helper:lib:PACS_Show_Report"
+        }
+      ]
+    },
+    {
+      "id": "ai",
+      "name": "AI Tools",
+      "color": "#7aa2ff",
+      "icon": "stars",
+      "apps": [
+        "Nuance.PowerScribe360.exe"
+      ],
+      "items": [
+        {
+          "name": "Proofread",
+          "icon": "spellcheck",
+          "action": "helper:proofread"
+        },
+        {
+          "name": "Impression",
+          "icon": "summarize",
+          "action": "helper:impression"
+        },
+        {
+          "name": "Learn this impression",
+          "icon": "school",
+          "action": "helper:style:learn"
+        },
+        {
+          "name": "One-liner",
+          "icon": "short_text",
+          "items": [
+            {
+              "name": "Full",
+              "icon": "notes",
+              "action": "helper:oneliner:full"
+            },
+            {
+              "name": "Oncologic",
+              "icon": "ti:ribbon-health",
+              "action": "helper:oneliner:oncologic"
+            },
+            {
+              "name": "Treatment",
+              "icon": "medication",
+              "action": "helper:oneliner:treatment"
+            },
+            {
+              "name": "Add chart text",
+              "icon": "playlist_add",
+              "action": "helper:chart:add"
+            },
+            {
+              "name": "Empty chart text",
+              "icon": "playlist_remove",
+              "action": "helper:chart:clear"
+            },
+            {
+              "name": "Show toolbar",
+              "icon": "dock_to_left",
+              "action": "helper:prior:show"
+            }
+          ]
+        },
+        {
+          "name": "Prior checklist",
+          "icon": "history",
+          "items": [
+            {
+              "name": "Add copied prior",
+              "icon": "add",
+              "action": "helper:prior:add"
+            },
+            {
+              "name": "Make checklist",
+              "icon": "checklist",
+              "action": "helper:prior:checklist"
+            },
+            {
+              "name": "Empty the list",
+              "icon": "delete_sweep",
+              "action": "helper:prior:clear"
+            },
+            {
+              "name": "Show toolbar",
+              "icon": "dock_to_left",
+              "action": "helper:prior:show"
+            }
+          ]
+        },
+        {
+          "name": "AI settings",
+          "icon": "tune",
+          "items": [
+            {
+              "name": "Key and model",
+              "icon": "key",
+              "action": "helper:settings"
+            },
+            {
+              "name": "Proofread history",
+              "icon": "manage_search",
+              "action": "helper:history"
+            },
+            {
+              "name": "Edit rings",
+              "icon": "edit",
+              "action": "hub:edit-menu"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "gallery",
+      "name": "Reference Library",
+      "color": "#f2b84b",
+      "icon": "menu_book",
+      "items": [
+        {
+          "name": "CT Chest",
+          "icon": "pulmonology",
+          "items": [
+            {
+              "name": "Lung-RADS v2022",
+              "icon": "menu_book",
+              "action": "url:https://www.jacr.org/article/S1546-1440(23)00761-5/fulltext"
+            },
+            {
+              "name": "Fleischner 2017",
+              "icon": "menu_book",
+              "action": "url:https://pubs.rsna.org/doi/full/10.1148/radiol.2017161659"
+            }
+          ]
+        },
+        {
+          "name": "Abdomen",
+          "icon": "gastroenterology",
+          "items": [
+            {
+              "name": "LI-RADS v2018",
+              "icon": "menu_book",
+              "action": "url:https://radiologyassistant.nl/abdomen/liver/li-rads"
+            },
+            {
+              "name": "Bosniak v2019",
+              "icon": "menu_book",
+              "action": "url:https://radiopaedia.org/articles/bosniak-classification-of-cystic-renal-masses-version-2019"
+            },
+            {
+              "name": "PI-RADS v2.1",
+              "icon": "menu_book",
+              "action": "url:https://radiologyassistant.nl/abdomen/prostate/prostate-cancer-pi-rads-v2-1"
+            },
+            {
+              "name": "O-RADS US",
+              "icon": "menu_book",
+              "action": "url:https://pubs.rsna.org/doi/full/10.1148/radiol.230685"
+            },
+            {
+              "name": "O-RADS MRI",
+              "icon": "menu_book",
+              "action": "url:https://radiopaedia.org/articles/ovarian-adnexal-reporting-and-data-system-magnetic-resonance-imaging-o-rads-mri"
+            },
+            {
+              "name": "ACR Incidentals",
+              "icon": "menu_book",
+              "action": "url:https://www.jacr.org/article/S1546-1440(17)30551-3/fulltext"
+            }
+          ]
+        },
+        {
+          "name": "Ultrasound",
+          "icon": "graphic_eq",
+          "items": [
+            {
+              "name": "ACR TI-RADS",
+              "icon": "menu_book",
+              "action": "url:https://radiologyassistant.nl/head-neck/ti-rads/ti-rads"
+            },
+            {
+              "name": "1st-Trimester Lexicon",
+              "icon": "menu_book",
+              "action": "url:https://pubs.rsna.org/doi/full/10.1148/radiol.240122"
+            }
+          ]
+        },
+        {
+          "name": "PET-CT",
+          "icon": "radiology",
+          "items": [
+            {
+              "name": "Deauville 5-point",
+              "icon": "menu_book",
+              "action": "url:https://radiopaedia.org/search?q=Deauville%20five-point%20scale"
+            },
+            {
+              "name": "PSMA-RADS 2.0",
+              "icon": "menu_book",
+              "action": "url:https://pmc.ncbi.nlm.nih.gov/articles/PMC11981304/"
+            },
+            {
+              "name": "Krenning score",
+              "icon": "menu_book",
+              "action": "url:https://radiopaedia.org/articles/krenning-score-of-neuroendocrine-tumour-uptake"
+            }
+          ]
+        },
+        {
+          "name": "Search selection",
+          "icon": "search",
+          "items": [
+            {
+              "name": "Radiopaedia",
+              "icon": "search",
+              "action": "search:https://radiopaedia.org/search?q={clipboard}"
+            },
+            {
+              "name": "Google",
+              "icon": "travel_explore",
+              "action": "search:https://www.google.com/search?q={clipboard}"
+            },
+            {
+              "name": "Google Images",
+              "icon": "image_search",
+              "action": "search:https://www.google.com/search?tbm=isch&q={clipboard}"
+            },
+            {
+              "name": "OpenEvidence",
+              "icon": "clinical_notes",
+              "action": "helper:oe:clip"
+            }
+          ]
+        },
+        {
+          "name": "My documents",
+          "icon": "folder_open",
+          "action": "file:%USERPROFILE%\\Documents"
+        },
+        {
+          "name": "Add from clipboard",
+          "icon": "note_add",
+          "action": "hub:ref-add"
+        }
+      ]
+    },
+    {
+      "id": "apps",
+      "name": "Apps",
+      "color": "#5cc8d6",
+      "icon": "apps",
+      "items": [
+        {
+          "name": "Epic",
+          "icon": "local_hospital",
+          "action": "helper:lib:ActivateEPIC"
+        },
+        {
+          "name": "Teams",
+          "icon": "groups",
+          "action": "helper:lib:ActivateTeams"
+        },
+        {
+          "name": "Chrome tabs",
+          "icon": "tab",
+          "action": "helper:lib:OpenChromeTabs"
+        },
+        {
+          "name": "OpenEvidence",
+          "icon": "public",
+          "action": "url:https://www.openevidence.com/"
+        }
+      ]
+    }
+  ]
+}

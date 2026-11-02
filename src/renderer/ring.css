@@ -1,0 +1,316 @@
+/* RadGesture ring look.
+   Positions and sizes are driven every frame by ring.js (spring physics);
+   this file only sets the look. The theme (src/common/themes.js) sets the
+   variables below on #stage, plus data-lit / data-fx for its effects.
+   The defaults here are Graphite. */
+
+@font-face {
+  font-family: 'Tabler Icons';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url('../../assets/fonts/tabler-icons.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Material Symbols Rounded';
+  font-style: normal;
+  font-weight: 100 700;
+  font-display: block;
+  src: url('../../assets/fonts/material-symbols-rounded.woff2') format('woff2');
+}
+
+:root {
+  --accent: #8fb0ff;
+  --ink: #f1f3f8;
+  --ink-dim: rgba(241, 243, 248, 0.66);
+  --node: #1d2028;
+  --node-hi: #262a34;
+  --edge: rgba(255, 255, 255, 0.09);
+  --shadow: 0 10px 28px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.35);
+  --node-ink: #dfe4ee;
+  --center-a: #22252e;
+  --center-b: #15171d;
+  --halo: 8, 9, 12;
+  --sep: rgba(255, 255, 255, 0.07);
+  --glow: 1;
+  --font: "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  font-family: var(--font);
+  color: var(--ink);
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
+}
+
+#stage { position: fixed; inset: 0; font-family: var(--font); color: var(--ink); }
+#stage .layer { position: absolute; left: 0; top: 0; width: 0; height: 0; will-change: transform, opacity; }
+
+.msym {
+  font-family: 'Material Symbols Rounded';
+  font-weight: 400;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  transition: font-variation-settings 180ms ease;
+}
+.tabler { font-family: 'Tabler Icons'; font-style: normal; font-weight: normal; line-height: 1; display: inline-block; -webkit-font-smoothing: antialiased; speak: never; }
+.imgic { width: 1em; height: 1em; object-fit: contain; display: inline-block; vertical-align: middle; }
+.emoji { font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif; line-height: 1; }
+
+/* ---- connector between the rings you came through ---- */
+svg.links { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; }
+svg.links line { stroke: color-mix(in srgb, var(--accent) 55%, #2a2e38); stroke-width: 7; stroke-linecap: round; opacity: 0.55; }
+svg.links .wire { stroke: color-mix(in srgb, var(--accent) 70%, white); stroke-width: 2.5; opacity: 0; }
+
+/* ---- wedges: thin separators + a soft highlight for the aimed direction ---- */
+svg.wedges { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; }
+svg.wedges .sep { stroke-width: 1.4; stroke-linecap: round; } /* stroke: a gradient that fades at both ends (ring.js) */
+svg.wedges .sepstop { stop-color: var(--sep); }
+svg.wedges .hl { opacity: 0; } /* fill + soft edge set per level in ring.js */
+
+/* ---- halo: keeps everything readable over a bright CT ---- */
+.halo {
+  position: absolute; left: 0; top: 0;
+  width: 420px; height: 420px; margin: -210px 0 0 -210px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(var(--halo), 0.55) 0%, rgba(var(--halo), 0.32) 45%, rgba(var(--halo), 0) 70%);
+  pointer-events: none;
+}
+
+/* ---- the center ---- */
+.center {
+  position: absolute; left: 0; top: 0;
+  width: 112px; height: 112px; margin: -56px 0 0 -56px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0) 60%),
+    linear-gradient(170deg, var(--center-a), var(--center-b));
+  border: 1px solid var(--edge);
+  box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  transition: box-shadow 200ms ease, border-color 200ms ease;
+}
+.center .cicon {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-size: 40px; color: var(--accent);
+}
+.center .cicon .msym { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 40; }
+.center .ctext {
+  position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 0 12px;
+}
+.center .ctitle {
+  font-size: 14.5px; font-weight: 600; line-height: 1.18; max-width: 92px;
+  overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+.center .ccat {
+  position: absolute; left: 0; right: 0; bottom: 14px;
+  display: flex; justify-content: center; gap: 5px;
+}
+.center .ccat i { width: 5px; height: 5px; border-radius: 50%; background: rgba(255, 255, 255, 0.18); transition: background 200ms ease, transform 200ms ease; }
+.center .ccat i.on { background: var(--accent); transform: scale(1.25); }
+.center .cname {
+  position: absolute; left: 0; right: 0; top: 13px; text-align: center;
+  font-size: 9.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent);
+  opacity: 0.85;
+}
+
+/* A parent ring's center is the way back: it lights up when aimed at. */
+.center[data-parent].on {
+  border-color: color-mix(in srgb, var(--accent) 80%, white);
+  box-shadow: var(--shadow), 0 0 0 8px color-mix(in srgb, var(--accent) 22%, transparent), 0 0 30px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+.center[data-parent] .cicon { color: var(--ink); }
+
+/* Little pointer on the rim that follows the cursor (rotation set by ring.js). */
+.rim {
+  position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none;
+}
+.rim::before {
+  content: ""; position: absolute; left: -7px; top: -66px;
+  border-left: 7px solid transparent; border-right: 7px solid transparent;
+  border-bottom: 9px solid var(--accent);
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 70%, transparent));
+}
+
+/* ---- directions ---- */
+.node {
+  position: absolute; left: 0; top: 0;
+  width: 58px; height: 58px; margin: -29px 0 0 -29px;
+  border-radius: 50%;
+  background: linear-gradient(170deg, var(--node-hi), var(--node));
+  border: 1px solid var(--edge);
+  box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--node-ink);
+  font-size: 28px;
+  cursor: pointer;
+  transition: color 180ms ease, box-shadow 200ms ease, border-color 200ms ease;
+  /* The lit look is a layer that fades in: gradients themselves can't
+     transition, so swapping the background made the fill snap on and off. */
+  --lit-bg: linear-gradient(170deg, color-mix(in srgb, var(--accent) 88%, white), var(--accent));
+  isolation: isolate;
+}
+.node::before {
+  content: ""; position: absolute; inset: -1px; border-radius: 50%; z-index: -1;
+  background: var(--lit-bg); opacity: 0; transition: opacity 180ms ease;
+  pointer-events: none;
+}
+.node.on::before { opacity: 1; }
+.node.on {
+  color: #0b0e14;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55), 0 0 0 7px color-mix(in srgb, var(--accent) 20%, transparent),
+    0 0 26px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+.node.on .msym { font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24; }
+.node.back { width: 40px; height: 40px; margin: -20px 0 0 -20px; font-size: 20px; color: var(--ink-dim); }
+.node.back { --lit-bg: linear-gradient(170deg, var(--node-hi), var(--node-hi)); }
+.node.back.on { color: var(--ink); box-shadow: var(--shadow); }
+
+/* Tiny dots that preview what a direction holds (its smaller ring). */
+.gdot {
+  position: absolute; left: 0; top: 0; width: 6px; height: 6px; margin: -3px 0 0 -3px;
+  border-radius: 50%; background: rgba(255, 255, 255, 0.45);
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+.gdot.on { background: var(--accent); }
+
+/* Name labels: hidden until you pause, or always if the menu asks for them. */
+.label {
+  position: absolute; left: 0; top: 0;
+  font-size: 12.5px; font-weight: 500; white-space: nowrap; color: var(--ink-dim);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95), 0 0 14px rgba(0, 0, 0, 0.85);
+  pointer-events: none;
+}
+.label.on { color: var(--ink); font-weight: 600; }
+
+/* ---- the dock: one button per ring, under the ring (above it near the
+   bottom edge). Click one to go straight there. ---- */
+.dock {
+  position: absolute; left: 0; top: 0; width: 0; height: 0;
+}
+.dock .dchips {
+  position: absolute; left: 0; top: 0; transform: translate(-50%, -50%);
+  display: flex; gap: 6px; padding: 5px;
+  border-radius: 999px;
+  background: linear-gradient(170deg, var(--center-a), var(--center-b));
+  border: 1px solid var(--edge);
+  box-shadow: var(--shadow);
+}
+.dock .dchip {
+  all: unset; box-sizing: border-box;
+  width: 34px; height: 34px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 19px; color: color-mix(in srgb, var(--c) 75%, var(--node-ink));
+  cursor: pointer;
+  transition: background 140ms ease, color 140ms ease, transform 160ms cubic-bezier(.3, 1.6, .5, 1);
+}
+.dock .dchip:hover { background: rgba(255, 255, 255, 0.08); color: var(--c); transform: scale(1.12); }
+.dock .dchip.on { background: var(--c); color: #0b0e14; }
+.dock .dchip.on .msym { font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24; }
+.dock .dsep { width: 1px; margin: 6px 1px; background: var(--edge); }
+.dock .dset { --c: var(--ink); color: var(--ink-dim); }
+.dock .dname, .dock .dhint {
+  position: absolute; left: 0; transform: translateX(-50%);
+  white-space: nowrap; text-align: center; pointer-events: none;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95), 0 0 14px rgba(0, 0, 0, 0.85);
+}
+.dock .dname {
+  top: 28px; font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--ink-dim);
+}
+.dock .dname.hot { color: var(--ink); }
+.dock .dhint { top: 46px; font-size: 11px; color: var(--ink-dim); opacity: 0; transition: opacity 300ms ease; }
+.dock.hint .dhint { opacity: 0.7; }
+.dock.above .dname { top: -44px; }
+.dock.above .dhint { top: -62px; }
+
+/* ---- neon looks (data-lit="outline"): the aimed direction stays dark and
+   its rim and icon glow in the ring colour instead of filling. ---- */
+#stage[data-lit="outline"] .node { border-color: color-mix(in srgb, var(--accent) 30%, var(--edge)); }
+#stage[data-lit="outline"] .node { --lit-bg: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--accent) 30%, var(--node)), var(--node) 75%); }
+#stage[data-lit="outline"] .node.on {
+  color: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent),
+    0 0 calc(18px * var(--glow)) color-mix(in srgb, var(--accent) 70%, transparent),
+    0 0 calc(42px * var(--glow)) color-mix(in srgb, var(--accent) 35%, transparent),
+    inset 0 0 calc(14px * var(--glow)) color-mix(in srgb, var(--accent) 35%, transparent);
+  text-shadow: 0 0 calc(10px * var(--glow)) var(--accent);
+}
+#stage[data-lit="outline"] .node.on .imgic { filter: drop-shadow(0 0 6px var(--accent)); }
+#stage[data-lit="outline"] .center {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--edge));
+  box-shadow: var(--shadow), 0 0 calc(22px * var(--glow)) color-mix(in srgb, var(--accent) 28%, transparent),
+    inset 0 0 calc(18px * var(--glow)) color-mix(in srgb, var(--accent) 18%, transparent);
+}
+#stage[data-lit="outline"] .center .cicon, #stage[data-lit="outline"] .center .cname { text-shadow: 0 0 calc(12px * var(--glow)) var(--accent); }
+#stage[data-lit="outline"] .center .ctitle { text-shadow: 0 0 10px color-mix(in srgb, var(--accent) 60%, transparent), 0 1px 3px rgba(0, 0, 0, 0.8); }
+#stage[data-lit="outline"] .gdot.on, #stage[data-lit="outline"] .center .ccat i.on { box-shadow: 0 0 8px var(--accent); }
+#stage[data-lit="outline"] .dock .dchips { border-color: color-mix(in srgb, var(--accent) 35%, var(--edge)); }
+#stage[data-lit="outline"] .dock .dchip.on {
+  background: color-mix(in srgb, var(--c) 18%, transparent); color: var(--c);
+  box-shadow: inset 0 0 0 1.5px var(--c), 0 0 calc(14px * var(--glow)) color-mix(in srgb, var(--c) 60%, transparent);
+  text-shadow: 0 0 8px var(--c);
+}
+#stage[data-lit="outline"] svg.links line { stroke: color-mix(in srgb, var(--accent) 45%, transparent); opacity: 0.6; }
+#stage[data-lit="outline"] .label.on { text-shadow: 0 0 10px color-mix(in srgb, var(--accent) 70%, transparent), 0 1px 3px rgba(0, 0, 0, 0.95); }
+
+/* fx "pulse": the aimed direction's glow breathes. */
+@keyframes rg-pulse { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.28); } }
+#stage[data-fx~="pulse"] .node.on { animation: rg-pulse 1.6s ease-in-out infinite; }
+
+/* fx "scan": CRT scan lines and a faint flicker on the center. */
+#stage[data-fx~="scan"] .center::after, #stage[data-fx~="scan"] .node.on::after {
+  content: ""; position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.28) 0 1px, transparent 1px 3px);
+  mix-blend-mode: multiply;
+}
+#stage[data-fx~="scan"] .label, #stage[data-fx~="scan"] .center .cname { letter-spacing: 0.04em; }
+#stage[data-fx~="scan"] .center .cname { letter-spacing: 0.16em; }
+
+/* fx "glass": see-through buttons with an iridescent rim (a masked
+   pseudo-element, so the see-through fill stays see-through). */
+#stage[data-fx~="glass"] .node, #stage[data-fx~="glass"] .center, #stage[data-fx~="glass"] .dock .dchips { border-color: transparent; }
+#stage[data-fx~="glass"] .node::after, #stage[data-fx~="glass"] .center::after, #stage[data-fx~="glass"] .dock .dchips::after {
+  content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 1.5px; pointer-events: none;
+  background: conic-gradient(from 200deg, #8ff7ff, #ff9ef0, #c3a8ff, #a6ffcf, #ffd59e, #8ff7ff);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  opacity: 0.75;
+}
+#stage[data-fx~="glass"] .node.on::after { opacity: 1; padding: 2px; }
+#stage[data-fx~="glass"] .node.on { border-color: transparent; }
+#stage[data-fx~="glass"] .center::before {
+  content: ""; position: absolute; inset: 6px; border-radius: 50%; pointer-events: none;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 45%);
+}
+
+/* Grab the middle to move the ring. */
+.center:not([data-parent]) { cursor: grab; }
+body.dragging, body.dragging * { cursor: grabbing !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  .dock .dchip { transition: none; }
+
+  .msym, .node, .node::before, .center, .center .ccat i { transition: none; }
+  #stage[data-fx~="pulse"] .node.on { animation: none; }
+}
+
+/* Layout pictures ("grid:3x2"): sized and coloured like a symbol. */
+.gridic { width: 1em; height: 1em; display: inline-block; vertical-align: middle; fill: currentColor; fill-opacity: 0.22; stroke: currentColor; stroke-width: 1.5; }
+.node.on .gridic { fill-opacity: 0.85; }

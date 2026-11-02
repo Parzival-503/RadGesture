@@ -1,0 +1,879 @@
+# RadGesture: working notes for Claude
+
+<!-- BEGIN radiology-family (identical in every radiology repo — if you change it, change it in all of them) -->
+## The radiology family
+
+This repo is one of the owner's radiology tools. They are built to work together and
+are meant to be developed together, usually in one Claude Code cloud project
+("Radiology") that clones all of them side by side. On the owner's Mac they live in
+`~/Documents/Apps/Radiology/`.
+
+| Repo (GitHub `Parzival-503/…`) | Folder | What it is | Stack |
+|---|---|---|---|
+| `rad-stopwatch` | `RadStopwatch` | Per-study timer, focus "par", daily goals and wellness card for the reading workstation; reads exam titles from PowerScribe | Electron app + AutoHotkey **v1.1** helper, Windows; one `Setup.exe` or portable `.exe` (the classic `.ahk` is kept alongside) |
+| `rad-base` | `radabase` | Personal StatDx-style reference site built from Obsidian notes | Node static-site build, deployed on Vercel |
+| `rad-gesture` | `RadGesture` | **The hub, where new tools go.** Our own radial menu (hold Ctrl+CapsLock) drawn by an Electron app, over an AutoHotkey helper that holds the AI tools (proofread, prior checklist, one-liner, impression) and does all PowerScribe work. Also the shortcut gallery | Electron + AutoHotkey **v1.1**, Windows |
+| `rad-proofread` | `RadProofread` | **Merged into RadGesture** (`helper/RadGestureHelper.ahk`). Keeps the last standalone script for reference | AutoHotkey **v1.1**, Windows only |
+| `rad-oneliner` | `RadOneLiner` | **Merged into RadGesture.** Keeps the original standalone one-liner script for reference | AutoHotkey **v1.1**, Windows only |
+| `rad-evidence` | `RadEvidence` | **Shelved 2026-10-23** (the owner uses OpenEvidence instead). Guideline library + cited Claude Q&A + guideline watcher; code kept, nothing runs. Don't build on it unless he revives it | Python (stopped) |
+
+`rad-gesture` began as a fork of the Kando pie-menu app. Since v3 it is
+the owner's own code, inspired by Kando and DragShift but sharing no code with them.
+Its repository was started afresh on 2026-11-02: no Kando history, no fork link.
+(An "Ask the guidelines" ring item that would send selected text to
+RadEvidence's local page was planned; with RadEvidence shelved it is not built.)
+
+### Where the tools run
+
+- The reading workstation is **Windows**, with **PowerScribe** for dictation.
+  The owner dictates by voice, so long stretches without mouse or keyboard input are
+  normal work, not idleness.
+- Anything that touches PowerScribe should reuse what RadStopwatch already
+  learned (its `CLAUDE.md` has the full list). The two that cost the most:
+  use PostMessage, never SendMessage, and never send raw Win32 messages to
+  PowerScribe's report editor, which crashes it.
+- AutoHotkey cannot run in a cloud session or on the Mac. Before handing over
+  an `.ahk` edit, run whatever static checks the repo has (RadStopwatch:
+  `tools/ahk_check.py`). New AHK tools should copy that checker, not start from
+  nothing.
+
+### Working across repos
+
+- Before building something, check whether a sibling repo already solved it
+  (PowerScribe reading, window detection, CSV logging, dashboards) and reuse
+  that approach instead of inventing a second one.
+- A change that affects how two tools fit together has to land in both repos
+  in the same session, with a matching commit message in each.
+- Each repo keeps its own detailed `CLAUDE.md`. This block is only the shared
+  map. Keep it identical everywhere.
+
+### Patient data: hard rule
+
+**No real patient information goes into any repo, commit, test file, prompt or
+chat.** That includes names, MRNs, accession numbers, dates of birth and real
+report text. Use invented or fully de-identified samples. If the owner pastes
+something that looks like real patient data, stop and tell him before using it.
+
+This rule is about **development**: code, tests, commits, and chats with
+Claude. It does not cover the report text a tool sends to the Claude API at
+runtime on the workstation; that is what RadProofread is for. Whether that is
+allowed is a hospital approval question for the owner, not a reason to refuse the
+work.
+<!-- END radiology-family -->
+
+## This repo: the hub
+
+Two parts, each doing what it is best at:
+
+| Part | Where | Job |
+|---|---|---|
+| **Hub** | `src/` (Electron, plain JS, no bundler) | The ring, the tray, the Settings window, links/files, keeps the helper alive |
+| **Helper** | `helper/RadGestureHelper.ahk` (AutoHotkey v1.1), shipped **compiled** as `RadGestureHelper.exe` | Owns Ctrl+CapsLock, does all typing / copying / PowerScribe work, holds the AI tools |
+
+They talk over `http://127.0.0.1:<port>` with a token (`src/main/bridge.js`,
+"HUB BRIDGE" in the helper). The hub writes `%APPDATA%\RadGesture\bridge.ini`;
+the helper reads it. Plain-text replies, because AHK v1 has no JSON. The
+helper's poll (every 750 ms) is the heartbeat: "connected" in Status means
+Ctrl+CapsLock will work. After every action it POSTs `/done?action=...`.
+
+### Lesson from the first draft (don't repeat it)
+
+v3.0's first build was unusable on the workstation: the hub looked for an
+installed AutoHotkey to start the helper, failed silently, so Ctrl+CapsLock
+and every helper-backed menu item did nothing, and the tray's "Edit menu"
+opened a JSON file. Rules since:
+
+- The helper is **compiled into the app** by CI (Ahk2Exe) and supervised by
+  `helper-supervisor.js` (restarts with back-off, captures errors, AHK
+  fallback with `/ErrorStdOut`). Its state is always visible (tray line,
+  Settings > Status, sidebar dot).
+- **One helper, always the tracked one.** The supervisor ignores a late
+  exit from a copy it already replaced (that race once nulled the new child
+  and chained restarts, leaving an untracked helper with a frozen Priors
+  toolbar and "exit code 0" in Status), and kills stray
+  RadGestureHelper.exe before each start. The helper's tray Reload exits
+  for the hub to restart it (never AHK `Reload`), and its Quit asks the hub
+  to quit. `test/supervisor.test.js`.
+- **No user-facing JSON or folders.** Everything goes through the Settings
+  window (`src/settings/`). The data folder is only an "advanced" button.
+- **Nothing ships without the Windows e2e passing** (below): real AutoHotkey
+  loads the helper, the compiled helper starts, injected Ctrl+CapsLock opens
+  the ring and a flick and a tap-click both reach the helper.
+
+### Before handing over ANY change
+
+```
+npm test                                          # unit tests (geometry, menu, bridge, settings store, ini, hotkeys, conflicts, menu<->helper)
+python3 tools/ahk_check.py                        # helper static checks, must print PASS
+python3 tools/hotkey_audit.py                     # shortcut clashes across ALL workstation scripts; rewrites docs/shortcuts.md
+node scripts/build-preview.js && node scripts/preview.js   # ring flows + screenshots in scripts/shots/
+xvfb-run -a node tests-e2e/run.js                 # the real app: tray items, every Settings page + saves, ring  (screens in e2e-shots/)
+```
+
+Then push and read the **Windows** job of `.github/workflows/build-windows.yml`
+(GitHub MCP `get_job_logs`): it runs `tests-e2e/run.js` against the packaged
+app with the compiled helper and real key presses (`tests-e2e/inject.ahk`).
+The installer is published only if that job passes.
+
+`npm test` includes a check that every `helper:<id>` in the default menu has a
+branch in the helper's `RunHubAction()`. Add a tool = add both, or it fails.
+The AHK rules from rad-stopwatch's CLAUDE.md all apply to the helper.
+
+### The ring (`src/renderer/ring.js`, theme in `ring.css`)
+
+Every element stays alive while open and is moved each frame by springs
+(slightly under-damped: the overshoot is what makes it feel alive). Look at
+screenshots before handing over any visual change.
+
+- Rim pointer follows the cursor; directions zoom with closeness of aim;
+  the aimed one fills with the ring's colour and its icon fills in.
+- **Flick**: hold, move, release. The aimed direction stretches after the
+  hand; moving past a direction with `items` opens its smaller ring there.
+- **Tap** (<320 ms, nothing aimed) keeps it open for clicking.
+- **Moving past** a direction that holds more opens it in both modes (the owner
+  wants it; he missed it once v3 required a click after a tap). With the
+  ring left open it waits `PASS_DWELL_MS` so crossing on the way to the dock
+  opens nothing. Settings > General can turn it off (`passOpens: false`):
+  then click, or let go on it.
+- **Switching rings**: the dock (one button per ring, under the ring, above
+  it near the bottom edge) jumps straight to any ring in one click; the wheel
+  and a center click step one ring (right-click the center: back one). The owner
+  asked for the dock: cycling with the center took four clicks. Settings >
+  General can hide it (`dock: false`), which brings back the center dots.
+  **The gear at the end of the dock opens Settings** (`hub:settings`; shown
+  even with one ring): the owner could only find Settings under AI Tools >
+  Settings, which is the AI tools' own (now "AI settings": Key and model,
+  Proofread history, Edit rings; migration `ai-settings`).
+  The dock keeps clear of every open ring (`placeDock`: below the lowest,
+  else above the highest, else it steps aside); a smaller ring opened
+  down-left/right used to land on it. `preview.js` checks for overlap.
+- **Drag the center** to move the ring; a press is a click until it moves 6 px.
+  Centers are hit-tested by position (`centerAt`), not DOM target: right
+  after a switch the new directions spring out of the middle and would
+  swallow the click. In a smaller ring the parent's shrunken center is the
+  way back (aim at it or click it).
+- Small dots around a direction preview its smaller ring's contents.
+- Names: `labels` = `always` | `pause` (fade in after 650 ms still) | `never`;
+  the center always shows the aimed name.
+- Icons (`src/renderer/icons.js`): Material Symbols Rounded (`"spellcheck"`),
+  Tabler Icons (`"ti:lungs"`, MIT, `tabler-icons.woff2` + `tabler-map.js`,
+  5,247 icons), any emoji, or a picture (`"img:<file>"`): one the user added
+  or a program's own icon, kept in `%APPDATA%\RadGesture\icons`
+  (`src/main/icon-store.js`, shrunk to 96 px) and handed to the ring and
+  Settings as data: URLs, so no page reads files outside the app. All
+  bundled offline. Material names in the default menu and the suggested
+  Tabler names are checked by tests.
+- **Themes** (`src/common/themes.js`, one list for the ring, Settings and the
+  picker in Settings > General): Graphite (default) plus seven neon/CRT
+  looks. **All dark, no light theme, on purpose**: reading rooms are dark
+  (Darkroom is red-only for dark-adapted eyes; Amber has no blue). A theme
+  is CSS variables plus `lit` (`fill` / `outline`: neon looks glow instead
+  of filling) and `fx` (`scan`, `pulse`, `glass`) that `ring.css` keys off.
+  Neon themes colour rings from their palette unless `ringColors: "mine"`;
+  use `T.ringColor(menu, i)` everywhere, never `category.color` directly.
+  `scripts/preview.js` screenshots every theme (`9-theme-*.png`).
+- **Smoothness rules**: never swap a gradient background on a state change
+  (gradients can't transition, it snaps): the lit look is a `.node::before`
+  layer (`--lit-bg`) that fades. The aimed-direction highlight glides between
+  directions (`hlA` spring) with blurred edges, separators fade at both ends,
+  and SVG ids are per level (`svgSeq`) since a shared `url(#id)` resolves to
+  the first level's gradient. Settings colours derive from theme variables
+  (`--well`, `--raise`); no hard-coded greys.
+- **The ring raises itself above every other top window when it opens**
+  (`setAlwaysOnTop` + `showInactive` + `moveTop` in `openRing`). On Windows
+  all always-on-top windows share one band, ordered by activation (Electron's
+  levels like 'screen-saver' only matter on macOS), so a focused Settings
+  window kept on top covered the ring and took its mouse: Ctrl+CapsLock
+  opened it, but no flick or click registered (2026-10-26, found by the
+  Windows e2e; the debug line in run.js prints every window when the real
+  ring does not answer).
+- The overlay is `focusable: false` + `showInactive()`; the hub delays hiding
+  170 ms after a pick so the pick animation plays (the action already runs).
+
+### Settings window (`src/settings/`)
+
+Rings (visual editor: rings list, mini ring preview (`miniRing`: each name
+one line on its button's outer side, above in the upper half, under in the
+lower; the owner saw names running over the icons; the e2e checks no name meets a
+button), directions list,
+editor with icon picker / action type / key recorder with clash warnings,
+Try it), AI tools (key + live test, model, proofread pickiness, impression
+rules, priors), Shortcuts (below), Library (below), General (labels, size,
+start with Windows, pause), Status (helper state + restart, old tools that clash + close them,
+how to use, recent activity). `src/main/settings-store.js` maps it onto
+`menu.json` and `RadGesture.ini`; a save tells the helper to `reload`.
+
+### Open a program (`app:` actions)
+
+A direction can open a program, shortcut, `.ahk` script or batch file
+(RadStopwatch, Rad Optimizer, Epic...): `"action": "app:<path>"`, optional
+`args`, `ifRunning: "new"` (default: bring the open window up instead of a
+second copy), `startWithHub: true` (started, if not running, every time
+RadGesture starts - `startPrograms()` waits for the helper). The hub turns it
+into `run:<front|new|start>|<path>|<args>` (`runSpec` in `actions.js`) for the
+helper's `RunProgram()`: `Process Exist` + `WinActivate` (un-minimises, never
+un-maximises); a running `.ahk` is found by its hidden window and left alone,
+since a second copy would ask to replace it. Without the helper the hub
+starts it directly. Choosing a program in Settings also takes its icon
+(`app.getFileIcon`). The Windows e2e opens Notepad through it twice.
+
+### Library: Rad Optimizer's functions, built in
+
+The owner's Rad Optimizer (an AutoHotkey script + a Supabase website that
+generated it; the site is the free-org Supabase project "Radiology Workflow
+Optimizer") is now part of RadGesture. Every function it had is a **library
+function**: `config/library.json` (id = Rad Optimizer's function name, name,
+group, description, default keyboard shortcut = Rad Optimizer's key, on/off
+default, params) + its code in the helper's FUNCTION LIBRARY section
+(`LibRun(id)`). No AutoHotkey script is generated: the helper runs them.
+
+- **Two ways in**: a ring direction `helper:lib:<id>` (RunHubAction), and the
+  function's own keyboard shortcut (`RegisterLibraryHotkeys`, bound BEFORE
+  RadGesture's own so Proofread etc. win a clash). A mouse button or macro
+  pad set to send Ctrl+Alt+P keeps doing Insert priors. A shortcut run POSTs
+  `/done?action=lib-key:<id>`.
+- **Params**: `key` = what the function presses inside Sectra/PowerScribe
+  (Send syntax: `{;}`, `!o`, `^p`), `bool`, `list` (`|`-separated). Most
+  functions are `target` functions (`sectra` = "Image Window", `powerscribe` =
+  `ahk_exe Nuance.PowerScribe360.exe`): bring it up, press `Key`
+  (`LibPress`; says so instead of typing into the wrong window when the
+  program is closed). Insert priors / Paste indication /
+  dictation / logins / Epic / Teams / websites / search are their own code.
+- **Settings**: `RadGesture.ini [Lib.<id>]` On, Hotkey, params; `Target` is
+  rewritten from the JSON every start (`syncLibrary()`, before the helper
+  starts, fills in every default). `[Library] Username`. **The password is
+  never stored** (asked once per session, in memory, `LibPassword`); no
+  username, password or work link (the hospital's own sites, SharePoint, OneDrive) goes in the
+  repo: this repo is public. `test/library.test.js` checks that.
+- **Every function ships ON** (the owner, 2026-10-23), with Rad Optimizer's keys.
+  Earlier builds shipped Dictate, Paste indication and the logins off; the
+  INI migration `functions-on` turns those on once (`FUNCTIONS_NOW_ON`).
+  Dictate = F8 (Sectra's Dictate button, which opens the exam in
+  PowerScribe), then PowerScribe is brought up and F4 toggles the microphone.
+- The Functions page top is short on purpose (the owner: too much to scroll): one
+  line, a slim shortcut-status strip, and **Read first** (the 3 setup steps)
+  folded until clicked. A running Rad Optimizer shows its own line above it.
+- Settings > Functions: the "set the keys in Sectra first" card (colleagues'
+  Sectra differs; the owner asked for that note), one entry per function
+  (shortcut switch + recorder, the keys it presses, where it is on the
+  rings, Try it, its code via `src/main/library-code.js`), username, websites.
+  The ring editor has a "Library function" type with the same key note.
+- Saved menus: migration `library` turns a direction pressing exactly Rad
+  Optimizer's key (`helper:keys:^!2`) into `helper:lib:PACS_WL_Lung`; keys a
+  person chose for their own Sectra stay key presses.
+- A running Rad Optimizer (script or compiled `*optimizer*.exe`) is a clash
+  in Status (and on the Library page) once any library shortcut is on.
+- Adding a built-in function: an entry in library.json, its id in
+  `LIB_IDS`, a branch in `LibRun` (unless it is a `target` function), a line
+  in `library-code.js` CODE_FUNCS. The tests fail until all are there.
+  Step by step for people: `docs/adding-functions.md`.
+- **My functions** (the owner: "people can add new script functions, like Rad
+  Optimizer's website"): written in Settings > Functions, stored as
+  `%APPDATA%\RadGesture\functions\<id>.ahk` (id `my[a-z0-9]+`, wrapped by
+  `wrapCustom` with UTF-8 BOM) + `[Lib.<id>] Custom=1, Name, Description, On,
+  Hotkey` and `[Library] Custom=id|id`. The helper runs each as its own
+  process with the AutoHotkeyU64.exe CI copies next to the helper
+  (`LibRunCustom` / `LibAutoHotkey`; uncompiled: `A_AhkPath`), so a broken one
+  shows AutoHotkey's error and never stops the helper. **Copy** on a target
+  function starts one from it. **New function / Import functions / Export my
+  functions** sit at the top of the Functions page (the owner: importing a
+  function under Shortcuts made no sense); same `.rgkeys` format with
+  `keys: []`, so either page reads either file. Shortcuts > Export/Import
+  still carries them for a whole-setup share (`set.functions`, code
+  included; import never runs them). The Windows e2e writes one and
+  checks it ran.
+
+**Nothing that ships mentions a person or the project's history** (the owner,
+2026-10-23: colleagues will read it). Comments in the helper, src/, config/
+and the code shown by the "Code" button explain what the code does, never
+who wanted it, which old script it came from, or "Change:" notes. Backstory
+belongs here in CLAUDE.md. `test/library.test.js` fails on the owner's name, old
+version dates, "; Change:" or work links in shipped files.
+
+**`SECURITY.md`** tells IT what RadGesture watches, stores and connects to
+(including what the AI tools send and the proofread history). Keep it true
+when any of those change.
+
+**Published as Avecina Studio** (the owner, 2026-10-26: he does not want his name
+as the author in Windows' installed-programs list). `package.json` author
+(Windows' Publisher and the exe's company), `build.copyright`, the
+description, README and the old scripts' SPDX lines say Avecina Studio;
+`test/library.test.js` fails if a person's name comes back there. The
+repository was started afresh on 2026-11-02 (one commit by Avecina Studio, no
+fork link), so its history carries no name either; the old repository was
+renamed `rad-gesture-old`.
+
+**Names people see** (the owner, 2026-10-23): this page is **Functions** ("the
+function collection"), never "Library": a library is reading material. The
+ring of reading material is the **Reference Library** (it was "Gallery";
+migration `reference-library` renames the shipped ring). Internal names
+(`library.json`, `[Lib.<id>]`, `helper:lib:`, `[Library]`) stay, so saved
+settings never move.
+
+- **Workflow page** (Settings > Workflow, `renderWorkflow`; the owner: username
+  and password belong somewhere prominent with Epic, Teams and websites):
+  the username, the four login functions, Epic, Teams, every "Open a
+  program" direction on the rings (start-with-RadGesture switch, Edit jumps
+  to it in Rings), Open my websites, Search selection. Same `libEntry`
+  entries as Functions, so one setting lives in one place; the Functions
+  page's Logins group points here.
+- **Tiles** (the default view; the owner picked it from mockups, 2026-10-24: the
+  page was hard to navigate): a small tile per function (icon, name, its
+  shortcut, "-> key in Sectra"), in smaller groups by kind (Window / level,
+  Measure...). A click opens the full entry (`libEntry`, same id
+  `lib-<id>`) in a `.fndetail` panel under that row (`grid-column: 1/-1` +
+  `grid-auto-flow: dense`), one at a time (`ui.tileOpen`). Detailed and
+  Compact are still in the View switch. The finer filters (kind, works in,
+  shortcut, ring, clashes, sort, Defaults) fold behind **Filters** and stay
+  open while one is in use; the helper status and "Read first" sit side
+  by side. The e2e checks the first tiles are on the first screen.
+- **Search and filters** (`src/common/fnfilter.js`, tested): words ANDed
+  over name/description/kind/rings/keys/code; a typed shortcut ("ctrl+alt+p",
+  "alt+o", "F4") finds what listens for it or presses it; Find by key
+  (recorder); group chips with counts; kind; works in (Sectra / PowerScribe /
+  other, from `target` or `uses`); shortcut on/off/none; on a ring or not;
+  clashes; sort by group / A-Z / shortcut; Detailed or Compact view (one line
+  per function, opens in place). Clear filters keeps sort and view.
+- **Copying the highlighted text from a shortcut** (Paste indication, Search
+  selection) goes through `LibCopySelection()`: release Ctrl/Alt/Shift/Win
+  first (a mouse button or macro pad is still holding them when the shortcut
+  fires, so a plain ^c became Ctrl+Alt+C), then ^c / SendEvent / ControlSend
+  / low-level, then the window under the mouse. Paste indication worked in
+  Rad Optimizer and not here until this (the owner, 2026-10-23). The Windows e2e
+  highlights text in Notepad, presses Alt+Shift+S like a mouse button and
+  reads what was copied.
+- **Every "press a key in Sectra/PowerScribe" function lets go of the
+  shortcut's own keys first** (`LibPress`): from a macro pad, Insert
+  measurement's Ctrl+Alt+M was still held, so Sectra got Ctrl+Alt+M instead
+  of Alt+M and did nothing (the owner, 2026-10-23). His pad TAPS Ctrl+Alt+M (press
+  and release, nothing held), but the hotkey fires on M-down, while the
+  pad's Ctrl+Alt are still down for those milliseconds. Not confirmed as
+  the cause on his PC. The Windows e2e holds
+  Ctrl+Alt+M over a stand-in "Image Window" and checks it receives plain
+  Alt+M.
+- **Layouts** (PACS > Layout > Grid, `PACS_Layout_<rows>x<cols>`): Sectra's
+  own, rows x columns as Sectra writes them: only 2x2, 3x2, 3x3 (the owner uses
+  just these; migration `layout-grid-three` drops the 2x1 / 2x3 / 3x1 one
+  build shipped), with Sectra's keys preset (Ctrl+Shift+4 / 6 / 9). Icons are drawn panes, `"grid:RxC"` in `icons.js`, to
+  match Sectra's pictures. Migration `layout-grid` adds the Grid to saved
+  rings.
+- **Administrator mismatch**: if PowerScribe or Sectra runs elevated and the
+  helper does not, Windows silently drops its keys. `LibCheckAccess()` warns
+  once per program (`LibIsElevated()`: token elevation, or an unreadable
+  token).
+- **Are the shortcuts working?** After every start and reload the helper
+  POSTs `lib-hotkeys:<count>:<failed>`; Functions and Status show it against
+  how many are switched on (the owner once had none working and no way to tell).
+  The Windows e2e checks the shipped ones are all on from the first start
+  and that a real Ctrl+Alt+2 reaches Lung window.
+
+### Reference Library (Settings > Reference Library, `ref:<id>`)
+
+The owner: "a library is things you read". The ring of guideline links (once
+"Gallery") is the **Reference Library**, and Settings > References holds his
+own **notes** (Markdown underneath, shown formatted) and **pictures**
+(screenshots), in `%APPDATA%\RadGesture\references\` (`index.json` + `<id>.md`
++ `<id>.png`; `src/main/references.js`, tested). Ways in: New note, Snip now
+(`ms-screenclip:`, the snip is picked up from the clipboard within a minute),
+Paste screenshot or text, Choose a picture, the ring's **Add from clipboard**
+(`hub:ref-add`) and the tray. "Put on the ring" adds `ref:<id>` under the
+Reference Library ring's **My notes** (made on first use). The ring opens it
+in the **reference viewer** (`src/viewer/`, always on top, Esc closes, Edit
+goes to Settings). Screenshots are kept at most 2400 px wide.
+
+- `src/common/markdown.js` is ours, not a library, and **safe by
+  construction**: everything is escaped, only its own tags come out, links
+  only http(s)/mailto. Headings 1-4, a single line break stays a break,
+  bold/italic/strike/==highlight==/code, nested and check lists, tables with
+  alignment, `> **Pearl**` callouts, rules. The editor (Write / Side by side /
+  Preview) re-renders the preview on every key, continues lists on Enter
+  (Enter on an empty item ends it), Ctrl+B / Ctrl+I, and a toolbar.
+- **Sections** (the owner, 2026-10-26: "revamp it so it's very editable"): the
+  page is a list of sections (CT Chest, Abdomen...), each a smaller ring of
+  the `gallery` ring, with everything in it: links (`url:`), notes,
+  pictures and files (`ref:<id>`), documents (`file:`). New section,
+  rename, icon, move up/down, delete (its notes/pictures/files stay, in
+  "Not in a section"). "Add to <section>" + Note / Link / Files or
+  pictures / Snip / Paste puts the new thing straight into a section; every
+  editor has a **Section** picker to move it ("No section" = off the ring).
+  `src/common/reflib.js` (tested) reads the ring as sections and packs it
+  back: past 8 directions the rest roll into a "More" smaller ring
+  (`more: true`; "More sections" at the top), and an empty section, which
+  cannot be a ring, waits in the ring's `emptySections` with its place.
+  **Topics** (the owner: "for liver, one link, one PDF, one JPEG, all under the
+  same topic"): a smaller ring inside a section, `{ topic: true }` in
+  reflib's reading, holding several sources; "Make a topic" turns any
+  section entry into one, "Add to" and every Section picker list each
+  section and each topic in it (`destinations()`), an empty topic waits in
+  `emptySections` with `in: <section>`, Remove topic leaves its sources in
+  the section.
+  **OpenEvidence** (the owner, 2026-10-26): its site takes no question in the
+  address (none documented; a third-party extension fills the box itself,
+  and the cloud sandbox cannot reach the site to test), so
+  `OpenEvidenceAsk()` copies the question, opens openevidence.com, waits
+  for its tab to be in front (title contains "OpenEvidence"), pastes and
+  presses Enter; it never types into another window, and the question
+  stays on the clipboard. Ways in: Search copied text > OpenEvidence
+  (`helper:oe:clip`, migration `openevidence-search`) and the Search
+  selection picker (Alt+Shift+S). Not confirmed on the workstation yet.
+  Search copied text / My documents / Add from clipboard stay as tools
+  after the sections. Ring changes need Save; notes save themselves, and a
+  note's ring name follows its title.
+- **Files** (`refs.addFile`): a PDF or document is COPIED into the
+  references folder (`<id>.<ext>`, original name kept), so it opens even
+  after the original moves. A picture file becomes a picture. On the ring,
+  a PDF opens in the **reader** (`openReader`: Chromium's PDF viewer in an
+  always-on-top window, `plugins: true`, Esc closes; zoom, fit, pages,
+  search); other files open in their own program.
+- **Pictures zoom and pan** in the viewer (the owner: "I can't pan around"):
+  wheel or pinch zooms around the pointer, drag pans, double-click fit /
+  actual size, + / - / 0 / 1 / arrows, a zoom bar (-, %, +, Fit). The
+  window opens larger for a picture. The e2e zooms one with the wheel.
+- **Reordering** (owner, 2026-10-27): every row has a drag handle
+  (sections, topics, links, notes, pictures, files, the sources in a topic,
+  and the tools, now listed as "Tools on the ring"). Onto a row = before it;
+  onto a section heading = last in that section; onto the lower half of a
+  topic = into it; never a topic into a topic. `RL.move(lib, from, to)` in
+  reflib.js (tested) does every move; Move up / Move down on every entry's
+  editor uses it too. Ring changes still need Save.
+- **The divider between the list and the editor moves** (owner,
+  2026-10-27: the list was cramped): `refSplitter()`, default 420 px,
+  double-click resets, kept in localStorage `rg.refWidth`. **A re-render
+  keeps the scroll** (`render()` restores `main` and every
+  `data-keep-scroll` list, then nudges the selected row into sight): Move
+  up / down used to throw the list back to the top. The e2e checks both.
+- **Copies, named readably**: pictures and files are copies in the
+  references folder named `<id> <title>.<ext>` and renamed with the title
+  (`tidy` in references.js; a file Windows has open keeps its old name).
+  "Show the file" opens the folder with it selected. **Export library**
+  (`src/main/ref-export.js`, tested) writes the saved library as an
+  ordinary folder: one per section ("01 CT Chest"), a subfolder per topic,
+  files and pictures under their titles, notes as .md, links as .url. The
+  main copy stays in AppData on purpose: PACS snips can show patient
+  details, and Documents is often synced to OneDrive.
+- **"Reference Library", capital L** (a title, the owner). Migration
+  `reference-library-title` fixes rings saved as "Reference library".
+- Notes save themselves (450 ms after typing); there is no Save for them.
+- **Electron 44's clipboard is asynchronous** (`readText()` and `read()`
+  return promises; there is no `readImage`). Use `clipText()` / `clipImage()`
+  in main.js. Reading it the old way made "Search copied text" search for
+  "[object Promise]"; the e2e now checks the search URL.
+
+### Shortcuts page (made so colleagues can use RadGesture)
+
+The owner's PACS/Apps rings used to press Rad Optimizer's keys (now Library
+functions, above); a colleague's Sectra has its own. So Settings > Shortcuts holds every key in one place: a 3-step
+setup card (give tools keys in Sectra + **Copy the list**, match them here,
+**Export / Import** a `.rgkeys` set), RadGesture's own shortcuts, and **every
+`helper:keys:` direction** grouped by ring with its own recorder, search,
+Defaults / Clear all, and warnings (two directions on one key, a key that is
+also a RadGesture shortcut - the helper presses with SendLevel 1 so it would
+fire it). Logic is `src/common/keyset.js` (tested): directions are matched
+by their path of names on import, so a set survives a re-arranged ring.
+
+The recorder (`recorder(spec, onSet, { plain })`) shows held modifiers live,
+Esc cancels, Backspace clears. `plain: true` (keys the ring presses) takes a
+single key, as Sectra's often are; RadGesture's own shortcuts need a modifier
+or an F-key so they can't fire while typing. Recorded keys are stored in
+Send syntax (`{F4}`, `^{Space}`, `{;}`) by `KS.hotkeyToSend`.
+
+### Tray
+
+**One tray icon, one menu.** The helper hides its own (`Menu, Tray, NoIcon`)
+when the hub started it (`RG_DATA_DIR` is set); run on its own it shows. The owner
+saw two RadGesture icons (2026-10-24) and liked the hub's menu (modern look,
+Open the ring) over the helper's small old-style one, so everything the
+helper's menu had now lives in the hub's: **Prior checklist** submenu (show
+toolbar, add copied prior, make the checklist, empty), **AI** submenu (model,
+Test the API key, Proofread history, Last AI request, AI settings),
+**Advanced** (Restart the helper, open the settings file / folder). Helper
+items go through `helperDo()` (the bridge queue; `testkey` and `lastcall`
+are helper actions for this). The helper's TrayTips became `Toast`s, since
+AHK drops a TrayTip when the script has no tray icon.
+
+**Every RadGesture window comes to the front** (the owner, 2026-10-24: "the whole
+RadGesture was behind all other windows"). Started by hand (Start menu, a
+second launch, after an install), RadGesture opens Settings in front; started
+with Windows (login item registered with `--at-login`) it stays in the tray.
+The helper's history window is `+AlwaysOnTop` and activated, its message
+boxes are system-modal (4096 added), and Last AI request activates Notepad.
+
+**Settings comes to the front** (`bringToTop` in main.js): opened from the
+tray or the ring, a plain `show()` landed behind everything (Windows does
+not let a background program take the front). It is made topmost, shown and
+focused, and stays topmost while General > "Keep this window on top" is on
+(default, `menu.settingsOnTop`; the owner asked for it always on top). The
+proofread window and the reference viewer use the same call.
+
+Left-click: Settings. Right-click: Open the ring; Settings..., Edit rings...,
+AI tools..., Shortcuts..., Functions..., Reference Library..., Add clipboard
+to the Reference Library; Prior checklist >, AI >; helper state line (click to
+start it), close conflicting tools, Pause the ring, Start with Windows,
+Status and help..., Advanced >; Quit (also stops the helper). The e2e hooks
+`trayLabels`/`clickTray` name submenu items "Parent > Item".
+
+### The menu data (`config/default-menu.json` -> `%APPDATA%\RadGesture\menu.json`)
+
+Actions: `helper:<id>`, `url:`, `file:` (expands `%VARS%`), `search:`
+(`{clipboard}`), `hub:`, `ref:<id>` (a Reference Library note or picture). `apps` on a ring picks which ring opens first over
+that program. The Reference Library ring (id `gallery`, once "Gallery") carries the owner's reference links from the old
+Kando gallery. Edited only through Settings.
+
+**Saved menus are migrated once** (`migrate()` in `settings-store.js`,
+recorded in `menu.migrated`): installing keeps `menu.json`, so a change to
+the default menu reaches existing users only through a step there. One
+moves Orthogonal (a measuring tool) from Crosshair to Measure,
+next to Distance; one drops Paste indication (Rad Optimizer's Ctrl+Alt+G
+only works on a selection made by hand, never from the ring); `library`
+turns Rad Optimizer key presses into Library functions; `pacs-first` puts
+the PACS ring first, then AI Tools (the owner, 2026-10-23; PowerScribe still opens
+on AI Tools through its `apps`); `no-lung` drops Lung-RADS and Lung screening 2
+(and a smaller ring left empty); `nav-names` gives each previous/next pair its
+own icons (layouts `skip_*`, key images `fast_*`, fields `keyboard_tab*`; the
+saved fields showed `field` = `text_fields`, which the owner read as "TT"),
+renames Link crosshair to **Link priors** (Rad Optimizer's name: it links
+the study to its priors) and the Prior checklist buttons. Only names and
+icons we shipped change. `nav-pairs` finishes that job (the owner, 2026-10-26, still
+saw Next key image as a play triangle beside a back arrow): early builds
+shipped the aliases `back` / `play`, which nav-names did not know, and some
+saved rings press the keys (`helper:keys:^!k`) instead of running the
+function. It finds each previous/next direction by function, key or name and
+replaces any icon we ever shipped with the pair's. A test checks every
+previous/next pair in the default menu and library.json is one matching
+pair (skip, fast, tab). `orthogonal-ruler`: Orthogonal measures two
+distances at 90 degrees, so its icon is Tabler's L-shaped `ti:ruler` (the owner
+saw four squares: the first builds shipped `grid`); shipped icons for it
+(grid, grid_view, view_in_ar, square_foot) are replaced.
+`pacs-no-fields` (owner, 2026-10-26): Previous / Next field are PowerScribe
+keys, not PACS tools, so the PACS ring's PowerScribe smaller ring is gone;
+both stay library functions on their shortcuts (his mouse sends them).
+Functions can live in the helper without being on a ring. `organ-icons`:
+window / level presets show their organ (Soft tissue `gastroenterology`,
+Bone `ti:bone`, Brain and Stroke `ti:brain`), the Oncologic one-liner
+`ti:ribbon-health`; only icons we shipped are replaced.
+
+`pacs-image` (owner, 2026-10-27, replacing his macro pad): the Enhance ring
+becomes **Image** (MPR moved in from Layout, Thick slab = Shift+3, Slab off
+= -, Invert = I, Enhance, Sharpen, Reset = Backspace; thick slab, slab off
+and invert sit together), Pinpoint (Q) joins Crosshair & link, Show report
+(P) takes the PACS ring's last place. All are `target: sectra` library
+functions with no keyboard shortcut of their own (the ring only; one can
+be given on the Functions page). Only Shift+3 works as a slab key in his
+Sectra, so there is one "Thick slab". Backspace does not reset slab
+thickness; Slab off does. `keep-open-nav`: previous / next (layouts, key
+images) carry `stay: true`: picking one runs it, the direction pulses and
+the ring stays open in click mode until Esc or a click outside
+(`keepOpen` in ring.js). The hub queues its helper action as
+`keep|<id>` so the helper's HubPoll runs it without treating the ring as
+closed (Esc and the fast poll stay on). Every direction has a "Keep the
+ring open after using it" switch in the ring editor. **The ring's preload
+(`src/preload.js`) forwards only the fields it names**: `stay` was dropped
+there at first, so the e2e clicks PACS > Layout > Next layout for real.
+
+`crosshair-link-icons-2` (owner, 2026-10-27): the Crosshair & link ring
+keeps its bullseye `my_location`; inside, Crosshair is a plus `ti:plus`,
+Link priors a chain `ti:link`, Pinpoint the bullseye.
+`crosshair-link-icons-3`: saved rings had icons -2 did not know (the
+owner still saw three bullseyes), so Crosshair and Link priors are set by
+action or name whatever icon they had. library.json carries the same icons. `no-oneliner-indication`:
+the one-liner's Indication choice is gone (he pastes the ordering doctor's
+indication instead); **Paste indication stays**, a library function on his
+mouse's shortcut, not on a ring. `exam-nav`: Previous exam (Down) and Next
+exam (Up), `target: sectra`, join the key images ring, renamed **Key images
+& exams** so the PACS ring keeps its 8; both `stay: true`.
+
+**2026-10-29/30 (owner)**: the **center of a smaller ring** that holds a
+previous / next pair (`stay`, names "Previous X" / "Next X") steps through
+it: LEFT click = previous, RIGHT click = next, the ring stays open
+(`centerPair` in ring.js; Key images & exams uses its key images). Going
+back from such a ring is the parent's center or Esc. (A first build put
+left/right on the pair's own buttons instead: a misunderstanding, reverted;
+a plain click on a button runs that button.) Key images & exams order
+(migration `key-exam-order`): it opens below PACS, so Next key image upper
+right, Previous key image lower right, Previous exam lower left, Next exam
+upper left. The ring shortcut **toggles**, and the **hub decides**: `/show`
+while the ring is up hides it and answers `closed` (the helper's
+`g_RingOpen` went stale when a 300 ms poll timed out, so a press re-opened
+the ring instead of closing it: "glitchy, sometimes"). The helper ignores
+that press's release (`g_HubSkipUp`), counts a poll with no answer as a
+miss (40 in a row = the hub is gone) and only "closed" closes it.
+Windows e2e `inject.ahk toggle`. Show toolbar is on the One-liner ring too
+(migration `oneliner-toolbar`): the toolbar holds the chart text. Proofread
+Find reuses an open "Find and Replace" dialog instead of closing it and
+pressing Ctrl+H again (that raced: the first click only closed it). The
+prior checklist logs each step to Status as `checklist:<step>` (no-key,
+expired, no-priors, asking:n, ok, error): the owner saw it "not fire" and
+the cause was not found from the code.
+
+**One search** (owner, 2026-10-30: copying first was one step too many,
+and there were two searches). The Reference Library ring's search ring is
+**Search selection** (was "Search copied text"; migration
+`search-selection`): its `search:` directions go to the helper as
+`search:<address>`, which copies the highlighted text itself
+(`SearchTerm()` -> `LibCopySelection()`, else what was copied) and opens
+the address; `helper:oe:clip` does the same for OpenEvidence. Google Images
+joined it from the old AHK search window, whose direction left the Apps
+ring (the `SearchRadiopaediaGoogle` function and its Alt+Shift+S stay).
+With no helper the hub still searches the clipboard.
+
+**Crosshair / Link priors icons, every start** (owner, 2026-10-30, third
+time he saw three bullseyes): besides the one-time steps, `migrate()` now
+sets Crosshair `ti:plus` and Link priors `ti:link` at EVERY load when their
+icon is a bullseye (or an old link/plus glyph or none); any other icon is
+the person's and stays. Cause not proven: either his PC still ran an older
+copy, or something rewrote menu.json after the update. So the build now
+says which it is: CI writes `config/build-info.json` (UTC date + commit,
+gitignored) and Settings shows "v3.0.0 (built <date>, <sha>)".
+
+**Every branch's green build publishes to the same `radgesture-latest`
+release**, so a branch cut from an older base overwrites newer work with an
+older app (2026-10-30: the IT-hardening branch `epic-tesla` was cut from
+main of 10-27 and its build replaced the 10-30 one; merged back 11-02).
+Before pushing a branch that will build, make sure it holds the latest
+published work.
+
+### Helper notes
+
+- Settings, API key, history: `%APPDATA%\RadGesture\` (`RadGesture.ini`).
+- `--selftest` runs the whole startup then prints `SELFTEST OK` and exits
+  (CI). `reload`, `suspend`/`resume` come from Settings.
+- `#Requires AutoHotkey v1.1.33+`; CI uses v1.1.37.02.
+- "Press keys" directions send with `SendLevel 1` so other scripts' hotkeys
+  (e.g. a timer's F4 / F12) see them.
+- **Prior checklist** (ring: AI Tools > Prior checklist; it was "Priors",
+  which the owner confused with PACS > Insert priors, a different thing that fills
+  PowerScribe's Comparison field): copy each prior report,
+  **+ Add prior** (as many as needed), then **Checklist**; **Empty** starts
+  over. The toolbar has three headed parts: Prior checklist, One-liner chart
+  text, Write (Impression, One-liner). The checklist window has
+  **Insert into report** (pastes with Ctrl+V where the cursor is, then
+  restores the clipboard; the window never takes focus) and Copy. The
+  floating Priors toolbar shows at startup, as in RadProofread: the first v3
+  builds hid it and the owner lost track of the tool (`migrateIni()` turned it
+  back on once for INIs those builds wrote).
+  Closing the toolbar (its X button, the title-bar X) hides it AND saves
+  ShowAtStartup=0, so helper restarts don't bring it back; only Show toolbar
+  (ring or tray) turns it on again. The Priors tools never pop it up on
+  their own (an empty bin or nothing copied is a notification): the owner saw it
+  appear "on Ctrl+CapsLock" and could not get rid of it.
+- **Chart bin for the one-liner** (the owner: "copy different parts of the chart,
+  then one one-liner"): `ChartAdd()` takes what is on the clipboard (Priors
+  toolbar "+ Add chart text", ring AI Tools > One-liner > Add chart text,
+  `helper:chart:add`, optional `[OneLiner] ChartAddHotkey`). While the bin
+  holds pieces, every one-liner (Ctrl+Alt+U, toolbar, ring flavours) is made
+  from all of them (`ChartText()`, "[Chart excerpt n]") instead of a fresh
+  copy. **After a successful one-liner a box asks "Empty the chart text?"**
+  (`ChartAskEmpty()`: Empty it / Keep for another; never takes focus, so the
+  one-liner can be pasted meanwhile; closes, keeping the pieces, on the next
+  add or one-liner). It used to empty itself, which lost pieces the owner
+  still wanted for a second kind of one-liner (2026-10-26). An error or a
+  cancelled picker keeps the bin. Idle expiry is the priors' setting.
+  Migration `chart-bin` adds the two ring buttons to saved One-liner rings.
+- **Impression** (`ImpressionPrompt()`): a high-level SYNTHESIS, not a
+  summary (the owner: the first one just reworded the findings). Answers the
+  clinical question first, merges related findings, leaves out chronic and
+  incidental findings that need no follow-up unless the history makes them
+  relevant (gallstones only with pain), and then ends with "Additional
+  chronic and incidental findings as described in the body of the report."
+  It sends the text before FINDINGS: (history) too (`ImpressionContext`),
+  at effort medium. Settings > AI tools can switch Impression alone to Opus
+  5.5 (`[Impression] Model`); default is the shared model (Sonnet 5.5).
+  A negative study is ONE line ("No acute findings in the chest."), never a
+  list of answered negatives, and gets no closing line; the prompt carries
+  that case as a wrong/right example because the first synthesis prompt
+  still listed negatives, atelectasis and coronary calcification.
+- **Impression style** (the owner, 2026-10-26: "our Rad AI version"). Rad AI
+  (public sources only: its patents US 11342055 / 11810654 and the npj
+  Digital Medicine 2026 study) tunes a model to each radiologist on years
+  of their own reports. Ours does the same with no training: the
+  radiologist's own signed findings -> impression pairs are kept as
+  examples, and Impression puts the closest 4 (same kind of exam first,
+  then similar findings; `src/common/impstyle.js`, tested) in the prompt
+  with "match their style, never copy a finding". Examples come from
+  (1) **every proofread** (`StyleLearn(report, "proofread")` in
+  `ProofreadActiveReport`; he proofreads finished reports, so the
+  impression is the signed one; Settings > AI tools "Learn from reports I
+  proofread", `[Impression] LearnStyle`), (2) ring AI Tools > **Learn this
+  impression** (`helper:style:learn`, migration `impression-style`), and
+  (3) Settings > AI tools > Your impression style: paste reports / import
+  a text file. Only exam line, history, findings and impression are kept;
+  dates, times, numbers of 6+ digits, MRN/accession/name labels and
+  signature lines are blanked (`scrub`); same findings replace the older
+  copy; 600 at most. Stored in `%APPDATA%\RadGesture\style\examples.json`
+  (`src/main/style-store.js`), never in a repo: it is report text from
+  the workstation. When Impression wrote a draft for the same findings the
+  edited draft is kept beside it (shown struck out in Settings).
+  `[Impression] UseStyle=0` turns the examples off. Bridge:
+  `/style/learn`, `/style/examples` (JSON, ASCII). The prompt also never
+  drops an actionable incidental (Rad AI's main selling point: about 60% of
+  reports with one leave it out of the impression or give no follow-up).
+- **The helper's small windows are drawn by the hub** (the owner, 2026-10-26:
+  the AHK toolbar "feels like Windows 98"): `src/panel/` (one page,
+  `?mode=toolbar|card|pick|toast`) + `src/main/panels.js`, Settings look and
+  theme. The helper keeps the state and says what to show with `POST /ui`
+  (`HubUi()`, JSON via `JsonAscii`; `t` = toolbar | card | card-close | pick |
+  pick-close | toast | toast-hide); buttons go back through the bridge queue,
+  only ids matching `panels.ACTION`. Every one falls back to the helper's own
+  AHK window when the hub does not answer "ok". **toolbar**: priors and chart
+  pieces as chips (each removable: `prior:remove:<n>`, `chart:remove:<n>`),
+  drag by the header (position kept in `panels.json`), folds to one row,
+  close = `toolbar:hide` (ShowAtStartup=0). **card** (never takes focus, so
+  Insert pastes into the report): Impression (`imp:insert`, Copy,
+  `imp:oe`), the prior checklist (`checks: true`: Markdown lines
+  "- **Finding**: what to check [P2 3/14/2025]", each ticked off like
+  Proofread's findings, a progress bar, "All checked"; Insert keeps it open;
+  Copy/Insert use the plain text), "Empty the chart text?" (`chart:clear` /
+  `chart:keep`). **pick**: the one-liner picker, the only one that takes the
+  keyboard (1-4, arrows, Enter, Esc -> `pick:<flavor>` / `pick:cancel`).
+  **toast**: every `Toast()` and `Notify()`; clicks pass through. The helper
+  polls every 250 ms while the toolbar or a card is up (`HubPollRate`). The
+  hub hides them all when the helper stops. Class names in panel.css must
+  not collide with settings.css (it is loaded too): `.shell`, `.mini`, `.row`
+  and `.card` did, and laid the toolbar out sideways.
+- **Add prior / Add chart text copy for you** (`CaptureText`): Ctrl+C in the
+  window you are in (Sectra has no right-click Copy, but Ctrl+C works),
+  else what was already copied; the clipboard is put back. CaptureMode
+  `selectall` still presses Ctrl+A first.
+- **Never Ctrl+C into a console** (`CopyBlocked()`): in a console or
+  terminal Ctrl+C means "interrupt". The first CaptureText pressed it in
+  whatever was in front; on the CI machine that was the test's own console
+  once Notepad closed, and the Windows run hung with no log, three times
+  (2026-10-26). Every tool that presses Ctrl+C asks `CopyBlocked()` first
+  (Add falls back to the clipboard, the others say "click in the report
+  first"); `ahk_check.py` (`check_copy_guarded`) fails one that does not.
+  The CI step also runs the test under an outside 8-minute watch and ends
+  leftover processes, and Quit always finishes (`app.exit` after 3 s).
+- **Prior dates** (the owner, 2026-10-26: findings change from exam to exam):
+  `PriorDate()` reads the exam date from the top of each prior (a labelled
+  "Exam date" first, never a DOB), `PriorTitle()` the exam line. The toolbar
+  shows "P1 3/14/2025 CT CHEST...", the checklist prompt gets each prior's
+  date, which one is newest and the order oldest -> newest
+  (`PriorOrder()`), and goes by each finding's latest status: trends,
+  resolved findings kept short and last ("confirm still gone"), done
+  follow-ups not repeated. No date found: the order added.
+- **Proofread results show in the hub's window** (`src/proofread/`, Settings
+  look, always on top): the helper POSTs `/proofread` (JSON body, ASCII via
+  `JsonAscii`, with a `seq`) and only when that fails falls back to its old
+  IE window (`ShowProofreadPopup`'s ActiveX page). The owner: the old one was
+  haphazard, clicks did nothing (IE ran the page in an old mode with errors
+  hidden) and findings did not match the left side (finding *i* scrolled to
+  the *i*-th highlight in report order). Now `src/common/proofmatch.js`
+  (tested) ties each finding to its own place by index; a phrase not found
+  says so. Buttons go back through the ring queue: `proof:find:<seq>:<i>`
+  (`ProofHubAction` -> `HandleFlagAction`) and, on close,
+  `proof:closed:<seq>:<i,i>` (history logged with what was ticked off). The
+  helper polls every 150 ms while the window is open so Find feels instant.
+  Helper toasts go to `/proofread-toast`. Keys: arrows, Enter = Find,
+  C = copy fix, Space = resolve, Esc. The e2e drives it over the bridge.
+  **It never reached the owner until 2026-10-26**: `global g_ProofSeq := 0` sat
+  below the auto-execute section, so it never ran; "" + 1 is "" in AHK v1,
+  every hand-off sent `{"seq":,...}`, the hub answered "bad json" and the
+  helper showed its old IE window. The globals now sit at the top,
+  `ahk_check.py` fails on a top-level `global x := ...` after the
+  auto-execute section, and the Windows e2e runs the REAL path
+  (`proof:demo`: invented report with a tab, x, mu, an em dash, curly
+  quotes). A failed hand-off is logged as `proof-fallback:<why>` in Status.
+- **Report text is kept 7 days** (the owner, 2026-11-02): `PruneHistory()` drops
+  proofread sessions older than `g_HistoryDays` (`[Behavior] HistoryDays`)
+  from the history and deletes the last request/response and the `%TEMP%`
+  result pages once that old; at start-up, hourly, and before the history
+  is written or shown. Any new file that holds report text joins that list.
+- `WinHttp.SetProxy(1)`: a hospital WinHTTP proxy must not swallow localhost.
+- **PowerScribe pick lists**: the helper CHANGES PowerScribe only by
+  PostMessage, and asks the pick lists read-only questions
+  (LB_FINDSTRINGEXACT, LB_GETCOUNT, LB_GETCURSEL, LB_GETITEMRECT) by
+  SendMessage, because only SendMessage returns an answer. `ahk_check.py`
+  enforces exactly that.
+- **Lung-RADS (auto) and Lung screening 2 are not built in** (the owner,
+  2026-10-23: only useful to him). Lung-RADS (auto) is one of his "My
+  functions" (`mylungrads`, Alt+Shift+L; Lung screening 2 was a weaker
+  subset and is dropped), kept as an importable `.rgkeys` in the private
+  rad-proofread repo (`my-functions/`). Don't add them back here.
+
+### Shortcuts
+
+`tools/hotkey_audit.py` collects every hotkey on the workstation: the helper's
+INI defaults, the Library's default shortcuts (`config/library.json`) and
+retired scripts like Rad Optimizer (keys only, in `tools/external_hotkeys.json`,
+also bundled so Settings can warn about clashes). Fails on shared keys,
+swallowed keys, ring buttons pressing unhandled keys, Windows-reserved
+combos, Library buttons naming no function; writes `docs/shortcuts.md`.
+
+### Build
+
+`.github/workflows/build-windows.yml`: Linux checks + e2e, then Windows:
+download AHK v1.1, selftest, compile the helper (and copy AutoHotkeyU64.exe
+next to it for My functions), `npm run dist`, Windows e2e with real keys,
+then publish to the `radgesture-latest` release (fixed links):
+`.../releases/download/radgesture-latest/RadGesture-Setup.exe` (per-user
+install, no admin) and `RadGesture-portable.zip` (nothing installed: unzip
+and run `RadGesture.exe`, for PCs that block installers; same app, settings
+in `%APPDATA%\RadGesture` either way).
+
+**Closing the running app on install/uninstall** is ours, not
+electron-builder's (`build/installer.nsh` calls `build/rg-close.ps1`; keep it
+a file, an inline command passed NSIS's 1024-char string limit): ask it to
+quit over the bridge (`POST /quit`), then force-close everything running
+from the install folder (the rule an older version's uninstaller checks, so
+it has nothing to trip on), wait until files can be opened, then a message
+naming the tray Quit. Log: `%TEMP%\RadGesture-Setup.log`. The stock step showed
+"RadGesture cannot be closed. Please close it manually" on the owner's PC, which
+is what Windows does when the app runs as administrator and Setup does not;
+the bridge request crosses that line, a kill does not. Settings > Status
+warns when RadGesture runs elevated. `tests-e2e/installer.ps1` (Windows job)
+installs over and uninstalls a running copy.
+
+**AI models**: Sonnet 5.5 (default), Haiku 5.5, Opus 5.5 only; a retired
+model in the INI reads back as Sonnet 5.5 (hub `readAI`, helper
+`NormalizeModel`). They reject `temperature` and think before writing, so
+the helper sends an effort level (`ApiExtras`) and at least 8000 max_tokens
+(`ApiMaxTokens`).
+
+**The API key** is typed only in Settings > AI tools (the helper's old
+built-in box is a fallback when the hub is down; its "settings" opens the
+hub over `/open-settings`). The helper re-reads it from the INI before every
+call (`HaveKey`) - a copy held since startup went stale. Both sides clean
+what was pasted (`src/common/apikey.js`, `CleanApiKey`) and say errors in
+words. Helper windows say "RadGesture": a "RadProofread" title means the old
+standalone script is running.
+
+### Not here, on purpose
+
+- **RadStopwatch** stays its own program and is not bundled. It is the owner's
+  (his department's workload values, pay credits, reward bank), it keeps its
+  data next to its script, and it has its own release rhythm; size was not
+  the reason (about 1.5 MB compiled against a 117 MB installer). The default
+  menu no longer has a Stopwatch ring: the owner launches it with an "Open a
+  program" direction set to start with RadGesture, and can still add
+  "Press keys" directions for F4 / F12.
+- **Rad Optimizer** is not needed any more: its functions are the Library
+  (above). Its old script is not in any repo (it held a username and work
+  links).
+- **No mention of RadStopwatch in anything that ships** (the owner, 2026-10-23:
+  it is his own app, not for colleagues). It is only "a program to open" in
+  his own settings. Not in the clash list, not in comments, not in tests;
+  `test/library.test.js` fails on "RadStopwatch" in shipped files. Its
+  Ctrl+Alt+F4 / F4 overlap with Dictate is fine on his PC (its hotkeys pass
+  the key through with `~`).
+
+<!-- BEGIN wrap-skill (synced by sync-wrap-skill.sh — do not hand-edit) -->
+## Close working sessions with a wrap summary
+
+When you finish a substantive piece of work — code written, changed, reviewed,
+debugged, or investigated — and you are handing back to the owner, **close your reply
+with the summary defined in the `wrap` skill**, committed at
+`.claude/skills/wrap/SKILL.md`. Invoke it with the Skill tool (`wrap`) and follow
+it exactly.
+
+This is a rule, not a judgment call about whether the work "deserves" a summary.
+If files changed, he gets a wrap.
+
+**Skip it** for quick factual answers, single lookups, status checks, and
+conversational replies where nothing was built or changed. A wrap on a one-line
+answer is noise.
+
+The owner of this project is non-technical. Everything above the summary is
+your working-out — tool calls, diffs, reasoning. He should not have to read it to
+know what happened. The wrap is the part he actually reads, so it has to be in
+plain language, honest about what was and wasn't verified, and scannable.
+<!-- END wrap-skill -->

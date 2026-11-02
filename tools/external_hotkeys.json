@@ -1,0 +1,175 @@
+{
+  "_about": "Shortcuts of scripts that are NOT in this repo, for tools/hotkey_audit.py and the Settings window's clash warnings. 'running' = scripts expected to run next to RadGesture. 'retire' = scripts that must be closed because RadGesture took over their keys: Rad Optimizer's functions are RadGesture's Functions now (config/library.json). Keys and actions only: no links or login variables. 'sends' = keys a script presses into an app.",
+  "running": [],
+  "retire": [
+    {
+      "script": "old RadGesture (Kando)",
+      "hotkeys": [
+        {
+          "key": "^CapsLock",
+          "does": "open the old pie menu"
+        }
+      ]
+    },
+    {
+      "script": "standalone RadProofread",
+      "hotkeys": [
+        {
+          "key": "^!q",
+          "does": "proofread"
+        }
+      ]
+    },
+    {
+      "script": "standalone RadOneLiner",
+      "hotkeys": [
+        {
+          "key": "^!u",
+          "does": "one-liner"
+        }
+      ]
+    },
+    {
+      "script": "Rad Optimizer",
+      "hotkeys": [
+        {
+          "key": "^!g",
+          "does": "PowerScribe: paste selection into Indication"
+        },
+        {
+          "key": "^!F4",
+          "does": "PowerScribe: dictation on/off"
+        },
+        {
+          "key": "^!f",
+          "does": "PowerScribe: next field"
+        },
+        {
+          "key": "^!v",
+          "does": "PowerScribe: previous field"
+        },
+        {
+          "key": "^!o",
+          "does": "PACS: orthogonal"
+        },
+        {
+          "key": "^!d",
+          "does": "PACS: distance"
+        },
+        {
+          "key": "^!h",
+          "does": "PACS: ROI"
+        },
+        {
+          "key": "^!a",
+          "does": "PACS: arrow"
+        },
+        {
+          "key": "^!c",
+          "does": "PACS: circle"
+        },
+        {
+          "key": "^!m",
+          "does": "PACS: insert measurement"
+        },
+        {
+          "key": "^!x",
+          "does": "PACS: crosshair"
+        },
+        {
+          "key": "^!l",
+          "does": "PACS: link crosshair"
+        },
+        {
+          "key": "^!p",
+          "does": "PACS: insert priors (Comparison field)"
+        },
+        {
+          "key": "^!k",
+          "does": "PACS: previous key image"
+        },
+        {
+          "key": "^!i",
+          "does": "PACS: next key image"
+        },
+        {
+          "key": "^!r",
+          "does": "PACS: previous layout"
+        },
+        {
+          "key": "^!t",
+          "does": "PACS: next layout"
+        },
+        {
+          "key": "^!1",
+          "does": "PACS: W/L soft tissue"
+        },
+        {
+          "key": "^!2",
+          "does": "PACS: W/L lung"
+        },
+        {
+          "key": "^!3",
+          "does": "PACS: W/L bone"
+        },
+        {
+          "key": "^!4",
+          "does": "PACS: W/L brain"
+        },
+        {
+          "key": "^!6",
+          "does": "PACS: W/L stroke"
+        },
+        {
+          "key": "^!e",
+          "does": "PACS: enhance"
+        },
+        {
+          "key": "^!b",
+          "does": "PACS: sharpen"
+        },
+        {
+          "key": "^!s",
+          "does": "PACS: MPR"
+        },
+        {
+          "key": "^!w",
+          "does": "PACS: matrix"
+        },
+        {
+          "key": "^!n",
+          "does": "PACS: image window"
+        },
+        {
+          "key": "+!u",
+          "does": "Type user name + password"
+        },
+        {
+          "key": "+!p",
+          "does": "Type password"
+        },
+        {
+          "key": "+!e",
+          "does": "Switch to Epic"
+        },
+        {
+          "key": "+!t",
+          "does": "Switch to Teams"
+        },
+        {
+          "key": "+!c",
+          "does": "Open Chrome tabs"
+        },
+        {
+          "key": "+!s",
+          "does": "Search selection (Radiopaedia / Google Images)"
+        },
+        {
+          "key": "+!i",
+          "does": "PowerScribe: lung screening pick-list 2"
+        }
+      ]
+    }
+  ],
+  "shared_on_purpose": []
+}
