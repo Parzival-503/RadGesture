@@ -727,6 +727,23 @@ async function waitFor(fn, ms, step = 200) {
         const qp = await reached('pick:oncologic');
         check('pressing 2 in the picker picks the second kind', qp.ok, qp.got);
       } else check('the one-liner picker opens in the hub', false);
+      // The login password box: typed, Enter, handed to the helper once,
+      // never in the activity log.
+      const ps = await call('POST', '/ui', JSON.stringify({ t: 'secret', title: 'Password', sub: 'RadGesture types it in to sign you in.' }));
+      const pww = await panel('secret');
+      if (pww) {
+        await pww.waitForSelector('#pwInput', { timeout: 5000 }).catch(() => {});
+        await pww.fill('#pwInput', 'Inv3nted pass!');
+        await pww.screenshot({ path: path.join(SHOTS, 'password.png') }).catch(() => {});
+        const waiting = await call('GET', '/secret');
+        await pww.press('#pwInput', 'Enter');
+        const got = await waitFor(async () => { const r = await call('GET', '/secret'); return r && r !== 'wait' ? r : null; }, 4000);
+        const again = await call('GET', '/secret');
+        const logText = JSON.stringify(await rg((r) => r.events())) + JSON.stringify(await rg((r) => r.queue()));
+        check('the password box hands the typed password to the helper once', ps === 'ok' && waiting === 'wait' && got === 'ok\nInv3nted pass!' && again === 'none', `${ps} ${waiting} ${JSON.stringify(got)} ${again}`);
+        check('the password is in no log or queue', !logText.includes('Inv3nted'));
+        check('the password box says it is never saved', /Never saved/.test(await pww.textContent('.pwnote').catch(() => '')));
+      } else check('the password box opens in the hub', false);
       const ts = await call('POST', '/ui', JSON.stringify({ t: 'toast', text: 'Learned (CT chest). 3 examples of your impressions.', kind: 'ok', ms: 4000 }));
       const tw = await panel('toast');
       if (tw) { await tw.waitForSelector('.tst', { timeout: 4000 }).catch(() => {}); await tw.screenshot({ path: path.join(SHOTS, 'toast.png') }).catch(() => {}); }

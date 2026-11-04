@@ -773,6 +773,15 @@ published work.
   auto-execute section, and the Windows e2e runs the REAL path
   (`proof:demo`: invented report with a tab, x, mu, an em dash, curly
   quotes). A failed hand-off is logged as `proof-fallback:<why>` in Status.
+- **The login password box** (the owner, 2026-11-04: the old AHK InputBox looked
+  dated and "kept in memory only" read as "we keep your password"):
+  `LibPassword()` -> `HubAskPassword()` asks the hub for a `secret` panel
+  (lock, show/hide eye, "Never saved. RadGesture forgets it when you quit,
+  sign out or restart.", Cancel / Sign in) and polls `GET /secret` until it
+  answers `ok\n<password>` (once), `cancel` or `none`. The password never
+  goes through the bridge queue, `rgpn:act` or `logEvent`; closing the box is
+  a cancel; only the box itself can answer (`test/panels.test.js`, e2e).
+  With no hub the plain InputBox asks, with the same wording.
 - **Report text is kept 7 days** (the owner, 2026-11-02): `PruneHistory()` drops
   proofread sessions older than `g_HistoryDays` (`[Behavior] HistoryDays`)
   from the history and deletes the last request/response and the `%TEMP%`

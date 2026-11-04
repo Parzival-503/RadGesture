@@ -5,6 +5,9 @@
 //            "empty the chart text?" (never takes focus, so Insert pastes
 //            into the report that still has the cursor)
 //   pick     the one-liner picker (takes the keyboard: 1-4, Esc)
+//   secret   the login password box (takes the keyboard). The password goes
+//            straight back to the helper over GET /secret, read once, and is
+//            never logged, queued or written anywhere
 //   toast    one short message, bottom right; clicks go through it
 //
 // The helper keeps the state (priors, chart pieces) and says what to show
@@ -16,7 +19,7 @@ const path = require('path');
 
 const PAGE = path.join(__dirname, '..', 'panel', 'index.html');
 const PRELOAD = path.join(__dirname, '..', 'panel', 'preload.js');
-const WIDTH = { toolbar: 292, card: 460, pick: 360, toast: 400 };
+const WIDTH = { toolbar: 292, card: 460, pick: 360, toast: 400, secret: 380 };
 // What a panel may ask the helper to do.
 const ACTION = /^(?:impression|oneliner|toolbar:hide|(?:prior|chart|imp|priorlist|pick):[a-z0-9:]{1,24})$/;
 
@@ -43,6 +46,9 @@ function clean(t, d) {
       options: (Array.isArray(d.options) ? d.options : []).slice(0, 9).map((o) => ({ id: str(o && o.id, 40), label: str(o && o.label, 60), hint: str(o && o.hint, 120), icon: str(o && o.icon, 40) })).filter((o) => o.id && o.label),
     };
   }
+  if (t === 'secret') {
+    return { title: str(d.title, 80), sub: str(d.sub, 200) };
+  }
   if (t === 'toast') {
     const kinds = ['info', 'ok', 'warn', 'error'];
     return { text: str(d.text, 600), kind: kinds.includes(d.kind) ? d.kind : 'info', ms: Math.max(0, Math.min(60000, Number(d.ms) || 0)) };
@@ -54,6 +60,9 @@ function createPanels({ BrowserWindow, screen, ipcMain, clipboard, userDir, them
   const wins = {}; // mode -> BrowserWindow
   const data = {}; // mode -> what it shows
   let toastTimer = null;
+  // The login password on its way to the helper: 'none' | 'wait' | 'ok' (+ value) | 'cancel'.
+  let secret = { state: 'none' };
+  const keys = (m) => m === 'pick' || m === 'secret';
   const prefsFile = () => path.join(userDir(), 'panels.json');
   let prefs = {};
   try { prefs = JSON.parse(fs.readFileSync(prefsFile(), 'utf8')) || {}; } catch (_) { prefs = {}; }
@@ -78,7 +87,7 @@ function createPanels({ BrowserWindow, screen, ipcMain, clipboard, userDir, them
       const tb = alive('toolbar') && wins.toolbar.isVisible() ? wins.toolbar.getBounds() : null;
       if (tb) { x = Math.max(a.x + 8, tb.x - w - 12); y = tb.y; } else { y = a.y + 150; }
     }
-    if (m === 'pick') {
+    if (keys(m)) {
       const c = screen.getCursorScreenPoint();
       x = Math.min(Math.max(a.x + 8, c.x - 40), a.x + a.width - w - 8);
       y = Math.min(Math.max(a.y + 8, c.y - 20), a.y + a.height - 320);
@@ -88,12 +97,13 @@ function createPanels({ BrowserWindow, screen, ipcMain, clipboard, userDir, them
       width: w, height: 120, x: Math.round(x), y: Math.round(y),
       show: false, frame: false, transparent: true, resizable: false, maximizable: false, minimizable: false, fullscreenable: false,
       skipTaskbar: true, alwaysOnTop: true, hasShadow: false,
-      focusable: m === 'pick', // the rest never take the keyboard from the report
-      title: m === 'pick' ? 'RadGesture One-liner' : 'RadGesture',
+      focusable: keys(m), // the rest never take the keyboard from the report
+      title: m === 'pick' ? 'RadGesture One-liner' : m === 'secret' ? 'RadGesture password' : 'RadGesture',
       webPreferences: { preload: PRELOAD, contextIsolation: true, sandbox: false },
     });
     if (m === 'toast') win.setIgnoreMouseEvents(true);
     win.on('closed', () => { if (wins[m] === win) delete wins[m]; });
+    if (m === 'secret') win.on('hide', () => { if (secret.state === 'wait') secret = { state: 'cancel' }; });
     win.loadFile(PAGE, { query: { mode: m } });
     wins[m] = win;
     return win;
@@ -104,7 +114,7 @@ function createPanels({ BrowserWindow, screen, ipcMain, clipboard, userDir, them
     const send = () => {
       if (win.isDestroyed()) return;
       win.webContents.send('rgpn:data', payload(m));
-      if (m === 'pick') {
+      if (keys(m)) {
         win.setAlwaysOnTop(true);
         win.show();
         win.moveTop();
@@ -130,7 +140,12 @@ function createPanels({ BrowserWindow, screen, ipcMain, clipboard, userDir, them
       data[t] = clean(t, d);
       show(t);
       log(t, data[t].title);
-    } else if (t === 'card-close' || t === 'pick-close') {
+    } else if (t === 'secret') {
+      secret = { state: 'wait' };
+      data.secret = clean('secret', d);
+      show('secret');
+      log('secret', 'asked');
+    } else if (t === 'card-close' || t === 'pick-close' || t === 'secret-close') {
       hide(t.slice(0, -6));
     } else if (t === 'toast') {
       data.toast = clean('toast', d);
@@ -161,6 +176,14 @@ function createPanels({ BrowserWindow, screen, ipcMain, clipboard, userDir, them
     if (id === 'toolbar:hide') hide('toolbar');
     enqueue(id);
     log('panel', `${m}: ${id}`);
+    return true;
+  });
+  // The password box's answer: kept only until the helper takes it.
+  ipcMain.handle('rgpn:secret', (e, value) => {
+    if (modeOf(e) !== 'secret' || secret.state !== 'wait') return false;
+    value = typeof value === 'string' ? value.slice(0, 200) : '';
+    secret = value ? { state: 'ok', value } : { state: 'cancel' };
+    hide('secret');
     return true;
   });
   ipcMain.handle('rgpn:copy', (_e, text) => { clipboard.writeText(String(text || '')); return true; });
@@ -195,8 +218,16 @@ function createPanels({ BrowserWindow, screen, ipcMain, clipboard, userDir, them
     return true;
   });
 
+  // GET /secret from the helper: the answer, once.
+  function takeSecret() {
+    const s = secret;
+    if (s.state === 'ok' || s.state === 'cancel') secret = { state: 'none' };
+    return s.state === 'ok' ? 'ok\n' + s.value : s.state;
+  }
+
   return {
     handle,
+    takeSecret,
     hideAll: () => Object.keys(wins).forEach(hide),
     // Quitting: close them outright, so none can hold the app open.
     destroyAll: () => Object.keys(wins).forEach((m) => { if (alive(m)) wins[m].destroy(); }),

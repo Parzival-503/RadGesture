@@ -1189,7 +1189,7 @@
 
     $main.append(h('div', { class: 'card', id: 'wfLogin' },
       h('h2', {}, msym('badge'), 'Log in'),
-      h('p', { class: 'hint', style: 'margin:-6px 0 10px' }, 'Shift+Alt+U types your username, Tab, your password and Enter, wherever the cursor is. The password is asked once per session, kept in memory only, and never saved.'),
+      h('p', { class: 'hint', style: 'margin:-6px 0 10px' }, 'Shift+Alt+U types your username, Tab, your password and Enter, wherever the cursor is. The password is asked once and never saved: RadGesture forgets it when it closes.'),
       usernameRow(),
       ...['LoginUandP', 'LoginU', 'LoginP', 'LoginForget'].map(entry)));
 

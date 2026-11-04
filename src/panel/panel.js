@@ -1,4 +1,4 @@
-// The helper's small windows, one page: ?mode=toolbar | card | pick | toast.
+// The helper's small windows, one page: ?mode=toolbar | card | pick | secret | toast.
 // The hub sends what to show (rgpn:data); buttons go back to the helper.
 (function () {
   const api = window.rgpn;
@@ -215,6 +215,36 @@
     e.preventDefault();
   });
 
+  // ------------------------------------------------------------ secret
+
+  // The login password. It goes back to the helper once and is cleared from
+  // this page straight away; nothing here keeps or saves it.
+  function secretBox(d) {
+    const input = h('input', { type: 'password', id: 'pwInput', class: 'pwin', autocomplete: 'off', spellcheck: 'false', 'aria-label': 'Password' });
+    const eye = iconBtn('visibility', 'Show the password', () => {
+      const on = input.type === 'password';
+      input.type = on ? 'text' : 'password';
+      eye.replaceChildren(msym(on ? 'visibility_off' : 'visibility'));
+      input.focus();
+    }, { id: 'pwEye' });
+    const send = (value) => { api.secret(value); input.value = ''; };
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && input.value) { e.preventDefault(); send(input.value); }
+      else if (e.key === 'Escape') { e.preventDefault(); send(''); }
+    });
+    setTimeout(() => input.focus(), 30);
+    return [draggable(h('header', { class: 'head' },
+      h('span', { class: 'plogo' }, msym('lock')),
+      h('div', { class: 'tt' }, h('div', { class: 'ttl' }, d.title || 'Password'), h('div', { class: 'sub' }, d.sub || 'RadGesture types it in to sign you in.')),
+      h('span', { class: 'grow' }),
+      iconBtn('close', 'Cancel (Esc)', () => send(''), { id: 'pwClose' }))),
+    h('div', { class: 'pwrow' }, input, eye),
+    h('div', { class: 'pwnote' }, msym('shield_lock'), h('span', {}, h('b', {}, 'Never saved. '), 'RadGesture forgets it when you quit, sign out or restart.')),
+    h('div', { class: 'prow acts' },
+      h('button', { class: 'btn small', id: 'pwCancel', onclick: () => send('') }, 'Cancel'),
+      h('button', { class: 'btn small primary', id: 'pwOk', onclick: () => { if (input.value) send(input.value); else input.focus(); } }, msym('login'), 'Sign in'))];
+  }
+
   // ------------------------------------------------------------ toast
 
   function toast(d) {
@@ -229,11 +259,11 @@
   function render() {
     if (!data) return;
     T.apply(document.documentElement, data.theme, 'ui');
-    const view = { toolbar, card, pick, toast }[mode] || card;
+    const view = { toolbar, card, pick, toast, secret: secretBox }[mode] || card;
     $shell.replaceChildren(...view(data));
     $shell.classList.toggle('collapsed', mode === 'toolbar' && !!data.collapsed);
     fit();
-    if (mode === 'pick') window.focus();
+    if (mode === 'pick' || mode === 'secret') window.focus();
   }
   api.onData((d) => { data = d; if (mode === 'pick') sel = 0; render(); });
   api.get().then((d) => { if (d && !data) { data = d; render(); } });

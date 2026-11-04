@@ -152,7 +152,7 @@ global LIB_IDS := "PS_ToggleDictation|PS_NextField|PS_PrevField|PS_PasteIndicati
     . "|PACS_Pinpoint|PACS_Show_Report|PACS_Thick_Slab|PACS_Slab_Off|PACS_Invert|PACS_Reset|PACS_Prev_Exam|PACS_Next_Exam"
     . "|LoginUandP|LoginU|LoginP|LoginForget|ActivateEPIC|ActivateTeams|OpenChromeTabs|SearchRadiopaediaGoogle"
 global g_LibBound := {}     ; hotkey -> library id, for LibHotkey
-global g_LibPass := ""      ; the login password, this session only (never written anywhere)
+global g_LibPass := ""      ; the login password: never written anywhere, gone when the helper stops
 global g_LibSearchTerm := ""
 global g_LibKeyId := ""
 
@@ -4492,8 +4492,8 @@ Lib_PasteIndication() {
 }
 
 ; Logins: no username or password in the code. The username comes from
-; Settings > Functions; the password is asked once per session and kept only
-; in memory. {Raw} so a password with ! + ^ # { is typed as it is, not as Alt/Shift/...
+; Settings > Functions; the password is asked once, never saved, and gone
+; when RadGesture closes. {Raw} so a password with ! + ^ # { is typed as it is, not as Alt/Shift/...
 Lib_Login(typeUser, typePass, tab, enter) {
     global INI_PATH
     user := ""
@@ -4523,20 +4523,47 @@ Lib_Login(typeUser, typePass, tab, enter) {
     return true
 }
 
-; Asks for the password the first time, then remembers it until the helper
-; stops (or "Forget the password").
+; Asks for the password the first time and uses it until RadGesture closes
+; (or "Forget the password"). It is never saved. The hub draws the box; with
+; no hub, the plain Windows box asks instead.
 LibPassword() {
     global g_LibPass
     if (g_LibPass != "")
         return true
     WinGet, prevId, ID, A
-    InputBox, entered, RadGesture, Password for this session (kept in memory only):, HIDE, 340, 130
-    if (ErrorLevel || entered = "")
+    entered := ""
+    if (HubAskPassword(entered) = "nohub") {
+        InputBox, entered, RadGesture password, Type the password to sign in.`nIt is never saved: RadGesture forgets it when it closes., HIDE, 380, 160
+        if ErrorLevel
+            entered := ""
+    }
+    if (entered = "")
         return false
     g_LibPass := entered
     WinActivate, ahk_id %prevId%
     WinWaitActive, ahk_id %prevId%, , 1
     return true
+}
+
+; The hub's password box: shows it, then waits for the answer, which the hub
+; hands over once and keeps nowhere. "ok" (pass is set), "cancel" or "nohub".
+HubAskPassword(ByRef pass) {
+    pass := ""
+    if !HubUi("{""t"":""secret"",""title"":""Password"",""sub"":""RadGesture types it in to sign you in.""}")
+        return "nohub"
+    start := A_TickCount
+    while (A_TickCount - start < 180000) {
+        r := HubRequest("GET", "/secret", 1500)
+        if (SubStr(r, 1, 3) = "ok`n") {
+            pass := SubStr(r, 4)
+            return "ok"
+        }
+        if (r = "cancel" || r = "none")
+            return "cancel"
+        Sleep, 150
+    }
+    HubUi("{""t"":""secret-close""}")
+    return "cancel"
 }
 
 ; Epic: bring Hyperspace to the front; say so when Epic is not open.

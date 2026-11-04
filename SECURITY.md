@@ -31,8 +31,11 @@ checked against the source in this repository; the file that does it is named.
   pasted where the cursor is. The clipboard is restored afterwards where the
   tool says so.
 - **Login functions** type the user's username and password into their own
-  work programs. The password is asked once per session and **kept in memory
-  only, never written to disk** (`LibPassword()` in the helper). No username,
+  work programs. The password is asked once and **never saved**: it is
+  typed into RadGesture's own password box, handed straight to the helper
+  over the local connection (read once, never logged), and forgotten when
+  RadGesture closes (`LibPassword()` / `HubAskPassword()` in the helper,
+  `src/main/panels.js`). No username,
   password or work link is in this repository (`test/library.test.js`).
 - **Settings > Status** lists running programs (a PowerShell
   `Get-CimInstance Win32_Process` query, `src/main/conflicts.js`) to find

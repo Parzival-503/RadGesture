@@ -14,6 +14,8 @@
 //   POST /proofread-toast helper: a short message for the proofread window (body)
 //   POST /ui              helper: what its small windows show (JSON, t = toolbar |
 //                         card | card-close | pick | pick-close | toast | toast-hide) -> "ok"
+//   GET  /secret          helper: the login password typed in the hub's box ->
+//                         "ok\n<password>" (once) | "wait" | "cancel" | "none"
 //   POST /style/learn     helper: a finished report to learn the impression style
 //                         from (JSON: report, draft, source) -> "saved:<n>:<kind>" | "skip:<why>" | "off"
 //   POST /style/examples  helper: the report about to get an impression (JSON: report)
@@ -23,7 +25,7 @@
 
 const http = require('http');
 
-function createBridge({ token, onShow, onRelease, onCancel, isOpen, onPoll = () => {}, onDone = () => {}, onQuit = () => {}, onOpenSettings = () => {}, onProofread = () => 'no', onProofToast = () => {}, onStyleLearn = () => 'off', onStyleExamples = () => '', onUi = () => 'no' }) {
+function createBridge({ token, onShow, onRelease, onCancel, isOpen, onPoll = () => {}, onDone = () => {}, onQuit = () => {}, onOpenSettings = () => {}, onProofread = () => 'no', onProofToast = () => {}, onStyleLearn = () => 'off', onStyleExamples = () => '', onUi = () => 'no', onSecret = () => 'none' }) {
   const queue = [];
 
   const server = http.createServer(async (req, res) => {
@@ -74,6 +76,8 @@ function createBridge({ token, onShow, onRelease, onCancel, isOpen, onPoll = () 
         case '/proofread-toast':
           onProofToast(await body());
           return reply(200, 'ok');
+        case '/secret':
+          return reply(200, onSecret());
         case '/ui': {
           if (req.method !== 'POST') return reply(405, 'POST only');
           let data;

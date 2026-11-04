@@ -5,6 +5,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('rgpn', {
   get: () => ipcRenderer.invoke('rgpn:get'),
   act: (id) => ipcRenderer.invoke('rgpn:act', id),
+  secret: (value) => ipcRenderer.invoke('rgpn:secret', value),
   copy: (text) => ipcRenderer.invoke('rgpn:copy', text),
   close: () => ipcRenderer.invoke('rgpn:close'),
   size: (h) => ipcRenderer.invoke('rgpn:size', h),

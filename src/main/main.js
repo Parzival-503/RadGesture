@@ -423,6 +423,7 @@ async function startBridge() {
     onOpenSettings: (tab) => openSettings(tab || 'general'),
     onProofread: (d) => openProofread(d),
     onUi: (d) => (panels ? panels.handle(d) : 'no'),
+    onSecret: () => (panels ? panels.takeSecret() : 'none'),
     onStyleLearn: (d) => styleLearn(d),
     onStyleExamples: (report) => (store.readAI().styleUse === '0' ? '' : style.promptFor(report)),
     onProofToast: (msg) => { if (proofWin && !proofWin.isDestroyed()) proofWin.webContents.send('rgp:toast', String(msg).slice(0, 300)); },
