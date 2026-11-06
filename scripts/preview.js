@@ -199,6 +199,23 @@ const shots = path.join(__dirname, 'shots');
   await page.mouse.move(cx + 140, cy - 20);
   await shot('11-layout-grid');
 
+  // 12. PACS > Window / level: each preset shows its organ (Bone a bone,
+  // Brain and Stroke a brain).
+  await page.evaluate(() => window.RGRing.clear());
+  for (let i = 0; i < 5 && !(await state()); i++) {
+    await page.waitForTimeout(300);
+    await page.mouse.move(cx, cy); await page.mouse.down(); await page.mouse.up();
+  }
+  await page.waitForTimeout(400);
+  const pc2 = await (await page.$(`.dchip[data-cat="${pacsAt}"]`)).boundingBox();
+  await page.mouse.click(pc2.x + pc2.width / 2, pc2.y + pc2.height / 2);
+  await page.waitForTimeout(400);
+  await clickNode('Window / level');
+  const wl = await page.evaluate(() => Object.fromEntries(window.RGRing.state().levels.slice(-1)[0].nodes.filter((N) => !N.back).map((N) => [N.it.name, (N.el.querySelector('.emoji') || {}).textContent || ''])));
+  assert.deepStrictEqual([wl.Bone, wl.Brain, wl.Stroke], ['\u{1F9B4}', '\u{1F9E0}', '\u{1F9E0}'], 'Bone, Brain and Stroke show their emoji');
+  await page.mouse.move(cx + 140, cy - 20);
+  await shot('12-window-level');
+
   assert.deepStrictEqual(errors, [], 'no page errors');
   await browser.close();
   console.log('PASS preview flows; screenshots in scripts/shots/');

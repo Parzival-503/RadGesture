@@ -30,17 +30,17 @@
             },
             {
               "name": "Bone",
-              "icon": "ti:bone",
+              "icon": "🦴",
               "action": "helper:lib:PACS_WL_Bone"
             },
             {
               "name": "Brain",
-              "icon": "ti:brain",
+              "icon": "🧠",
               "action": "helper:lib:PACS_WL_Brain"
             },
             {
               "name": "Stroke",
-              "icon": "ti:brain",
+              "icon": "🧠",
               "action": "helper:lib:PACS_WL_Stroke"
             }
           ]

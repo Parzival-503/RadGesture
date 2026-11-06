@@ -386,9 +386,10 @@ test('window / level presets show their organ and Oncologic the ribbon, on saved
   fs.writeFileSync(path.join(dir, 'menu.json'), JSON.stringify(m));
   const got = flat(store.readMenu());
   assert.strictEqual(got['helper:lib:PACS_WL_SoftTissue'].icon, 'gastroenterology');
-  assert.strictEqual(got['helper:lib:PACS_WL_Bone'].icon, 'ti:bone');
-  assert.strictEqual(got['helper:lib:PACS_WL_Brain'].icon, 'ti:brain');
-  assert.strictEqual(got['helper:lib:PACS_WL_Stroke'].icon, 'star', 'an icon the person chose stays');
+  // organ-emoji runs after: bone and brain emoji, whatever they had.
+  assert.strictEqual(got['helper:lib:PACS_WL_Bone'].icon, '\u{1F9B4}');
+  assert.strictEqual(got['helper:lib:PACS_WL_Brain'].icon, '\u{1F9E0}');
+  assert.strictEqual(got['helper:lib:PACS_WL_Stroke'].icon, '\u{1F9E0}');
   assert.strictEqual(got['helper:oneliner:oncologic'].icon, 'ti:ribbon-health');
 });
 
@@ -550,4 +551,20 @@ test('Add from clipboard comes off every ring, once; a smaller ring left empty g
   assert.ok(!JSON.stringify(m).includes('hub:ref-add'));
   assert.deepStrictEqual(m.categories[1].items.map((x) => x.name), ['Google']);
   assert.ok(m.migrated.includes('no-clipboard-add'));
+});
+
+test('Bone, Brain and Stroke get their emoji on saved rings, from any icon but a picture', () => {
+  const { migrate } = require('../src/main/settings-store');
+  const m = { migrated: [], categories: [{ id: 'pacs', name: 'PACS', items: [{ name: 'Window', items: [
+    { name: 'Bone', icon: 'contrast', action: 'helper:lib:PACS_WL_Bone' },
+    { name: 'Brain', icon: 'contrast', action: 'helper:lib:PACS_WL_Brain' },
+    { name: 'Stroke', icon: 'contrast', action: 'helper:keys:^!5' },
+    { name: 'Lung', icon: 'pulmonology', action: 'helper:lib:PACS_WL_Lung' },
+    { name: 'Spine', icon: 'img:abc.png', action: 'helper:lib:PACS_WL_Bone' },
+  ] }] }] };
+  migrate(m, { functions: [] });
+  const icons = m.categories[0].items.flatMap((c) => c.items || [c]).filter((x) => x.icon).map((x) => x.name + '=' + x.icon);
+  const w = m.categories[0].items.find((c) => c.name === 'Window').items;
+  assert.deepStrictEqual(w.map((x) => x.icon), ['\u{1F9B4}', '\u{1F9E0}', '\u{1F9E0}', 'pulmonology', 'img:abc.png'], icons.join(', '));
+  assert.ok(m.migrated.includes('organ-emoji'));
 });

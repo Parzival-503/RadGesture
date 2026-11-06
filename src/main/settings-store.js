@@ -639,6 +639,24 @@ function migrate(m, lib) {
     done.push('no-clipboard-add');
     changed = true;
   }
+  if (!done.includes('organ-emoji')) {
+    // Bone, Brain and Stroke window / level presets show emoji: a bone, a
+    // brain, a brain (the owner, 2026-11-06: saved rings still showed the
+    // half-filled contrast circle, an icon the earlier organ step did not
+    // know). Whatever icon they had, except a picture the person added.
+    const EMOJI = { PACS_WL_Bone: '\u{1F9B4}', PACS_WL_Brain: '\u{1F9E0}', PACS_WL_Stroke: '\u{1F9E0}' };
+    const NAMES = { bone: 'PACS_WL_Bone', brain: 'PACS_WL_Brain', stroke: 'PACS_WL_Stroke' };
+    const walk = (items) => (items || []).forEach((it) => {
+      if (Array.isArray(it.items)) return walk(it.items);
+      const act = String(it.action || '');
+      const id = act.startsWith('helper:lib:') && EMOJI[act.slice(11)] ? act.slice(11)
+        : (/^helper:/.test(act) ? NAMES[String(it.name || '').trim().toLowerCase()] : null);
+      if (id && !/^img:/.test(String(it.icon || ''))) it.icon = EMOJI[id];
+    });
+    m.categories.forEach((c) => walk(c.items));
+    done.push('organ-emoji');
+    changed = true;
+  }
   if (changed) m.migrated = done;
   return changed;
 }
