@@ -639,22 +639,25 @@ function migrate(m, lib) {
     done.push('no-clipboard-add');
     changed = true;
   }
-  if (!done.includes('organ-emoji')) {
-    // Bone, Brain and Stroke window / level presets show emoji: a bone, a
-    // brain, a brain (the owner, 2026-11-06: saved rings still showed the
-    // half-filled contrast circle, an icon the earlier organ step did not
-    // know). Whatever icon they had, except a picture the person added.
-    const EMOJI = { PACS_WL_Bone: '\u{1F9B4}', PACS_WL_Brain: '\u{1F9E0}', PACS_WL_Stroke: '\u{1F9E0}' };
-    const NAMES = { bone: 'PACS_WL_Bone', brain: 'PACS_WL_Brain', stroke: 'PACS_WL_Stroke' };
+  if (!done.includes('organ-emoji') || !done.includes('organ-same-style')) {
+    // Every window / level preset in one icon style, the outlined organ
+    // symbols: Soft tissue a stomach, Lung lungs, Bone a bone, Brain and
+    // Stroke a brain (the owner, 2026-11-06). Saved rings showed a contrast
+    // half-circle on Bone / Brain / Stroke, then for one build colour emoji,
+    // which did not match Lung and Soft tissue. Whatever icon they had,
+    // except a picture the person added.
+    const ICON = { PACS_WL_SoftTissue: 'gastroenterology', PACS_WL_Lung: 'pulmonology', PACS_WL_Bone: 'hand_bones', PACS_WL_Brain: 'neurology', PACS_WL_Stroke: 'neurology' };
+    const NAMES = { 'soft tissue': 'PACS_WL_SoftTissue', lung: 'PACS_WL_Lung', bone: 'PACS_WL_Bone', brain: 'PACS_WL_Brain', stroke: 'PACS_WL_Stroke' };
     const walk = (items) => (items || []).forEach((it) => {
       if (Array.isArray(it.items)) return walk(it.items);
       const act = String(it.action || '');
-      const id = act.startsWith('helper:lib:') && EMOJI[act.slice(11)] ? act.slice(11)
+      const id = act.startsWith('helper:lib:') && ICON[act.slice(11)] ? act.slice(11)
         : (/^helper:/.test(act) ? NAMES[String(it.name || '').trim().toLowerCase()] : null);
-      if (id && !/^img:/.test(String(it.icon || ''))) it.icon = EMOJI[id];
+      if (id && !/^img:/.test(String(it.icon || ''))) it.icon = ICON[id];
     });
     m.categories.forEach((c) => walk(c.items));
-    done.push('organ-emoji');
+    if (!done.includes('organ-emoji')) done.push('organ-emoji');
+    done.push('organ-same-style');
     changed = true;
   }
   if (changed) m.migrated = done;

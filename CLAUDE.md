@@ -576,11 +576,14 @@ both stay library functions on their shortcuts (his mouse sends them).
 Functions can live in the helper without being on a ring. `organ-icons`:
 window / level presets show their organ (Soft tissue `gastroenterology`,
 Bone `ti:bone`, Brain and Stroke `ti:brain`), the Oncologic one-liner
-`ti:ribbon-health`; only icons we shipped are replaced. `organ-emoji` (owner, 2026-11-06,
-his saved ring still showed the contrast half-circle on all three): Bone is
-the bone emoji, Brain and Stroke the brain emoji, whatever icon they had
-(a picture the person added stays); library.json and the default menu too.
-The preview checks them (`12-window-level.png`).
+`ti:ribbon-health`; only icons we shipped are replaced. `organ-same-style` (owner, 2026-11-06):
+every preset in ONE style, the outlined organ symbols (Soft tissue
+`gastroenterology`, Lung `pulmonology`, Bone `hand_bones`, Brain and
+Stroke `neurology`), whatever icon they had (a picture the person added
+stays). His saved ring had a contrast half-circle on three, then one build
+(`organ-emoji`) gave them colour emoji, which did not match Lung and Soft
+tissue: don't mix emoji with the outlined symbols in one ring. The preview
+checks them (`12-window-level.png`).
 
 `pacs-image` (owner, 2026-10-27, replacing his macro pad): the Enhance ring
 becomes **Image** (MPR moved in from Layout, Thick slab = Shift+3, Slab off
