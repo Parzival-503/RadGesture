@@ -9,6 +9,7 @@
 // Nobody edits either file by hand; the Settings window does.
 
 const fs = require('fs');
+const RL = require('../common/reflib');
 const path = require('path');
 const ini = require('./ini');
 const { validateMenu } = require('../common/menu');
@@ -526,7 +527,7 @@ function migrate(m, lib) {
     // so it is "Search selection" and takes Google Images from the old
     // search window, whose direction leaves the Apps ring (its shortcut
     // stays).
-    const isSearchRing = (it) => Array.isArray(it.items) && it.items.length && it.items.every((x) => /^search:|^helper:oe:clip$/.test(x.action || ''));
+    const isSearchRing = (it) => Array.isArray(it.items) && it.items.length && it.items.every((x) => /^search:|^helper:oe:clip$|^hub:ref-browse$/.test(x.action || ''));
     const walk = (items) => (items || []).forEach((it) => {
       if (!Array.isArray(it.items)) return;
       if (isSearchRing(it)) {
@@ -573,6 +574,27 @@ function migrate(m, lib) {
       ai.items.splice(i >= 0 ? i + 1 : ai.items.length, 0, { name: 'Learn this impression', icon: 'school', action: 'helper:style:learn' });
     }
     done.push('impression-style');
+    changed = true;
+  }
+  if (!done.includes('ref-browse')) {
+    // "My library" opens the Reference Library window (find, read, edit, new
+    // note). It goes first in the Search selection ring, so it takes no
+    // place a section could use; with no room there, on the ring itself
+    // when that has a free place.
+    const g = m.categories.find((c) => c.id === 'gallery') || m.categories.find((c) => /reference/i.test(String(c.name || '')));
+    const has = (items) => (items || []).some((it) => it.action === 'hub:ref-browse' || (Array.isArray(it.items) && has(it.items)));
+    const item = { name: 'My library', icon: 'local_library', action: 'hub:ref-browse' };
+    if (g && !has(g.items)) {
+      const lib = RL.read(g);
+      const search = lib.tools.find((t) => Array.isArray(t.items) && t.items.some((x) => /^search:/.test(x.action || '')));
+      if (search && search.items.length < M_MAX) search.items.unshift(item);
+      else if ((g.items || []).length < M_MAX) {
+        const at = lib.tools.findIndex((it) => it.action === 'hub:ref-add');
+        lib.tools.splice(at >= 0 ? at : lib.tools.length, 0, item);
+        RL.pack(g, lib);
+      }
+    }
+    done.push('ref-browse');
     changed = true;
   }
   if (changed) m.migrated = done;

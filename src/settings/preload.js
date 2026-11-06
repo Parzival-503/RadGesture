@@ -25,6 +25,7 @@ contextBridge.exposeInMainWorld('rgs', {
   styleImport: (text) => ipcRenderer.invoke('rgs:style-import', text),
   styleImportFile: () => ipcRenderer.invoke('rgs:style-import-file'),
   onStyleChanged: (cb) => ipcRenderer.on('rgs:style-changed', () => cb()),
+  onRefsChanged: (cb) => ipcRenderer.on('rgs:refs-changed', (_e, op) => cb(op)),
   testKey: (key, model) => ipcRenderer.invoke('rgs:test-key', { key, model }),
   status: () => ipcRenderer.invoke('rgs:status'),
   restartHelper: () => ipcRenderer.invoke('rgs:restart-helper'),

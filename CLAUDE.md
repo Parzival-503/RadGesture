@@ -454,6 +454,25 @@ goes to Settings). Screenshots are kept at most 2400 px wide.
 - **"Reference Library", capital L** (a title, the owner). Migration
   `reference-library-title` fixes rings saved as "Reference library".
 - Notes save themselves (450 ms after typing); there is no Save for them.
+- **The Reference Library window** (the owner, 2026-11-06: "a button that
+  directly goes [to edit] instead of having to bypass the settings"; "something
+  is missing"). The viewer (`src/viewer/`) is the library's own window now:
+  **Find in library** (Ctrl+F; every link, note, picture, PDF and file by
+  title, section, topic, tag, site and note text, grouped by section;
+  arrows + Enter), **Edit** in place (E; a note's title and Markdown with a
+  live preview, a picture's title and caption, saved 450 ms after typing,
+  Esc / Done back to reading), **New note** in a section picked from a
+  menu, and open-in-Settings for sections, tags and moving things. Opened
+  from a note on the ring or with no note (`hub:ref-browse`, ring Reference
+  Library > Search selection > **My library**; migration `ref-browse`, which
+  puts it in the search ring so it takes no section's place: the ring's top
+  holds 8, and every tool there pushes a section under "More sections").
+  Main: `libraryIndex()` (`RL.flat` + notes not on the ring), `rgv:save`
+  (renames the note's directions with `RL.renameRef`), `rgv:new`
+  (`RL.addTo`); ring changes are written at once and an open Settings
+  window follows (`rgs:refs-changed`: reloads when it has nothing unsaved,
+  else applies the same change to its draft). The e2e edits, finds, opens it
+  from the ring and adds a note to a section.
 - **Electron 44's clipboard is asynchronous** (`readText()` and `read()`
   return promises; there is no `readImage`). Use `clipText()` / `clipImage()`
   in main.js. Reading it the old way made "Search copied text" search for
@@ -722,7 +741,9 @@ published work.
   `imp:oe`), the prior checklist (`checks: true`: Markdown lines
   "- **Finding**: what to check [P2 3/14/2025]", each ticked off like
   Proofread's findings, a progress bar, "All checked"; Insert keeps it open;
-  Copy/Insert use the plain text), "Empty the chart text?" (`chart:clear` /
+  Copy/Insert use the plain text; with findings from more than one prior,
+  chips All / P1 <date> / P2 <date> show one prior's findings, a finding with
+  no source tag always stays, `src/common/priortags.js`, tested), "Empty the chart text?" (`chart:clear` /
   `chart:keep`). **pick**: the one-liner picker, the only one that takes the
   keyboard (1-4, arrows, Enter, Esc -> `pick:<flavor>` / `pick:cancel`).
   **toast**: every `Toast()` and `Notify()`; clicks pass through. The helper

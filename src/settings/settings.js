@@ -140,6 +140,7 @@
     if (a.kind === 'search') return 'search copied text';
     if (a.kind === 'ref') { const r = refById(a.value); return r ? 'reference: ' + r.title : (refsList ? 'reference (deleted)' : 'reference'); }
     if (a.kind === 'hub' && a.value === 'ref-add') return 'adds the clipboard to the Reference Library';
+    if (a.kind === 'hub' && a.value === 'ref-browse') return 'opens the Reference Library window: find, read, edit, new note';
     if (a.kind === 'file') return a.value.split(/[\\/]/).pop() || a.value;
     if (a.kind === 'app') return 'opens ' + (a.value.split(/[\\/]/).pop() || a.value) + (it.startWithHub ? ' (starts with RadGesture)' : '');
     return a.value;
@@ -174,6 +175,22 @@
   }
   document.querySelectorAll('#nav button').forEach((b) => b.addEventListener('click', () => setTab(b.dataset.tab)));
   api.onTab((t) => setTab(t));
+  // The Reference Library window added or renamed a note (and saved the ring):
+  // follow it, without losing changes made here that are not saved yet.
+  api.onRefsChanged(async (op) => {
+    refsList = null;
+    if (op && op.ring) {
+      if (!dirty.menu) {
+        D = await api.get();
+        menuDraft = clone(D.menu);
+      } else {
+        const ring = refRing();
+        if (ring && op.type === 'place') RL.addTo(ring, op.section, { name: op.name, icon: 'description', action: 'ref:' + op.id });
+        if (op.type === 'rename') menuDraft.categories.forEach((c) => RL.renameRef(c, op.id, op.name));
+      }
+    }
+    if (ui.tab === 'references') render();
+  });
   // A report was learned while this window is open: refresh the count.
   api.onStyleChanged(async () => { if (ui.style) { ui.style.list = await api.styleList(); if (ui.tab === 'ai' && !dirty.ai) render(); } });
 

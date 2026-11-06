@@ -173,7 +173,41 @@
     return k;
   }
 
-  const api = { MAX, read, pack, fit, entries, isTool, sectionOf, move, moveIn };
+  // Every link, note, picture and file on the ring, for searching it:
+  // [{ name, action, icon, section, topic }] in ring order.
+  function flat(ring) {
+    const out = [];
+    const lib = read(ring);
+    const add = (it, section, topic) => { if (it && it.action && !isRing(it)) out.push({ name: it.name, action: it.action, icon: it.icon, section, topic }); };
+    lib.sections.forEach((s) => s.items.forEach((it) => (it.topic ? it.items.forEach((x) => add(x, s.name, it.name)) : add(it, s.name, ''))));
+    lib.loose.forEach((it) => add(it, '', ''));
+    return out;
+  }
+
+  // Put a direction last in the named section (the first one if no name
+  // matches) and write the ring back. Returns the section's name, or '' when
+  // the ring has no section at all (then it goes loose on the ring).
+  function addTo(ring, sectionName, item) {
+    const lib = read(ring);
+    const s = lib.sections.find((x) => x.name === sectionName) || lib.sections[0];
+    if (s) s.items.push(item);
+    else lib.loose.push(item);
+    pack(ring, lib);
+    return s ? s.name : '';
+  }
+
+  // A note's direction is named after its title: rename every "ref:<id>".
+  function renameRef(ring, id, name) {
+    let changed = false;
+    const walk = (items) => (items || []).forEach((it) => {
+      if (isRing(it)) return walk(it.items);
+      if (it.action === 'ref:' + id && it.name !== name) { it.name = name; changed = true; }
+    });
+    walk(ring && ring.items);
+    return changed;
+  }
+
+  const api = { MAX, read, pack, fit, entries, isTool, sectionOf, move, moveIn, flat, addTo, renameRef };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.RGRefLib = api;
 })(typeof self !== 'undefined' ? self : this);

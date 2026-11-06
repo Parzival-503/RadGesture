@@ -557,10 +557,55 @@ async function waitFor(fn, ms, step = 200) {
     check('the viewer shows a reference formatted', /<h1>Bosniak 2019<\/h1>/.test(vh) && /<strong>IIF<\/strong>/.test(vh), vh.slice(0, 120));
     if (viewer) {
       await viewer.screenshot({ path: path.join(SHOTS, 'reference-viewer.png') });
+      // Edit right here, saved as you type, no trip to Settings.
+      await viewer.click('#edit');
+      await viewer.waitForSelector('#edText', { timeout: 4000 }).catch(() => {});
+      await viewer.click('#edText');
+      await viewer.keyboard.press('Control+End');
+      await viewer.keyboard.type('\n- **IV**: surgery or ablation');
+      const saved = await waitFor(async () => (fs.readFileSync(path.join(refsDir, bos.id + '.md'), 'utf8').includes('IV**: surgery') ? 'yes' : null), 4000);
+      await viewer.screenshot({ path: path.join(SHOTS, 'reference-edit.png') }).catch(() => {});
+      await viewer.click('#done');
+      await sleep(400);
+      check('a note is edited in its own window and saved as you type', saved === 'yes' && /<strong>IV<\/strong>/.test(await viewer.innerHTML('#page')), String(saved));
+      // Find anything in the library from the same window.
+      await viewer.keyboard.press('Control+f');
+      await viewer.keyboard.type('fleischner');
+      await sleep(400);
+      const rows = await viewer.$$eval('.lrow b', (e) => e.map((x) => x.textContent));
+      check('the library window finds by name (Ctrl+F)', rows.length === 1 && /Fleischner/.test(rows[0]), rows.join(' | '));
+      await viewer.keyboard.press('Escape'); // clears the search
+      await viewer.keyboard.press('Escape'); // back to the note
+      await sleep(300);
+      check('Esc steps back from the search to the note', /<h1>Bosniak 2019<\/h1>/.test(await viewer.innerHTML('#page').catch(() => '')));
       await viewer.keyboard.press('Escape').catch(() => {}); // the window closes mid-press
       await sleep(400);
     }
     check('Esc closes the viewer', !app.windows().some((w) => w.url().includes('viewer')));
+    // "Browse library" on the ring opens the library window on everything in it.
+    await rg((r) => r.runAction('hub:ref-browse'));
+    const lw = await waitFor(async () => app.windows().find((w) => w.url().includes('viewer')), 8000);
+    if (lw) {
+      await lw.waitForSelector('.lrow', { timeout: 5000 }).catch(() => {});
+      const groups = await lw.$$eval('.lgroup', (e) => e.map((x) => x.firstChild.textContent));
+      await lw.screenshot({ path: path.join(SHOTS, 'reference-library-window.png') }).catch(() => {});
+      check('Browse library lists the library by section', groups.includes('CT Chest') && groups.includes('Abdomen'), groups.join(' | '));
+      // A new note, straight into a section.
+      await lw.click('#newNote');
+      await lw.click('.vpopi:has-text("Neuro")');
+      await lw.waitForSelector('#edTitle', { timeout: 4000 }).catch(() => {});
+      await lw.fill('#edTitle', 'Thyroid nodule pearls');
+      await lw.fill('#edText', '- **TR5**: FNA at 1 cm');
+      await sleep(900);
+      const nn = refIndex().find((r) => r.title === 'Thyroid nodule pearls');
+      const mj = JSON.parse(fs.readFileSync(path.join(userData, 'menu.json'), 'utf8'));
+      const us = (mj.categories.find((c) => c.id === 'gallery').items.find((x) => x.name === 'Neuro') || { items: [] }).items;
+      check('New note goes into the section picked, named after its title', !!nn && us.some((x) => x.action === 'ref:' + nn.id && x.name === 'Thyroid nodule pearls'), nn ? us.map((x) => x.name).join(' | ') : 'no note');
+      await lw.keyboard.press('Escape').catch(() => {}); // Done
+      await sleep(300);
+      await lw.keyboard.press('Escape').catch(() => {});
+      await sleep(400);
+    } else check('Browse library opens the library window', false);
 
     // Proofread: the helper hands its results to the hub's window. Findings
     // come in a different order than they sit in the report, and one is not
@@ -702,6 +747,14 @@ async function waitFor(fn, ms, step = 200) {
         const qi = await reached('priorlist:insert');
         await sleep(300);
         check('Insert reaches the helper and the card stays open for ticking', qi.ok && (await cw.evaluate(() => document.visibilityState === 'visible')), qi.got);
+        // Filter by prior: All / P1 1/5/2024 / P2 3/14/2025.
+        const chips = await cw.$$eval('#clFilter .fchip', (e) => e.map((x) => x.textContent));
+        await cw.click('#clFilter .fchip[data-p="1"]');
+        const shownP1 = await cw.$$eval('.ck', (e) => e.filter((x) => !x.hidden).map((x) => x.dataset.i).join(','));
+        await cw.screenshot({ path: path.join(SHOTS, 'checklist-filter.png') }).catch(() => {});
+        await cw.click('#clFilter .fchip[data-p="0"]');
+        const shownAll = await cw.$$eval('.ck', (e) => e.filter((x) => !x.hidden).length);
+        check('the checklist filters by prior (All / P1 / P2)', chips.join('|') === 'All|P1 1/5/2024|P2 3/14/2025' && shownP1 === '0,2' && shownAll === 3, `${chips.join('|')} P1:${shownP1} all:${shownAll}`);
         await cw.click('.ck[data-i="0"]');
         await cw.click('.ck[data-i="1"]');
         check('ticking items counts them', /2 of 3 checked/.test(await cw.textContent('#clCount')));

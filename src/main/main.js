@@ -328,6 +328,7 @@ function hubCommand(id) {
   else if (id === 'open-folder') shell.openPath(userDir());
   else if (id === 'reload-menu') loadMenu();
   else if (id === 'ref-add') addReferenceFromClipboard(true);
+  else if (id === 'ref-browse') openReference(null);
   else notify(`Unknown command "${id}"`);
 }
 
@@ -489,7 +490,7 @@ async function addReferenceFromClipboard(openIt) {
 const PICTURE_EXT = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp'];
 
 function openReference(id) {
-  const r = refs.get(id);
+  const r = id ? refs.get(id) : { browse: true };
   if (!r) return notify('That reference is gone. Fix the ring direction in Settings > Rings.');
   if (r.file) {
     logEvent('ref-open', id);
@@ -516,12 +517,50 @@ function openReference(id) {
     });
     viewerWin.on('closed', () => (viewerWin = null));
     viewerWin.once('ready-to-show', () => bringToTop(viewerWin, true));
-    viewerWin.loadFile(path.join(__dirname, '..', 'viewer', 'index.html'), { query: { id } });
+    viewerWin.loadFile(path.join(__dirname, '..', 'viewer', 'index.html'), { query: id ? { id } : { browse: '1' } });
   } else {
-    viewerWin.webContents.send('rgv:show', id);
+    viewerWin.webContents.send('rgv:show', id || '');
     bringToTop(viewerWin, true);
   }
-  logEvent('ref-open', id);
+  logEvent('ref-open', id || 'library');
+}
+
+// The Reference Library window finds, opens, edits and adds notes itself,
+// without going through Settings. What it changes on the ring (a new note put
+// in a section, a note's direction renamed with its title) is saved at once,
+// and an open Settings window is told so it can follow.
+function galleryRing() {
+  return menu && (menu.categories.find((c) => c.id === 'gallery') || menu.categories.find((c) => /reference/i.test(c.name)));
+}
+const refKind = (r) => (r.file ? (/\.pdf$/i.test(r.file) ? 'pdf' : 'file') : r.image ? 'picture' : 'note');
+const ringName = (t) => (t.length > 28 ? t.slice(0, 27) + '\u2026' : t);
+function libraryIndex() {
+  const ring = galleryRing();
+  const all = refs.list();
+  const byId = new Map(all.map((r) => [r.id, r]));
+  const seen = new Set();
+  const items = [];
+  const refItem = (r, section, topic) => ({ kind: refKind(r), id: r.id, title: r.title, section, topic, tags: r.tags || [], text: String(r.body || '').slice(0, 4000) });
+  for (const e of ring ? RL.flat(ring) : []) {
+    const m = /^ref:(.+)$/.exec(e.action);
+    if (m) {
+      const r = byId.get(m[1]);
+      if (r && !seen.has(r.id)) { seen.add(r.id); items.push(refItem(r, e.section, e.topic)); }
+    } else if (/^(url|file):/.test(e.action)) {
+      let host = '';
+      try { host = e.action.startsWith('url:') ? new URL(e.action.slice(4)).hostname.replace(/^www\./, '') : ''; } catch (_) {}
+      items.push({ kind: e.action.startsWith('url:') ? 'link' : 'document', action: e.action, title: e.name, section: e.section, topic: e.topic, host });
+    }
+  }
+  for (const r of all) if (!seen.has(r.id)) items.push(refItem(r, '', ''));
+  return { items, sections: ring ? RL.read(ring).sections.map((x) => x.name) : [] };
+}
+function libraryChanged(op) {
+  if (op.ring) {
+    store.writeMenu(menu);
+    loadMenu();
+  }
+  if (settingsWin && !settingsWin.isDestroyed()) settingsWin.webContents.send('rgs:refs-changed', op);
 }
 
 // A PDF from the Reference Library in Chromium's own reader: zoom, fit to
@@ -638,7 +677,30 @@ function registerProofreadIpc() {
 function registerViewerIpc() {
   ipcMain.handle('rgv:get', (_e, id) => ({ ref: refForPage(refs.get(id), false), theme: menu && menu.theme }));
   ipcMain.handle('rgv:open-link', (_e, url) => { if (/^(https?:\/\/|mailto:)/i.test(String(url))) shell.openExternal(url); });
-  ipcMain.handle('rgv:edit', (_e, id) => { openSettings('references:' + id); });
+  ipcMain.handle('rgv:edit', (_e, id) => { openSettings('references' + (id ? ':' + id : '')); });
+  ipcMain.handle('rgv:library', () => libraryIndex());
+  ipcMain.handle('rgv:open-entry', (_e, e) => {
+    if (e && e.id) return openReference(String(e.id));
+    if (e && /^(url|file):/.test(String(e.action))) return runItem({ name: String(e.title || ''), action: String(e.action) }, false);
+  });
+  ipcMain.handle('rgv:save', (_e, v) => {
+    const r = v && refs.get(v.id);
+    if (!r) return null;
+    const title = String(v.title || '').trim() || r.title;
+    refs.save({ id: r.id, title, body: String(v.body == null ? r.body : v.body) });
+    let ring = false;
+    if (title !== r.title) menu.categories.forEach((c) => { if (RL.renameRef(c, r.id, ringName(title))) ring = true; });
+    libraryChanged({ type: 'rename', id: r.id, name: ringName(title), ring });
+    return refForPage(refs.get(r.id), false);
+  });
+  ipcMain.handle('rgv:new', (_e, section) => {
+    const r = refs.save({ title: 'New note', body: '' });
+    const ring = galleryRing();
+    const placed = ring ? RL.addTo(ring, String(section || ''), { name: r.title, icon: 'description', action: 'ref:' + r.id }) : '';
+    libraryChanged({ type: 'place', id: r.id, name: r.title, section: placed, ring: !!ring });
+    logEvent('ref-added', r.id + ' (library window)');
+    return { id: r.id, section: placed };
+  });
   ipcMain.handle('rgv:close', () => { if (viewerWin && !viewerWin.isDestroyed()) viewerWin.close(); });
 }
 

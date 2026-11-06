@@ -168,3 +168,28 @@ test('move: tools reorder among themselves; the ring keeps the new order', () =>
   assert.deepStrictEqual(names(R.read(ring).tools), ['Add from clipboard', 'Search selection', 'My documents']);
   assert.ok(validateMenu({ categories: [ring] }).ok);
 });
+
+test('flat lists every link and note with its section, topics opened up', () => {
+  const ring = { items: [
+    { name: 'CT Chest', items: [{ name: 'Fleischner', action: 'url:https://a' }, { name: 'My nodule note', action: 'ref:n1' }] },
+    { name: 'Abdomen', items: [{ name: 'LI-RADS', items: [{ name: 'Core', action: 'url:https://b' }, { name: 'LR pic', action: 'ref:p1' }] }] },
+    { name: 'Add from clipboard', action: 'hub:ref-add' },
+  ] };
+  const f = R.flat(ring);
+  assert.deepStrictEqual(f.map((x) => `${x.section}/${x.topic}/${x.name}`), ['CT Chest//Fleischner', 'CT Chest//My nodule note', 'Abdomen/LI-RADS/Core', 'Abdomen/LI-RADS/LR pic']);
+});
+
+test('addTo puts a new note last in its section, and renameRef follows its title', () => {
+  const ring = { items: [
+    { name: 'CT Chest', items: [{ name: 'Fleischner', action: 'url:https://a' }] },
+    { name: 'Abdomen', items: [{ name: 'Bosniak', action: 'url:https://c' }] },
+    { name: 'Add from clipboard', action: 'hub:ref-add' },
+  ] };
+  assert.strictEqual(R.addTo(ring, 'Abdomen', { name: 'New note', icon: 'description', action: 'ref:n9' }), 'Abdomen');
+  assert.deepStrictEqual(ring.items[1].items.map((x) => x.name), ['Bosniak', 'New note']);
+  assert.strictEqual(R.addTo(ring, 'Nope', { name: 'Other', action: 'ref:n8' }), 'CT Chest');
+  assert.strictEqual(R.renameRef(ring, 'n9', 'Adrenal washout'), true);
+  assert.strictEqual(ring.items[1].items[1].name, 'Adrenal washout');
+  assert.strictEqual(R.renameRef(ring, 'n9', 'Adrenal washout'), false);
+  assert.ok(ring.items.some((it) => it.action === 'hub:ref-add'), 'tools stay');
+});

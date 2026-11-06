@@ -151,7 +151,7 @@
   // checklist is shown.
   let ticks = { text: null, done: new Set() };
   function checklist(d) {
-    if (ticks.text !== d.text) ticks = { text: d.text, done: new Set() };
+    if (ticks.text !== d.text) ticks = { text: d.text, done: new Set(), only: 0 };
     const items = d.text.split('\n').map((l) => l.replace(/^\s*(?:[-*•]|\d+[.)])\s+/, '').trim()).filter(Boolean);
     const count = h('span', { class: 'clcount', id: 'clCount' });
     const bar = h('span', { class: 'clbar' }, h('i', {}));
@@ -178,7 +178,24 @@
       return li;
     }));
     update();
-    return h('div', { class: 'cl' }, h('div', { class: 'clhead' }, count, bar), list, all);
+    // With findings from more than one prior: All / P1 / P2 ... chips show
+    // just one prior's findings (one with no source tag always stays).
+    const PT = window.RGPriorTags;
+    const priors = PT.priorList(items);
+    let filter = null;
+    if (priors.length > 1) {
+      const apply = () => {
+        list.querySelectorAll('li.ck').forEach((li) => { li.hidden = !PT.shows(items[+li.dataset.i], ticks.only); });
+        filter.querySelectorAll('button').forEach((b) => b.classList.toggle('on', +b.dataset.p === ticks.only));
+        fit();
+      };
+      const chip = (n, label, title) => h('button', { class: 'fchip', 'data-p': String(n), title, onclick: () => { ticks.only = n; apply(); } }, label);
+      filter = h('div', { class: 'clfilter', id: 'clFilter', role: 'toolbar', 'aria-label': 'Show findings from' },
+        chip(0, 'All', 'Findings from every prior'),
+        priors.map((p) => chip(p.n, p.date ? `P${p.n} ${p.date}` : `P${p.n}`, `Only findings from prior ${p.n}`)));
+      setTimeout(apply, 0);
+    }
+    return h('div', { class: 'cl' }, h('div', { class: 'clhead' }, count, bar), filter, list, all);
   }
 
   // ------------------------------------------------------------ pick

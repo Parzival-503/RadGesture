@@ -443,6 +443,11 @@
           "icon": "search",
           "items": [
             {
+              "name": "My library",
+              "icon": "local_library",
+              "action": "hub:ref-browse"
+            },
+            {
               "name": "Radiopaedia",
               "icon": "search",
               "action": "search:https://radiopaedia.org/search?q={clipboard}"

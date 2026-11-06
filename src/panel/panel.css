@@ -120,3 +120,10 @@ body.pn-toast .pnshell { border-radius: 12px; }
 .pwnote .msym { font-size: 16px; color: var(--accent); flex: none; margin-top: 1px; }
 .pwnote b { color: var(--ink-2); font-weight: 600; }
 body.pn-secret .acts { justify-content: flex-end; }
+
+/* checklist: show one prior's findings */
+.clfilter { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 2px 9px; }
+.fchip { all: unset; cursor: pointer; padding: 3px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 600; color: var(--ink-2); background: var(--well); border: 1px solid var(--line); transition: background .12s, color .12s, border-color .12s; }
+.fchip:hover { border-color: var(--line-hi); color: var(--ink); }
+.fchip.on { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 55%, transparent); background: color-mix(in srgb, var(--accent) 14%, transparent); }
+.ck[hidden] { display: none; }

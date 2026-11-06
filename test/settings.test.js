@@ -347,11 +347,11 @@ test('"Search copied text" becomes Search selection: OpenEvidence and Google Ima
   // the search window on the Apps ring.
   const old = search(m, 'Search selection');
   old.name = 'Search copied text';
-  old.items = old.items.filter((i) => i.action !== 'helper:oe:clip' && !/tbm=isch/.test(i.action));
+  old.items = old.items.filter((i) => i.action !== 'helper:oe:clip' && i.action !== 'hub:ref-browse' && !/tbm=isch/.test(i.action));
   m.categories.find((c) => c.id === 'apps').items.push({ name: 'Search selection', icon: 'travel_explore', action: 'helper:lib:SearchRadiopaediaGoogle' });
   m.migrated = ['orthogonal-in-measure', 'no-paste-indication', 'library', 'chart-bin', 'reference-library', 'reference-library-title', 'pacs-first', 'no-lung', 'nav-names', 'ai-settings', 'layout-grid', 'layout-grid-three', 'nav-pairs', 'orthogonal-ruler'];
   fs.writeFileSync(path.join(dir, 'menu.json'), JSON.stringify(m));
-  const want = ['Radiopaedia', 'Google', 'Google Images', 'OpenEvidence'];
+  const want = ['My library', 'Radiopaedia', 'Google', 'Google Images', 'OpenEvidence'];
   assert.deepStrictEqual(search(store.readMenu(), 'Search selection').items.map((i) => i.name), want);
   assert.deepStrictEqual(search(store.readMenu(), 'Search selection').items.map((i) => i.name), want, 'not added twice');
   const apps = store.readMenu().categories.find((c) => c.id === 'apps');
@@ -502,4 +502,27 @@ test('Crosshair = plus, Link priors = chain at every start, even when the one-ti
   for (const x of all(saved)) if (x.name === 'Crosshair') x.icon = 'star';
   fs.writeFileSync(path.join(dir, 'menu.json'), JSON.stringify(saved));
   assert.strictEqual(icons(store.readMenu()).Crosshair, 'star', 'an icon the person picked themselves stays');
+});
+
+test('a saved Reference Library ring gets "My library" once, in its search ring', () => {
+  const { migrate } = require('../src/main/settings-store');
+  const ring = () => ({ migrated: [], categories: [{ id: 'gallery', name: 'Reference Library', color: '#4a90d9', items: [
+    { name: 'CT Chest', items: [{ name: 'Fleischner', action: 'url:https://a' }] },
+    { name: 'Search selection', icon: 'search', items: [{ name: 'Google', action: 'search:https://www.google.com/search?q={clipboard}' }, { name: 'Google Images', action: 'search:https://www.google.com/search?tbm=isch&q={clipboard}' }] },
+    { name: 'Add from clipboard', action: 'hub:ref-add' },
+  ] }] });
+  const m = ring();
+  migrate(m, { functions: [] });
+  const g = m.categories[0];
+  assert.deepStrictEqual(g.items.map((x) => x.name), ['CT Chest', 'Search selection', 'Add from clipboard'], 'no section place taken');
+  assert.strictEqual(g.items[1].items[0].action, 'hub:ref-browse');
+  assert.ok(m.migrated.includes('ref-browse'));
+  g.items[1].items.shift(); // removed by hand: stays removed
+  migrate(m, { functions: [] });
+  assert.ok(!JSON.stringify(g).includes('hub:ref-browse'));
+  // No search ring: on the ring itself, before Add from clipboard.
+  const m2 = ring();
+  m2.categories[0].items.splice(1, 1);
+  migrate(m2, { functions: [] });
+  assert.deepStrictEqual(m2.categories[0].items.map((x) => x.name), ['CT Chest', 'My library', 'Add from clipboard']);
 });
