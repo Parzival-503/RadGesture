@@ -816,7 +816,7 @@
     if (P.parent !== null) {
       while (st.levels.length - 1 > P.parent) popLevel();
     } else if (st.levels.length > 1) popLevel();
-    else switchCategory(1);
+    else switchCategory(-1); // left click on the middle: the ring to the left on the dock
     startLoop();
   });
 
@@ -866,7 +866,7 @@
       }
     }
     if (st.levels.length > 1) popLevel();
-    else if (centerAt(e.clientX, e.clientY) === 0) switchCategory(-1); // right-click the middle: previous ring
+    else if (centerAt(e.clientX, e.clientY) === 0) switchCategory(1); // right-click the middle: the ring to the right
     else dismiss();
     startLoop();
   });

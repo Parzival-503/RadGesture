@@ -137,7 +137,9 @@ screenshots before handing over any visual change.
   then click, or let go on it.
 - **Switching rings**: the dock (one button per ring, under the ring, above
   it near the bottom edge) jumps straight to any ring in one click; the wheel
-  and a center click step one ring (right-click the center: back one). The owner
+  and a center click step one ring, matching the dock: LEFT click the
+  center = the ring to the left, RIGHT click = the ring to the right (the
+  owner, 2026-11-06; it was the other way round). The owner
   asked for the dock: cycling with the center took four clicks. Settings >
   General can hide it (`dock: false`), which brings back the center dots.
   **The gear at the end of the dock opens Settings** (`hub:settings`; shown

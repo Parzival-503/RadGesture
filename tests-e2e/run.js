@@ -912,9 +912,17 @@ async function waitFor(fn, ms, step = 200) {
     await sleep(500);
     await ringPage.screenshot({ path: path.join(SHOTS, 'ring-open.png') });
     const c0 = await ringPage.evaluate(() => ({ x: window.RGRing.state().x, y: window.RGRing.state().y }));
+    // Like the buttons under the ring: left click the middle = the ring to
+    // the left, right click = the ring to the right.
+    await ringPage.mouse.click(c0.x, c0.y, { button: 'right' });
+    await sleep(300);
+    const afterRight = await ringPage.evaluate(() => window.RGRing.state().cat);
     await ringPage.mouse.click(c0.x, c0.y);
     await sleep(300);
-    check('clicking the center switches to the next ring', (await ringPage.evaluate(() => window.RGRing.state().cat)) === 1);
+    const afterLeft = await ringPage.evaluate(() => window.RGRing.state().cat);
+    await ringPage.mouse.click(c0.x, c0.y, { button: 'right' });
+    await sleep(300);
+    check('right click on the middle goes one ring right, left click one ring left', afterRight === 1 && afterLeft === 0, `right -> ${afterRight}, then left -> ${afterLeft}`);
     await ringPage.screenshot({ path: path.join(SHOTS, 'ring-second.png') });
     const chip = await ringPage.$('.dchip[data-cat="3"]');
     if (chip) await chip.click();
