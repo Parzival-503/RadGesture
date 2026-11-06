@@ -95,7 +95,7 @@ async function waitFor(fn, ms, step = 200) {
 
     // ---------------- tray
     const labels = await rg((r) => r.trayLabels());
-    for (const l of ['Open the ring', 'Settings...', 'Edit rings...', 'AI tools...', 'Shortcuts...', 'Pause the ring', 'Start with Windows', 'Status and help...', 'Prior checklist > Show the Priors toolbar', 'Prior checklist > Make the checklist', 'AI > Test the API key', 'AI > Proofread history...', 'Advanced > Restart the helper', 'Quit RadGesture']) {
+    for (const l of ['Open the ring', 'Settings...', 'Edit rings...', 'AI tools...', 'Shortcuts...', 'Pause the ring', 'Start with Windows', 'Status and help...', 'Prior checklist > Show the AI toolbar', 'Prior checklist > Make the checklist', 'AI > Test the API key', 'AI > Proofread history...', 'Advanced > Restart the helper', 'Quit RadGesture']) {
       check(`tray has "${l}"`, labels.includes(l));
     }
 
@@ -725,6 +725,11 @@ async function waitFor(fn, ms, step = 200) {
         await tbw.click('#tbPriorAdd');
         const qa = await reached('prior:add');
         check('Add prior on the toolbar reaches the helper', qa.ok, qa.got);
+        const ckPrimary = await tbw.$eval('#tbChecklist', (b) => b.classList.contains('primary')).catch(() => false);
+        check('with priors in, Checklist is the toolbar\'s main button', ckPrimary);
+        await tbw.click('#tbProofread');
+        const qp = await reached('proofread');
+        check('Proofread on the toolbar reaches the helper', qp.ok, qp.got);
         await tbw.click('.chip2:nth-child(2) .x');
         const qr = await reached('prior:remove:2');
         check('removing one prior reaches the helper', qr.ok, qr.got);

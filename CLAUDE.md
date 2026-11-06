@@ -622,8 +622,14 @@ while the ring is up hides it and answers `closed` (the helper's
 the ring instead of closing it: "glitchy, sometimes"). The helper ignores
 that press's release (`g_HubSkipUp`), counts a poll with no answer as a
 miss (40 in a row = the hub is gone) and only "closed" closes it.
-Windows e2e `inject.ahk toggle`. Show toolbar is on the One-liner ring too
-(migration `oneliner-toolbar`): the toolbar holds the chart text. Proofread
+Windows e2e `inject.ahk toggle`. **The AI toolbar is a main button on AI
+Tools** (owner, 2026-11-06: "a main button on that circle, not as a side
+thing"): **Toolbar** (`helper:toolbar:toggle`, shows it, or hides it when
+open) after Prior checklist; the old Show toolbar buttons inside One-liner
+and Prior checklist are gone (migration `ai-toolbar`, which once added them
+as `oneliner-toolbar` did). The toolbar is titled **AI toolbar**: Checklist
+becomes the main button once a prior is in, a **Write and check** row holds
+Proofread, Impression, One-liner, and the folded row has Proofread too. Proofread
 Find reuses an open "Find and Replace" dialog instead of closing it and
 pressing Ctrl+H again (that raced: the first click only closed it). The
 prior checklist logs each step to Status as `checklist:<step>` (no-key,
@@ -677,8 +683,9 @@ published work.
   builds hid it and the owner lost track of the tool (`migrateIni()` turned it
   back on once for INIs those builds wrote).
   Closing the toolbar (its X button, the title-bar X) hides it AND saves
-  ShowAtStartup=0, so helper restarts don't bring it back; only Show toolbar
-  (ring or tray) turns it on again. The Priors tools never pop it up on
+  ShowAtStartup=0, so helper restarts don't bring it back (`ToolbarHide()`,
+  shared with the ring's Toolbar button); only the ring's Toolbar or the
+  tray's Show the AI toolbar turns it on again. The Priors tools never pop it up on
   their own (an empty bin or nothing copied is a notification): the owner saw it
   appear "on Ctrl+CapsLock" and could not get rid of it.
 - **Chart bin for the one-liner** (the owner: "copy different parts of the chart,

@@ -2562,13 +2562,11 @@ ChartText() {
 
 ; Closing it (X on the title bar or in the window, or Esc) hides it and
 ; remembers that, so a restart of the helper doesn't bring it straight back.
-; Ring > AI Tools > Prior checklist > Show toolbar (or the tray) turns it on again.
+; Ring > AI Tools > Toolbar (or the tray) turns it on again.
 PriorBin_Hide:
 PriorBinGuiClose:
 PriorBinGuiEscape:
-    PriorBinSetWanted(false)
-    Gui, PriorBin:Hide
-    Notify("Toolbar hidden. Bring it back: ring > AI Tools > Prior checklist > Show toolbar.", 3500)
+    ToolbarHide()
 return
 
 ; The hub's toolbar: what it shows (each prior's date and exam, each chart
@@ -2586,6 +2584,22 @@ ToolbarPush(visible) {
     g_ToolbarOn := ok && visible
     HubPollRefresh()
     return ok
+}
+
+; Hidden by its close button or the ring's Toolbar button; it stays hidden
+; after restarts too, until the Toolbar button brings it back.
+ToolbarHide() {
+    global g_ToolbarOn, g_PriorBinShown
+    PriorBinSetWanted(false)
+    if (g_ToolbarOn)
+        ToolbarPush(false)
+    if (g_PriorBinShown) {
+        Gui, PriorBin:Destroy
+        g_PriorBinShown := false
+    }
+    g_ToolbarOn := false
+    HubPollRefresh()
+    Notify("Toolbar hidden. Bring it back: ring > AI Tools > Toolbar.", 3000)
 }
 
 PriorBinSetWanted(on) {
@@ -3989,6 +4003,14 @@ RunHubAction(a) {
     } else if (a = "prior:show") {
         PriorBinSetWanted(true)
         ShowPriorBin()
+    } else if (a = "toolbar:toggle") {
+        ; The AI Tools ring's Toolbar button: shows it, or hides it when open.
+        if (g_ToolbarOn || g_PriorBinShown)
+            ToolbarHide()
+        else {
+            PriorBinSetWanted(true)
+            ShowPriorBin()
+        }
     } else if (SubStr(a, 1, 13) = "prior:remove:") {
         PriorRemove(SubStr(a, 14) + 0)
     } else if (SubStr(a, 1, 13) = "chart:remove:") {
@@ -3998,10 +4020,7 @@ RunHubAction(a) {
         Notify("Chart text kept. Empty it from the toolbar or the ring when done.", 2500)
     } else if (a = "toolbar:hide") {
         ; The toolbar's close button: stays hidden after restarts too.
-        PriorBinSetWanted(false)
-        g_ToolbarOn := false
-        HubPollRefresh()
-        Notify("Toolbar hidden. Bring it back: ring > AI Tools > Prior checklist > Show toolbar.", 3500)
+        ToolbarHide()
     } else if (a = "priorlist:insert") {
         PriorListPaste()
     } else if (a = "imp:insert") {

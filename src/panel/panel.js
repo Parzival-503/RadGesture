@@ -72,10 +72,10 @@
     const collapsed = !!d.collapsed;
     const head = draggable(h('header', { class: 'head' },
       h('span', { class: 'plogo' }, msym('radiology')),
-      h('span', { class: 'ttl' }, 'RadGesture'),
+      h('span', { class: 'ttl' }, 'AI toolbar'),
       h('span', { class: 'grow' }),
       iconBtn(collapsed ? 'unfold_more' : 'unfold_less', collapsed ? 'Show everything' : 'Make it small', () => { data.collapsed = !collapsed; api.collapse(!collapsed); render(); }, { id: 'tbCollapse' }),
-      iconBtn('close', 'Hide the toolbar (ring > AI Tools > Prior checklist > Show toolbar brings it back)', (e) => act('toolbar:hide', e.currentTarget), { id: 'tbClose' })));
+      iconBtn('close', 'Hide the toolbar (ring > AI Tools > Toolbar brings it back)', (e) => act('toolbar:hide', e.currentTarget), { id: 'tbClose' })));
     if (collapsed) {
       const badge = (n) => (n ? h('span', { class: 'badge' }, String(n)) : null);
       return [head, h('div', { class: 'tbmini' },
@@ -84,6 +84,7 @@
         h('span', { class: 'sep' }),
         h('button', { class: 'ib big', title: 'Add chart text for the one-liner', onclick: (e) => act('chart:add', e.currentTarget) }, msym('playlist_add'), badge(C.length)),
         h('span', { class: 'sep' }),
+        h('button', { class: 'ib big', title: 'Proofread the report', onclick: (e) => act('proofread', e.currentTarget) }, msym('spellcheck')),
         h('button', { class: 'ib big', title: 'Impression', onclick: (e) => act('impression', e.currentTarget) }, msym('summarize')),
         h('button', { class: 'ib big', title: 'One-liner', onclick: (e) => act('oneliner', e.currentTarget) }, msym('short_text')))];
     }
@@ -94,8 +95,9 @@
       group('history', 'Prior checklist', P.length,
         chips(P, 'P', 'prior:remove', 'Highlight a prior report, then Add prior.'),
         h('div', { class: 'prow' },
-          h('button', { class: 'btn small primary', id: 'tbPriorAdd', onclick: (e) => act('prior:add', e.currentTarget) }, msym('add'), 'Add prior'),
-          h('button', { class: 'btn small', id: 'tbChecklist', disabled: !P.length, onclick: (e) => act('prior:checklist', e.currentTarget) }, msym('checklist'), 'Checklist'),
+          // The next step is the highlighted one: Add prior, then Checklist.
+          h('button', { class: 'btn small' + (P.length ? '' : ' primary'), id: 'tbPriorAdd', onclick: (e) => act('prior:add', e.currentTarget) }, msym('add'), 'Add prior'),
+          h('button', { class: 'btn small' + (P.length ? ' primary' : ''), id: 'tbChecklist', disabled: !P.length, onclick: (e) => act('prior:checklist', e.currentTarget) }, msym('checklist'), 'Checklist'),
           h('span', { class: 'grow' }),
           iconBtn('delete_sweep', 'Empty the prior list', (e) => act('prior:clear', e.currentTarget), { disabled: !P.length || null, id: 'tbPriorClear' }))),
       group('description', 'One-liner chart text', C.length,
@@ -104,8 +106,9 @@
           h('button', { class: 'btn small', id: 'tbChartAdd', onclick: (e) => act('chart:add', e.currentTarget) }, msym('add'), 'Add chart text'),
           h('span', { class: 'grow' }),
           iconBtn('delete_sweep', 'Empty the chart text', (e) => act('chart:clear', e.currentTarget), { disabled: !C.length || null, id: 'tbChartClear' }))),
-      group('edit_note', 'Write', 0,
-        h('div', { class: 'prow two' },
+      group('edit_note', 'Write and check', 0,
+        h('div', { class: 'prow three' },
+          h('button', { class: 'btn small', id: 'tbProofread', title: 'Proofread the report the cursor is in', onclick: (e) => act('proofread', e.currentTarget) }, msym('spellcheck'), 'Proofread'),
           h('button', { class: 'btn small', id: 'tbImpression', onclick: (e) => act('impression', e.currentTarget) }, msym('summarize'), 'Impression'),
           h('button', { class: 'btn small', id: 'tbOneLiner', onclick: (e) => act('oneliner', e.currentTarget) }, msym('short_text'), 'One-liner'))),
       h('div', { class: 'foot' }, msym('ads_click'), 'Highlight text, then Add: RadGesture copies it for you.')];

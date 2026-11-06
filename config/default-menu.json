@@ -286,11 +286,6 @@
               "name": "Empty chart text",
               "icon": "playlist_remove",
               "action": "helper:chart:clear"
-            },
-            {
-              "name": "Show toolbar",
-              "icon": "dock_to_left",
-              "action": "helper:prior:show"
             }
           ]
         },
@@ -312,13 +307,13 @@
               "name": "Empty the list",
               "icon": "delete_sweep",
               "action": "helper:prior:clear"
-            },
-            {
-              "name": "Show toolbar",
-              "icon": "dock_to_left",
-              "action": "helper:prior:show"
             }
           ]
+        },
+        {
+          "name": "Toolbar",
+          "icon": "dock_to_left",
+          "action": "helper:toolbar:toggle"
         },
         {
           "name": "AI settings",

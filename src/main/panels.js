@@ -19,9 +19,9 @@ const path = require('path');
 
 const PAGE = path.join(__dirname, '..', 'panel', 'index.html');
 const PRELOAD = path.join(__dirname, '..', 'panel', 'preload.js');
-const WIDTH = { toolbar: 292, card: 460, pick: 360, toast: 400, secret: 380 };
+const WIDTH = { toolbar: 350, card: 460, pick: 360, toast: 400, secret: 380 };
 // What a panel may ask the helper to do.
-const ACTION = /^(?:impression|oneliner|toolbar:hide|(?:prior|chart|imp|priorlist|pick):[a-z0-9:]{1,24})$/;
+const ACTION = /^(?:proofread|impression|oneliner|toolbar:hide|(?:prior|chart|imp|priorlist|pick):[a-z0-9:]{1,24})$/;
 
 const str = (v, n) => String(v == null ? '' : v).slice(0, n);
 

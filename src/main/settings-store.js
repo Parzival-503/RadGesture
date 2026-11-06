@@ -603,6 +603,29 @@ function migrate(m, lib) {
     done.push('ref-browse', 'library-tools');
     changed = true;
   }
+  if (!done.includes('ai-toolbar')) {
+    // The toolbar (prior checklist, chart text, Proofread, Impression,
+    // One-liner) is a main button on the AI Tools ring (the owner,
+    // 2026-11-06: "not as a side thing"); it shows the toolbar or hides it.
+    // The "Show toolbar" buttons inside Prior checklist and One-liner go.
+    const ai = m.categories.find((c) => c.id === 'ai');
+    if (ai) {
+      const walk = (items) => (items || []).forEach((it) => {
+        if (!Array.isArray(it.items)) return;
+        const keep = it.items.filter((x) => x.action !== 'helper:prior:show');
+        if (keep.length) it.items = keep;
+        walk(it.items);
+      });
+      walk(ai.items);
+      const has = (items) => (items || []).some((it) => it.action === 'helper:toolbar:toggle' || (Array.isArray(it.items) && has(it.items)));
+      if (!has(ai.items) && (ai.items || []).length < M_MAX) {
+        const i = ai.items.findIndex((it) => /^prior checklist$/i.test(String(it.name || '').trim()));
+        ai.items.splice(i >= 0 ? i + 1 : ai.items.length, 0, { name: 'Toolbar', icon: 'dock_to_left', action: 'helper:toolbar:toggle' });
+      }
+    }
+    done.push('ai-toolbar');
+    changed = true;
+  }
   if (changed) m.migrated = done;
   return changed;
 }

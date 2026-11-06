@@ -218,7 +218,7 @@ test('an older menu loses Lung-RADS, gets paired icons and clearer names, once',
   assert.deepStrictEqual(sub(got, 'pacs', 'Crosshair & link').items.map((i) => i.name), ['Crosshair', 'Link priors', 'Pinpoint']);
   assert.strictEqual(sub(got, 'pacs', 'Layout').items[0].icon, 'skip_previous');
   assert.deepStrictEqual(sub(got, 'pacs', 'Key images & exams').items.map((i) => i.icon), ['fast_forward', 'star', 'arrow_downward', 'arrow_upward']);
-  assert.deepStrictEqual(sub(got, 'ai', 'Prior checklist').items.map((i) => i.name), ['Add copied prior', 'Make checklist', 'Empty the list', 'Show toolbar']);
+  assert.deepStrictEqual(sub(got, 'ai', 'Prior checklist').items.map((i) => i.name), ['Add copied prior', 'Make checklist', 'Empty the list']);
 });
 
 test('an older menu gets the Grid of fixed layouts in PACS > Layout, once', () => {

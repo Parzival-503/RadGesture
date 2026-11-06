@@ -1108,7 +1108,7 @@ function trayTemplate() {
     {
       label: 'Prior checklist',
       submenu: [
-        { label: 'Show the Priors toolbar', enabled: h.connected, click: () => helperDo('prior:show') },
+        { label: 'Show the AI toolbar', enabled: h.connected, click: () => helperDo('prior:show') },
         { label: 'Add copied prior', enabled: h.connected, click: () => helperDo('prior:add') },
         { label: 'Make the checklist', enabled: h.connected, click: () => helperDo('prior:checklist') },
         { label: 'Empty the list', enabled: h.connected, click: () => helperDo('prior:clear') },

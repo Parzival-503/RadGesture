@@ -127,3 +127,4 @@ body.pn-secret .acts { justify-content: flex-end; }
 .fchip:hover { border-color: var(--line-hi); color: var(--ink); }
 .fchip.on { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 55%, transparent); background: color-mix(in srgb, var(--accent) 14%, transparent); }
 .ck[hidden] { display: none; }
+.prow.three > .btn { flex: 1 1 0; min-width: 0; justify-content: center; padding-left: 4px; padding-right: 4px; gap: 4px; }
