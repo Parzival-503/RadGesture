@@ -443,11 +443,6 @@
           "icon": "search",
           "items": [
             {
-              "name": "My library",
-              "icon": "local_library",
-              "action": "hub:ref-browse"
-            },
-            {
               "name": "Radiopaedia",
               "icon": "search",
               "action": "search:https://radiopaedia.org/search?q={clipboard}"
@@ -470,9 +465,9 @@
           ]
         },
         {
-          "name": "My documents",
-          "icon": "folder_open",
-          "action": "file:%USERPROFILE%\\Documents"
+          "name": "Find in library",
+          "icon": "manage_search",
+          "action": "hub:ref-browse"
         },
         {
           "name": "Add from clipboard",

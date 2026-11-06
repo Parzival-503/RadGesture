@@ -511,7 +511,7 @@ async function waitFor(fn, ms, step = 200) {
       check('dragging the divider widens the list, and it stays that wide', w1 > w0 + 60 && Math.abs(w2 - w1) < 2, `${Math.round(w0)} -> ${Math.round(w1)} -> ${Math.round(w2)}`);
       await win.dblclick('#refSplit');
       await sleep(150);
-      const toolsOnRing = () => (gal().items || []).filter((i) => ['Search selection', 'My documents', 'Add from clipboard'].includes(i.name)).map((i) => i.name);
+      const toolsOnRing = () => (gal().items || []).filter((i) => ['Search selection', 'Find in library', 'Add from clipboard'].includes(i.name)).map((i) => i.name);
       check('the ring\'s tools are listed and can be moved', (await win.$$('[data-key^="tool:"]')).length === 3);
       await win.dragAndDrop('[data-key="tool:2"] .grip', '[data-key="tool:0"]', { targetPosition: { x: 30, y: 3 } });
       await sleep(300);

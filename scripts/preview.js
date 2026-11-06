@@ -109,12 +109,13 @@ const shots = path.join(__dirname, 'shots');
   assert.strictEqual(after.cat, 2, 'a drag does not switch rings');
   await page.mouse.move(after.x + 60, after.y - 90);
   await shot('7-dragged');
-  // A plain click on the middle still switches; right-click goes back.
+  // A plain click on the middle still switches, the way the buttons under
+  // the ring read: left click the ring to the left, right click the right.
   await page.mouse.move(after.x, after.y); await page.mouse.down();
   await page.mouse.up();
-  assert.strictEqual((await state()).cat, 3, 'clicking the middle still goes to the next ring');
+  assert.strictEqual((await state()).cat, 1, 'left-clicking the middle goes one ring left');
   await page.mouse.click(after.x, after.y, { button: 'right' });
-  assert.strictEqual((await state()).cat, 2, 'right-clicking the middle goes to the previous ring');
+  assert.strictEqual((await state()).cat, 2, 'right-clicking the middle goes one ring right');
   await page.keyboard.press('Escape');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.mouse.move(195, 470); await page.mouse.down(); await page.mouse.up();

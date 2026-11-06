@@ -466,9 +466,13 @@ goes to Settings). Screenshots are kept at most 2400 px wide.
   Esc / Done back to reading), **New note** in a section picked from a
   menu, and open-in-Settings for sections, tags and moving things. Opened
   from a note on the ring or with no note (`hub:ref-browse`, ring Reference
-  Library > Search selection > **My library**; migration `ref-browse`, which
-  puts it in the search ring so it takes no section's place: the ring's top
-  holds 8, and every tool there pushes a section under "More sections").
+  Library > **Find in library**, on the ring itself: the owner found it hidden
+  inside Search selection). Migration `library-tools` (2026-11-06, the owner:
+  "I will never click on them") takes **My documents** and a **My notes**
+  section of notes only off the ring (the notes stay in the library) and
+  puts Find in library where My documents was, so no section moves: the
+  ring's top holds 8, and every extra tool pushes a section under "More
+  sections". Either can still be added by hand in the ring editor.
   Main: `libraryIndex()` (`RL.flat` + notes not on the ring), `rgv:save`
   (renames the note's directions with `RL.renameRef`), `rgv:new`
   (`RL.addTo`); ring changes are written at once and an open Settings

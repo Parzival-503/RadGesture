@@ -1785,7 +1785,7 @@
       h('span', { class: 'hint' }, cur.topic ? 'Within the topic. Or drag it in the list.' : 'Within the section. Or drag it in the list, even into another section or a topic.'));
   }
 
-  // A tool on the Reference Library ring (Search selection, My documents...).
+  // A tool on the Reference Library ring (Search selection, Find in library...).
   function toolEditor(cur, lib, save) {
     const t = lib.tools[cur.tool];
     const go = (d) => {

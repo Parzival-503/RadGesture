@@ -576,25 +576,31 @@ function migrate(m, lib) {
     done.push('impression-style');
     changed = true;
   }
-  if (!done.includes('ref-browse')) {
-    // "My library" opens the Reference Library window (find, read, edit, new
-    // note). It goes first in the Search selection ring, so it takes no
-    // place a section could use; with no room there, on the ring itself
-    // when that has a free place.
+  if (!done.includes('library-tools')) {
+    // The Reference Library ring's own tools (the owner, 2026-11-06): "Find
+    // in library" (the library window: find, read, edit, new note) on the
+    // ring itself, where people see it, in the place "My documents" leaves,
+    // so no section moves. Gone: the My documents folder button and a "My
+    // notes" section of notes only (its notes stay in the library, found
+    // with Find in library). Either can still be added in the ring editor.
     const g = m.categories.find((c) => c.id === 'gallery') || m.categories.find((c) => /reference/i.test(String(c.name || '')));
-    const has = (items) => (items || []).some((it) => it.action === 'hub:ref-browse' || (Array.isArray(it.items) && has(it.items)));
-    const item = { name: 'My library', icon: 'local_library', action: 'hub:ref-browse' };
-    if (g && !has(g.items)) {
+    if (g) {
       const lib = RL.read(g);
-      const search = lib.tools.find((t) => Array.isArray(t.items) && t.items.some((x) => /^search:/.test(x.action || '')));
-      if (search && search.items.length < M_MAX) search.items.unshift(item);
-      else if ((g.items || []).length < M_MAX) {
-        const at = lib.tools.findIndex((it) => it.action === 'hub:ref-add');
-        lib.tools.splice(at >= 0 ? at : lib.tools.length, 0, item);
-        RL.pack(g, lib);
+      const DOCS = /^file:%USERPROFILE%[\\/]Documents[\\/]?$/i;
+      lib.tools = lib.tools.filter((t) => !DOCS.test(t.action || ''));
+      lib.tools.forEach((t) => { if (Array.isArray(t.items)) t.items = t.items.filter((x) => x.action !== 'hub:ref-browse'); });
+      lib.tools = lib.tools.filter((t) => !Array.isArray(t.items) || t.items.length);
+      const top = lib.tools.find((t) => t.action === 'hub:ref-browse');
+      if (top) {
+        if (/^my library$/i.test(String(top.name || '').trim())) Object.assign(top, { name: 'Find in library', icon: 'manage_search' });
+      } else {
+        const at = lib.tools.findIndex((t) => t.action === 'hub:ref-add');
+        lib.tools.splice(at >= 0 ? at : lib.tools.length, 0, { name: 'Find in library', icon: 'manage_search', action: 'hub:ref-browse' });
       }
+      lib.sections = lib.sections.filter((x) => !(/^my notes$/i.test(String(x.name || '').trim()) && x.items.every((it) => !it.topic && /^ref:/.test(it.action || ''))));
+      RL.pack(g, lib);
     }
-    done.push('ref-browse');
+    done.push('ref-browse', 'library-tools');
     changed = true;
   }
   if (changed) m.migrated = done;
