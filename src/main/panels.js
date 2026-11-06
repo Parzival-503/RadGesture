@@ -35,6 +35,7 @@ function clean(t, d) {
     return {
       kind: str(d.kind, 20), icon: str(d.icon, 40), title: str(d.title, 200), sub: str(d.sub, 200),
       text: str(d.text, 8000), copy: str(d.copy, 8000), error: str(d.error, 2000), list: !!d.list, checks: !!d.checks,
+      priors: (Array.isArray(d.priors) ? d.priors : []).slice(0, 30).map((p) => ({ n: Math.max(0, Math.floor(+(p && p.n)) || 0), date: str(p && p.date, 20), title: str(p && p.title, 100) })).filter((p) => p.n > 0),
       buttons: (Array.isArray(d.buttons) ? d.buttons : []).slice(0, 6).map((b) => ({
         id: str(b && b.id, 40), label: str(b && b.label, 40), icon: str(b && b.icon, 40), primary: !!(b && b.primary), keep: !!(b && b.keep),
       })).filter((b) => b.id && b.label),

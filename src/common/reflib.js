@@ -17,7 +17,7 @@
 // added to it.
 //
 // Tools stay as they are, after the sections: a top-level direction that is
-// not a section (Find in library, Add from clipboard) and a smaller ring that
+// not a section (Search selection, Find in library) and a smaller ring that
 // only searches or runs tools ("Search selection").
 (function (root) {
   const MAX = 8;

@@ -139,7 +139,6 @@
     if (a.kind === 'url') return a.value.replace(/^https?:\/\//, '').slice(0, 40);
     if (a.kind === 'search') return 'search copied text';
     if (a.kind === 'ref') { const r = refById(a.value); return r ? 'reference: ' + r.title : (refsList ? 'reference (deleted)' : 'reference'); }
-    if (a.kind === 'hub' && a.value === 'ref-add') return 'adds the clipboard to the Reference Library';
     if (a.kind === 'hub' && a.value === 'ref-browse') return 'opens the Reference Library window: find, read, edit, new note';
     if (a.kind === 'file') return a.value.split(/[\\/]/).pop() || a.value;
     if (a.kind === 'app') return 'opens ' + (a.value.split(/[\\/]/).pop() || a.value) + (it.startWithHub ? ' (starts with RadGesture)' : '');

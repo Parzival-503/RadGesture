@@ -11,7 +11,7 @@ const shipped = () => JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'con
 test('the shipped Reference Library reads as its four sections plus its tools', () => {
   const lib = R.read(shipped());
   assert.deepStrictEqual(lib.sections.map((s) => s.name), ['CT Chest', 'Abdomen', 'Ultrasound', 'PET-CT']);
-  assert.deepStrictEqual(lib.tools.map((t) => t.name), ['Search selection', 'Find in library', 'Add from clipboard']);
+  assert.deepStrictEqual(lib.tools.map((t) => t.name), ['Search selection', 'Find in library']);
   assert.strictEqual(lib.loose.length, 0);
 });
 
@@ -161,11 +161,11 @@ test('move: into and out of a topic, and within it; never a topic into a topic',
 test('move: tools reorder among themselves; the ring keeps the new order', () => {
   const ring = shipped();
   const lib = R.read(ring);
-  assert.deepStrictEqual(R.move(lib, { tool: 2 }, { tool: 0 }), { tool: 0 });
-  assert.deepStrictEqual(names(lib.tools), ['Add from clipboard', 'Search selection', 'Find in library']);
+  assert.deepStrictEqual(R.move(lib, { tool: 1 }, { tool: 0 }), { tool: 0 });
+  assert.deepStrictEqual(names(lib.tools), ['Find in library', 'Search selection']);
   assert.strictEqual(R.move(lib, { tool: 0 }, { sec: 0 }), null);
   R.pack(ring, lib);
-  assert.deepStrictEqual(names(R.read(ring).tools), ['Add from clipboard', 'Search selection', 'Find in library']);
+  assert.deepStrictEqual(names(R.read(ring).tools), ['Find in library', 'Search selection']);
   assert.ok(validateMenu({ categories: [ring] }).ok);
 });
 
@@ -173,7 +173,7 @@ test('flat lists every link and note with its section, topics opened up', () => 
   const ring = { items: [
     { name: 'CT Chest', items: [{ name: 'Fleischner', action: 'url:https://a' }, { name: 'My nodule note', action: 'ref:n1' }] },
     { name: 'Abdomen', items: [{ name: 'LI-RADS', items: [{ name: 'Core', action: 'url:https://b' }, { name: 'LR pic', action: 'ref:p1' }] }] },
-    { name: 'Add from clipboard', action: 'hub:ref-add' },
+    { name: 'Find in library', action: 'hub:ref-browse' },
   ] };
   const f = R.flat(ring);
   assert.deepStrictEqual(f.map((x) => `${x.section}/${x.topic}/${x.name}`), ['CT Chest//Fleischner', 'CT Chest//My nodule note', 'Abdomen/LI-RADS/Core', 'Abdomen/LI-RADS/LR pic']);
@@ -183,7 +183,7 @@ test('addTo puts a new note last in its section, and renameRef follows its title
   const ring = { items: [
     { name: 'CT Chest', items: [{ name: 'Fleischner', action: 'url:https://a' }] },
     { name: 'Abdomen', items: [{ name: 'Bosniak', action: 'url:https://c' }] },
-    { name: 'Add from clipboard', action: 'hub:ref-add' },
+    { name: 'Find in library', action: 'hub:ref-browse' },
   ] };
   assert.strictEqual(R.addTo(ring, 'Abdomen', { name: 'New note', icon: 'description', action: 'ref:n9' }), 'Abdomen');
   assert.deepStrictEqual(ring.items[1].items.map((x) => x.name), ['Bosniak', 'New note']);
@@ -191,5 +191,5 @@ test('addTo puts a new note last in its section, and renameRef follows its title
   assert.strictEqual(R.renameRef(ring, 'n9', 'Adrenal washout'), true);
   assert.strictEqual(ring.items[1].items[1].name, 'Adrenal washout');
   assert.strictEqual(R.renameRef(ring, 'n9', 'Adrenal washout'), false);
-  assert.ok(ring.items.some((it) => it.action === 'hub:ref-add'), 'tools stay');
+  assert.ok(ring.items.some((it) => it.action === 'hub:ref-browse'), 'tools stay');
 });

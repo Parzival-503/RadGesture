@@ -195,7 +195,10 @@
       const chip = (n, label, title) => h('button', { class: 'fchip', 'data-p': String(n), title, onclick: () => { ticks.only = n; apply(); } }, label);
       filter = h('div', { class: 'clfilter', id: 'clFilter', role: 'toolbar', 'aria-label': 'Show findings from' },
         chip(0, 'All', 'Findings from every prior'),
-        priors.map((p) => chip(p.n, p.date ? `P${p.n} ${p.date}` : `P${p.n}`, `Only findings from prior ${p.n}`)));
+        priors.map((p) => {
+          const k = (d.priors || []).find((x) => +x.n === p.n);
+          return chip(p.n, PT.chipLabel(p, d.priors), k && k.title ? `Only findings from P${p.n}: ${k.title}` : `Only findings from prior ${p.n}`);
+        }));
       setTimeout(apply, 0);
     }
     return h('div', { class: 'cl' }, h('div', { class: 'clhead' }, count, bar), filter, list, all);

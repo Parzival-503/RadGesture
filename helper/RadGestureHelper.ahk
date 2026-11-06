@@ -2349,16 +2349,49 @@ PriorAdd() {
     pd := PriorDate(text)
     p := { text: text, added: A_Now, date: pd.show, key: pd.key, title: PriorTitle(text) }
     g_Priors.Push(p)
+    PriorSort()
+    pn := g_Priors.Length()
+    for i, q in g_Priors
+        if (q = p)
+            pn := i
     g_PriorLast := A_Now
     PriorBinRefresh()
 
     ; Echo what was captured so a wrong selection is obvious.
-    msg := "P" . g_Priors.Length() . " added (" . src . "): " . SubStr(PriorPeek(p), 1, 70)
+    msg := "P" . pn . " added (" . src . "): " . SubStr(PriorPeek(p), 1, 70)
         . (p.date = "" ? "`nNo exam date found at the top; it counts in the order added." : "")
         . "`nAdd more, or Checklist when done."
     if (expired)
         msg := "Old priors were cleared (idle too long).`n" . msg
     Notify(msg, 2500)
+}
+
+; Newest exam first, so P1 is always the most recent prior and P2 the one
+; before it. Priors with no exam date found follow, in the order added.
+PriorSort() {
+    global g_Priors
+    dated := [], undated := []
+    for i, p in g_Priors {
+        if (p.key != "")
+            dated.Push(p)
+        else
+            undated.Push(p)
+    }
+    ; Insertion sort, newest key first; equal dates keep the order added.
+    sorted := []
+    for i, p in dated {
+        at := sorted.Length() + 1
+        for j, q in sorted {
+            if (p.key > q.key) {
+                at := j
+                break
+            }
+        }
+        sorted.InsertAt(at, p)
+    }
+    for i, p in undated
+        sorted.Push(p)
+    g_Priors := sorted
 }
 
 PriorRemove(i) {
@@ -2639,7 +2672,7 @@ PriorChecklist() {
     examTitle := ReadExamTitle()
 
     systemPrompt := ""
-    . "You help a radiologist who is about to read a NEW exam. You are given one or more PRIOR reports for the same patient, labelled P1, P2, and so on, and the title of the new exam if it is known."
+    . "You help a radiologist who is about to read a NEW exam. You are given one or more PRIOR reports for the same patient, labelled P1, P2, and so on, and the title of the new exam if it is known. The priors are numbered newest first: P1 is the most recent prior, P2 the one before it, and so on (priors with no date found come last)."
     . "`n`nWrite a VERY SHORT checklist of things to double-check on the new exam so nothing from the priors gets missed:"
     . "`n- known findings that need follow-up"
     . "`n- measurements to compare (give the prior size)"
@@ -2647,11 +2680,11 @@ PriorChecklist() {
     . "`n- incidentals that were mentioned"
     . "`n`nRULES:"
     . "`n- 3 to 8 lines. Fewer if the priors contain little. Never more than 8."
-    . "`n- Write Markdown, one finding per line, exactly like this: '- **Finding in 2 to 5 words**: what to check or compare, at most about 18 words [P2 3/14/2025]'. Bold only the finding name."
-    . "`n- End each line with its source in square brackets, with that prior's exam date from its heading when known, e.g. [P2 3/14/2025] or [P1 1/5/2024, P2 3/14/2025]."
+    . "`n- Write Markdown, one finding per line, exactly like this: '- **Finding in 2 to 5 words**: what to check or compare, at most about 18 words [P1 3/14/2025]'. Bold only the finding name."
+    . "`n- End each line with its source in square brackets, with that prior's exam date from its heading when known, e.g. [P2 1/5/2024] or [P1 3/14/2025, P2 1/5/2024]."
     . "`n`nDATES: each prior's heading gives its exam date when one was found, and which prior is the most recent. Findings change between exams:"
-    . "`n- When a finding appears in more than one prior, go by the MOST RECENT prior that mentions it: its latest size and status. Give the trend when sizes changed, e.g. '6 mm (P1 1/5/2024) to 8 mm (P2 3/14/2025)'."
-    . "`n- A finding that a later prior calls resolved or no longer seen stays on the list, short, marked resolved and placed last, e.g. '- **RUL nodule (resolved)**: gone on P2; confirm still gone [P1 1/5/2024, P2 3/14/2025]'. Never ask to measure or follow up a finding that has resolved."
+    . "`n- When a finding appears in more than one prior, go by the MOST RECENT prior that mentions it: its latest size and status. Give the trend when sizes changed, e.g. '6 mm (P2 1/5/2024) to 8 mm (P1 3/14/2025)'."
+    . "`n- A finding that a later prior calls resolved or no longer seen stays on the list, short, marked resolved and placed last, e.g. '- **RUL nodule (resolved)**: gone on P1; confirm still gone [P1 3/14/2025, P2 1/5/2024]'. Never ask to measure or follow up a finding that has resolved."
     . "`n- A recommendation already carried out on a later prior (the follow-up CT was done) is not repeated as pending."
     . "`n- When a date is missing, do not guess one; use the order the priors were given."
     . "`n- Put what the new exam can actually assess first. If the new exam title is known, skip findings in body parts it does not cover unless they are clinically important."
@@ -2687,8 +2720,9 @@ ChecklistLog(what) {
     try HubRequest("POST", "/done?action=checklist:" . what, 400)
 }
 
-; "P2 (1/5/2024), P1 (3/14/2025)": the dated priors, oldest first. "" when none has a date.
-PriorOrder() {
+; "P2 (1/5/2024), P1 (3/14/2025)": the dated priors, oldest first (newest
+; first with newestFirst). "" when none has a date.
+PriorOrder(newestFirst := false) {
     global g_Priors
     keys := ""
     for i, p in g_Priors
@@ -2696,7 +2730,10 @@ PriorOrder() {
             keys .= (keys = "" ? "" : "`n") . p.key . "|" . i
     if (keys = "")
         return ""
-    Sort, keys
+    if (newestFirst)
+        Sort, keys, R
+    else
+        Sort, keys
     out := ""
     Loop, Parse, keys, `n
     {
@@ -2782,8 +2819,8 @@ ShowPriorList(examTitle, nPriors, text, err) {
 
     pl_hdr := "Check on: " . (examTitle != "" ? examTitle : "(exam title not read from PowerScribe)")
     FormatTime, pl_now,, HH:mm
-    pl_order := PriorOrder()
-    pl_sub := "From " . nPriors . " prior" . (nPriors = 1 ? "" : "s") . (pl_order != "" ? ", oldest first: " . pl_order : "") . "  |  " . pl_now
+    pl_order := PriorOrder(true)
+    pl_sub := "From " . nPriors . " prior" . (nPriors = 1 ? "" : "s") . (pl_order != "" ? ", newest first: " . pl_order : "") . "  |  " . pl_now
     g_PriorListText := (err != "") ? "" : pl_body
     if (PriorListCard(pl_hdr, pl_sub, g_PriorListText, err, pl_md))
         return
@@ -2820,13 +2857,23 @@ return
 ; The checklist in the hub's card: each line can be ticked off once it is in
 ; the report. Insert pastes the plain text where the cursor is (the card never
 ; takes focus) and the card stays open for ticking; Copy; Clear priors.
+; [{"n":1,"date":"3/14/2025","title":"CT CHEST"},...]: what the checklist
+; card's filter chips show for each prior (its modality comes from the title).
+PriorInfoJson() {
+    global g_Priors
+    j := "["
+    for i, p in g_Priors
+        j .= (i > 1 ? "," : "") . "{""n"":" . i . ",""date"":" . JsonAscii(p.date) . ",""title"":" . JsonAscii(p.title) . "}"
+    return j . "]"
+}
+
 PriorListCard(hdr, sub, text, err, md) {
     global g_ChartAskHub
     j := "{""t"":""card"",""kind"":""checklist"",""icon"":""checklist"",""title"":" . JsonAscii(hdr) . ",""sub"":" . JsonAscii(sub)
     if (err != "")
         j .= ",""error"":" . JsonAscii("Could not get a checklist.`n`n" . err) . ",""buttons"":[{""id"":""prior:clear"",""label"":""Clear priors"",""icon"":""delete_sweep""},{""id"":""close"",""label"":""Close""}]}"
     else
-        j .= ",""checks"":true,""text"":" . JsonAscii(md) . ",""copy"":" . JsonAscii(text) . ",""buttons"":[{""id"":""priorlist:insert"",""label"":""Insert into report"",""icon"":""input"",""primary"":true,""keep"":true},{""id"":""copy"",""label"":""Copy"",""icon"":""content_copy""},{""id"":""prior:clear"",""label"":""Clear priors"",""icon"":""delete_sweep""}]}"
+        j .= ",""checks"":true,""priors"":" . PriorInfoJson() . ",""text"":" . JsonAscii(md) . ",""copy"":" . JsonAscii(text) . ",""buttons"":[{""id"":""priorlist:insert"",""label"":""Insert into report"",""icon"":""input"",""primary"":true,""keep"":true},{""id"":""copy"",""label"":""Copy"",""icon"":""content_copy""},{""id"":""prior:clear"",""label"":""Clear priors"",""icon"":""delete_sweep""}]}"
     if !HubUi(j)
         return false
     g_ChartAskHub := false

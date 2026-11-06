@@ -626,6 +626,19 @@ function migrate(m, lib) {
     done.push('ai-toolbar');
     changed = true;
   }
+  if (!done.includes('no-clipboard-add')) {
+    // "Add from clipboard" is gone from the rings (the owner, 2026-11-06);
+    // Settings > Reference Library > Paste still adds a copied screenshot or
+    // text. A smaller ring left empty goes with it.
+    const strip = (items) => (items || []).filter((it) => {
+      if (it.action === 'hub:ref-add') return false;
+      if (Array.isArray(it.items)) { it.items = strip(it.items); return it.items.length > 0; }
+      return true;
+    });
+    for (const c of m.categories || []) c.items = strip(c.items);
+    done.push('no-clipboard-add');
+    changed = true;
+  }
   if (changed) m.migrated = done;
   return changed;
 }

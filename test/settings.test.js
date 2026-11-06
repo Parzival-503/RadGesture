@@ -506,7 +506,7 @@ test('Crosshair = plus, Link priors = chain at every start, even when the one-ti
 
 test('the Reference Library ring: Find in library on the ring, no My documents, no My notes, once', () => {
   const { migrate } = require('../src/main/settings-store');
-  const m = { migrated: ['ref-browse', 'search-selection'], categories: [{ id: 'gallery', name: 'Reference Library', color: '#4a90d9', items: [
+  const m = { migrated: ['ref-browse', 'search-selection', 'no-clipboard-add'], categories: [{ id: 'gallery', name: 'Reference Library', color: '#4a90d9', items: [
     { name: 'CT Chest', items: [{ name: 'Fleischner', action: 'url:https://a' }] },
     { name: 'My notes', items: [{ name: 'A note', action: 'ref:n1' }, { name: 'Another', action: 'ref:n2' }] },
     { name: 'Search selection', icon: 'search', items: [{ name: 'My library', action: 'hub:ref-browse' }, { name: 'Google', action: 'search:https://www.google.com/search?q={clipboard}' }] },
@@ -524,10 +524,30 @@ test('the Reference Library ring: Find in library on the ring, no My documents, 
   migrate(m, { functions: [] });
   assert.ok(g.items.some((x) => x.name === 'My documents'));
   // A "My notes" holding a link is someone's own section: it stays.
-  const m2 = { migrated: [], categories: [{ id: 'gallery', name: 'Reference Library', items: [
+  const m2 = { migrated: ['no-clipboard-add'], categories: [{ id: 'gallery', name: 'Reference Library', items: [
     { name: 'My notes', items: [{ name: 'Mine', action: 'url:https://b' }, { name: 'A note', action: 'ref:n1' }] },
     { name: 'Add from clipboard', action: 'hub:ref-add' },
   ] }] };
   migrate(m2, { functions: [] });
   assert.deepStrictEqual(m2.categories[0].items.map((x) => x.name), ['My notes', 'Find in library', 'Add from clipboard']);
+});
+
+test('Add from clipboard comes off every ring, once; a smaller ring left empty goes too', () => {
+  const { migrate } = require('../src/main/settings-store');
+  const all = ['ref-browse', 'search-selection', 'library-tools', 'ai-toolbar'];
+  const m = { migrated: all.slice(), categories: [
+    { id: 'gallery', name: 'Reference Library', items: [
+      { name: 'CT Chest', items: [{ name: 'Fleischner', action: 'url:https://a' }] },
+      { name: 'Find in library', action: 'hub:ref-browse' },
+      { name: 'Add from clipboard', action: 'hub:ref-add' },
+    ] },
+    { id: 'mine', name: 'Mine', items: [
+      { name: 'Tools', items: [{ name: 'Add', action: 'hub:ref-add' }] },
+      { name: 'Google', action: 'url:https://g' },
+    ] },
+  ] };
+  migrate(m, { functions: [] });
+  assert.ok(!JSON.stringify(m).includes('hub:ref-add'));
+  assert.deepStrictEqual(m.categories[1].items.map((x) => x.name), ['Google']);
+  assert.ok(m.migrated.includes('no-clipboard-add'));
 });

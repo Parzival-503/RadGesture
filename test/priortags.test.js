@@ -29,3 +29,29 @@ test('a filter shows its own prior\'s lines, and lines with no source always', (
   assert.deepStrictEqual(lines.map((l) => PT.shows(l, 2)), [true, true, false, true]);
   assert.strictEqual(PT.shows('**X**: y [P12 1/1/2020]', 1), false);
 });
+
+test('each prior\'s modality, from its exam title', () => {
+  const m = PT.modality;
+  assert.strictEqual(m('CT CHEST WITH CONTRAST'), 'CT');
+  assert.strictEqual(m('CTA CHEST PE PROTOCOL'), 'CT');
+  assert.strictEqual(m('PET/CT SKULL BASE TO THIGH'), 'PET');
+  assert.strictEqual(m('NM PET-CT FDG'), 'PET');
+  assert.strictEqual(m('MRI ABDOMEN W WO CONTRAST'), 'MRI');
+  assert.strictEqual(m('MR LIVER'), 'MRI');
+  assert.strictEqual(m('MRCP'), 'MRI');
+  assert.strictEqual(m('US ABDOMEN COMPLETE'), 'US');
+  assert.strictEqual(m('XR CHEST 2 VIEWS'), 'XR');
+  assert.strictEqual(m('Chest x-ray PA and lateral'), 'XR');
+  assert.strictEqual(m('NM BONE SCAN WHOLE BODY'), 'NM');
+  assert.strictEqual(m('MAMMO SCREENING BILATERAL'), 'Mammo');
+  assert.strictEqual(m('Oncology follow-up'), '');
+  assert.strictEqual(m(''), '');
+});
+
+test('a filter chip names the prior, its modality and its date', () => {
+  const known = [{ n: 1, date: '3/14/2025', title: 'PET/CT SKULL BASE TO THIGH' }, { n: 2, date: '1/5/2024', title: 'CT CHEST WITH CONTRAST' }];
+  assert.strictEqual(PT.chipLabel({ n: 1, date: '3/14/2025' }, known), 'P1 PET 3/14/2025');
+  assert.strictEqual(PT.chipLabel({ n: 2, date: '' }, known), 'P2 CT 1/5/2024');
+  assert.strictEqual(PT.chipLabel({ n: 3, date: '2/2/2022' }, known), 'P3 2/2/2022');
+  assert.strictEqual(PT.chipLabel({ n: 1, date: '' }), 'P1');
+});

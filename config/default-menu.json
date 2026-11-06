@@ -463,11 +463,6 @@
           "name": "Find in library",
           "icon": "manage_search",
           "action": "hub:ref-browse"
-        },
-        {
-          "name": "Add from clipboard",
-          "icon": "note_add",
-          "action": "hub:ref-add"
         }
       ]
     },

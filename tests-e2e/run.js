@@ -511,13 +511,14 @@ async function waitFor(fn, ms, step = 200) {
       check('dragging the divider widens the list, and it stays that wide', w1 > w0 + 60 && Math.abs(w2 - w1) < 2, `${Math.round(w0)} -> ${Math.round(w1)} -> ${Math.round(w2)}`);
       await win.dblclick('#refSplit');
       await sleep(150);
-      const toolsOnRing = () => (gal().items || []).filter((i) => ['Search selection', 'Find in library', 'Add from clipboard'].includes(i.name)).map((i) => i.name);
-      check('the ring\'s tools are listed and can be moved', (await win.$$('[data-key^="tool:"]')).length === 3);
-      await win.dragAndDrop('[data-key="tool:2"] .grip', '[data-key="tool:0"]', { targetPosition: { x: 30, y: 3 } });
+      const toolsOnRing = () => (gal().items || []).filter((i) => ['Search selection', 'Find in library'].includes(i.name)).map((i) => i.name);
+      check('the ring\'s tools are listed and can be moved', (await win.$$('[data-key^="tool:"]')).length === 2);
+      check('Add from clipboard is not on the ring', !JSON.stringify(gal()).includes('hub:ref-add'));
+      await win.dragAndDrop('[data-key="tool:1"] .grip', '[data-key="tool:0"]', { targetPosition: { x: 30, y: 3 } });
       await sleep(300);
       await win.click('#saveAll');
       await sleep(600);
-      check('dragging a tool moves it on the ring', toolsOnRing()[0] === 'Add from clipboard', toolsOnRing().join(', '));
+      check('dragging a tool moves it on the ring', toolsOnRing()[0] === 'Find in library', toolsOnRing().join(', '));
       await win.screenshot({ path: path.join(SHOTS, 'settings-ref-reorder.png') });
       const expDir = fs.mkdtempSync(path.join(require('os').tmpdir(), 'rg-export-'));
       await app.evaluate(({ dialog }, p) => { dialog.showOpenDialog = async () => ({ canceled: false, filePaths: [p] }); }, expDir);
@@ -535,10 +536,11 @@ async function waitFor(fn, ms, step = 200) {
     await win.$eval('main', (el) => el.scrollTo(0, 0));
     await win.screenshot({ path: path.join(SHOTS, 'settings-references.png') });
     await app.evaluate(({ clipboard }) => { clipboard.clear(); clipboard.writeText('# Bosniak 2019\n\n- **IIF**: follow up at 6 months'); });
-    await rg((r) => r.clickTray('Add clipboard to the Reference Library'));
+    check('the tray has no "Add clipboard" item', !(await rg((r) => r.trayLabels())).some((l) => /clipboard/i.test(l)));
+    await win.click('#refPaste');
     await sleep(900);
     const bos = refIndex().find((r) => r.title === 'Bosniak 2019');
-    check('the tray adds the clipboard to the Reference Library', !!bos);
+    check('Paste in Settings adds the clipboard to the Reference Library', !!bos);
     check('and Settings opens on it', (await win.$eval('#refTitle', (e) => e.value).catch(() => '')) === 'Bosniak 2019');
     // "Search copied text" searches what was copied (Electron 44 reads the
     // clipboard asynchronously; reading it the old way searched "[object Promise]").
@@ -739,27 +741,29 @@ async function waitFor(fn, ms, step = 200) {
         await tbw.screenshot({ path: path.join(SHOTS, 'toolbar-small.png') }).catch(() => {});
         await tbw.click('#tbCollapse');
       }
-      const md = '- **RUL nodule**: 6 mm to 8 mm, compare size [P1 1/5/2024, P2 3/14/2025]\n- **Left adrenal nodule**: indeterminate, washout CT advised [P2 3/14/2025]\n- **Liver lesion (resolved)**: gone on P2; confirm still gone [P1 1/5/2024, P2 3/14/2025]';
-      await call('POST', '/ui', JSON.stringify({ t: 'card', kind: 'checklist', icon: 'checklist', title: 'Check on: CT CHEST', sub: 'From 2 priors, oldest first: P2 (1/5/2024), P1 (3/14/2025)', checks: true, text: md, copy: md.replace(/\*\*/g, ''),
+      // Numbered newest first, as the helper does: P1 is the most recent prior.
+      const md = '- **RUL nodule**: 6 mm to 8 mm, compare size [P1 3/14/2025, P2 1/5/2024]\n- **Left adrenal nodule**: indeterminate, washout CT advised [P2 1/5/2024]\n- **Liver lesion (resolved)**: gone on P1; confirm still gone [P1 3/14/2025, P2 1/5/2024]';
+      await call('POST', '/ui', JSON.stringify({ t: 'card', kind: 'checklist', icon: 'checklist', title: 'Check on: CT CHEST', sub: 'From 2 priors, newest first: P1 (3/14/2025), P2 (1/5/2024)', checks: true, text: md, copy: md.replace(/\*\*/g, ''),
+        priors: [{ n: 1, date: '3/14/2025', title: 'PET/CT SKULL BASE TO THIGH' }, { n: 2, date: '1/5/2024', title: 'CT CHEST WITH CONTRAST' }],
         buttons: [{ id: 'priorlist:insert', label: 'Insert into report', icon: 'input', primary: true, keep: true }, { id: 'copy', label: 'Copy', icon: 'content_copy' }, { id: 'prior:clear', label: 'Clear priors', icon: 'delete_sweep' }] }));
       const cw = await panel('card');
       if (cw) await cw.waitForSelector('.ck', { timeout: 5000 }).catch(() => {});
       const nItems = cw ? (await cw.$$('.ck')).length : 0;
       const tags = cw ? await cw.$$eval('.src', (e) => e.map((x) => x.textContent)) : [];
-      check('the checklist card shows each item with its source tag', nItems === 3 && tags[1] === 'P2 3/14/2025' && !!(cw && await cw.$('.ckt strong')), `${nItems} items, tags ${tags.join(' | ')}`);
+      check('the checklist card shows each item with its source tag', nItems === 3 && tags[1] === 'P2 1/5/2024' && !!(cw && await cw.$('.ckt strong')), `${nItems} items, tags ${tags.join(' | ')}`);
       if (cw) {
         await cw.click('button[data-id="priorlist:insert"]');
         const qi = await reached('priorlist:insert');
         await sleep(300);
         check('Insert reaches the helper and the card stays open for ticking', qi.ok && (await cw.evaluate(() => document.visibilityState === 'visible')), qi.got);
-        // Filter by prior: All / P1 1/5/2024 / P2 3/14/2025.
+        // Filter by prior: All / P1 PET 3/14/2025 / P2 CT 1/5/2024 (newest first, with the modality).
         const chips = await cw.$$eval('#clFilter .fchip', (e) => e.map((x) => x.textContent));
         await cw.click('#clFilter .fchip[data-p="1"]');
         const shownP1 = await cw.$$eval('.ck', (e) => e.filter((x) => !x.hidden).map((x) => x.dataset.i).join(','));
         await cw.screenshot({ path: path.join(SHOTS, 'checklist-filter.png') }).catch(() => {});
         await cw.click('#clFilter .fchip[data-p="0"]');
         const shownAll = await cw.$$eval('.ck', (e) => e.filter((x) => !x.hidden).length);
-        check('the checklist filters by prior (All / P1 / P2)', chips.join('|') === 'All|P1 1/5/2024|P2 3/14/2025' && shownP1 === '0,2' && shownAll === 3, `${chips.join('|')} P1:${shownP1} all:${shownAll}`);
+        check('the checklist filters by prior, newest first, with each one\'s modality', chips.join('|') === 'All|P1 PET 3/14/2025|P2 CT 1/5/2024' && shownP1 === '0,2' && shownAll === 3, `${chips.join('|')} P1:${shownP1} all:${shownAll}`);
         await cw.click('.ck[data-i="0"]');
         await cw.click('.ck[data-i="1"]');
         check('ticking items counts them', /2 of 3 checked/.test(await cw.textContent('#clCount')));

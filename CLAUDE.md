@@ -377,8 +377,10 @@ own **notes** (Markdown underneath, shown formatted) and **pictures**
 (screenshots), in `%APPDATA%\RadGesture\references\` (`index.json` + `<id>.md`
 + `<id>.png`; `src/main/references.js`, tested). Ways in: New note, Snip now
 (`ms-screenclip:`, the snip is picked up from the clipboard within a minute),
-Paste screenshot or text, Choose a picture, the ring's **Add from clipboard**
-(`hub:ref-add`) and the tray. "Put on the ring" adds `ref:<id>` under the
+Paste screenshot or text, Choose a picture. (The ring's and the tray's "Add
+from clipboard", `hub:ref-add`, are gone: the owner, 2026-11-06, called it
+useless; migration `no-clipboard-add` takes it off saved rings, and an empty
+smaller ring with it. Settings' Paste is the way now.) "Put on the ring" adds `ref:<id>` under the
 Reference Library ring's **My notes** (made on first use). The ring opens it
 in the **reference viewer** (`src/viewer/`, always on top, Esc closes, Edit
 goes to Settings). Screenshots are kept at most 2400 px wide.
@@ -418,7 +420,7 @@ goes to Settings). Screenshots are kept at most 2400 px wide.
   stays on the clipboard. Ways in: Search copied text > OpenEvidence
   (`helper:oe:clip`, migration `openevidence-search`) and the Search
   selection picker (Alt+Shift+S). Not confirmed on the workstation yet.
-  Search copied text / My documents / Add from clipboard stay as tools
+  Search selection and Find in library stay as tools
   after the sections. Ring changes need Save; notes save themselves, and a
   note's ring name follows its title.
 - **Files** (`refs.addFile`): a PDF or document is COPIED into the
@@ -531,8 +533,7 @@ focused, and stays topmost while General > "Keep this window on top" is on
 proofread window and the reference viewer use the same call.
 
 Left-click: Settings. Right-click: Open the ring; Settings..., Edit rings...,
-AI tools..., Shortcuts..., Functions..., Reference Library..., Add clipboard
-to the Reference Library; Prior checklist >, AI >; helper state line (click to
+AI tools..., Shortcuts..., Functions..., Reference Library...; Prior checklist >, AI >; helper state line (click to
 start it), close conflicting tools, Pause the ring, Start with Windows,
 Status and help..., Advanced >; Quit (also stops the helper). The e2e hooks
 `trayLabels`/`clickTray` name submenu items "Parent > Item".
@@ -785,6 +786,14 @@ published work.
   (`PriorOrder()`), and goes by each finding's latest status: trends,
   resolved findings kept short and last ("confirm still gone"), done
   follow-ups not repeated. No date found: the order added.
+  **P1 is always the most recent prior** (the owner, 2026-11-06): `PriorSort()`
+  keeps `g_Priors` newest exam first after every add (undated ones last, in
+  the order added), so the toolbar, the "P2 added" note, the prompt (which
+  says P1 is newest) and the checklist's tags all agree. The checklist card
+  gets each prior's date and exam title (`PriorInfoJson()`, `priors` in the
+  card, kept by `panels.js clean`), and its filter chips read "P1 PET
+  3/14/2025" (`priortags.modality()` / `chipLabel()`, tested: PET before CT,
+  CTA = CT, MRA / MRCP = MRI, US, XR, NM, Mammo, Fluoro).
 - **Proofread results show in the hub's window** (`src/proofread/`, Settings
   look, always on top): the helper POSTs `/proofread` (JSON body, ASCII via
   `JsonAscii`, with a `seq`) and only when that fails falls back to its old

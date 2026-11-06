@@ -327,7 +327,6 @@ function hubCommand(id) {
   if (id === 'edit-menu' || id === 'settings') openSettings('rings');
   else if (id === 'open-folder') shell.openPath(userDir());
   else if (id === 'reload-menu') loadMenu();
-  else if (id === 'ref-add') addReferenceFromClipboard(true);
   else if (id === 'ref-browse') openReference(null);
   else notify(`Unknown command "${id}"`);
 }
@@ -465,8 +464,8 @@ function pngOf(img) {
   return (width > 2400 ? img.resize({ width: 2400, quality: 'best' }) : img).toPNG();
 }
 
-// The clipboard (a screenshot, or text) as a new reference. From the ring
-// ("Add from clipboard"), the tray, or Settings.
+// The clipboard (a screenshot, or text) as a new reference: Settings >
+// Reference Library > Paste.
 async function addReferenceFromClipboard(openIt) {
   const img = await clipImage();
   let r = null;
@@ -1103,7 +1102,6 @@ function trayTemplate() {
     { label: 'Shortcuts...', click: () => openSettings('shortcuts') },
     { label: 'Functions...', click: () => openSettings('functions') },
     { label: 'Reference Library...', click: () => openSettings('references') },
-    { label: 'Add clipboard to the Reference Library', click: () => addReferenceFromClipboard(true) },
     { type: 'separator' },
     {
       label: 'Prior checklist',

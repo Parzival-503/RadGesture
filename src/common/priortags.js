@@ -40,5 +40,32 @@
     return !ps.length || ps.includes(n);
   }
 
-  return { priorsOf, priorList, shows };
+  // The modality of an exam title: "CT ABDOMEN PELVIS W CONTRAST" -> "CT".
+  // PET before CT (a PET-CT is read as PET), CTA as CT, MRA / MRCP as MRI.
+  // "" when the title names none.
+  const MODS = [
+    ['PET', /\bPET\b|\bFDG\b|\bPSMA\b|\bDOTATATE\b/],
+    ['MRI', /\bMRI?\b|\bMRA\b|\bMRCP\b|\bMRV\b|MAGNETIC RESONANCE/],
+    ['CT', /\bCTA?\b|\bCAT SCAN\b|COMPUTED TOMOGRAPH/],
+    ['Mammo', /\bMAMMO|\bMG\b|\bTOMOSYNTHESIS\b/],
+    ['US', /\bUS\b|\bULTRASOUND\b|\bSONO|\bDOPPLER\b|\bDUPLEX\b|\bECHO\b/],
+    ['NM', /\bNM\b|\bNUC|\bSPECT\b|\bSCINTI|\bBONE SCAN\b|\bHIDA\b|\bV\/?Q\b/],
+    ['Fluoro', /\bFLUORO|\bESOPHAGRAM\b|\bSWALLOW\b|\bUGI\b/],
+    ['XR', /\bXR\b|\bX-?RAY\b|\bRADIOGRAPH|\bCR\b|\bDX\b|\b\d\s*VIEWS?\b|\bPA\b|\bAP\b/],
+  ];
+  function modality(title) {
+    const t = String(title || '').toUpperCase();
+    for (const [m, re] of MODS) if (re.test(t)) return m;
+    return '';
+  }
+
+  // The chip text for one prior: "P1 CT 3/14/2025". known = what the helper
+  // read from each prior ({ n, date, title }), which wins over the tag's date.
+  function chipLabel(p, known) {
+    const k = (known || []).find((x) => +x.n === p.n) || {};
+    const date = k.date || p.date || '';
+    return ['P' + p.n, modality(k.title), date].filter(Boolean).join(' ');
+  }
+
+  return { priorsOf, priorList, shows, modality, chipLabel };
 });

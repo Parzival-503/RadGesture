@@ -62,7 +62,7 @@ test('references: create, update, picture, list newest first, delete', () => {
   assert.deepStrictEqual(refs.list().map((r) => r.id), [a.id]);
 });
 
-test('ring: "ref:<id>" opens a reference; the Reference Library ring can add from the clipboard', () => {
+test('ring: "ref:<id>" opens a reference; the Reference Library ring has no Add from clipboard', () => {
   assert.deepStrictEqual(parseAction('ref:rabc123'), { kind: 'ref', value: 'rabc123' });
   assert.strictEqual(resolveAction('ref:rabc123').kind, 'ref');
   const menu = { categories: [{ name: 'R', items: [{ name: 'Note', icon: 'description', action: 'ref:rabc123' }] }] };
@@ -70,7 +70,7 @@ test('ring: "ref:<id>" opens a reference; the Reference Library ring can add fro
   const def = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'config', 'default-menu.json'), 'utf8'));
   const ring = def.categories.find((c) => c.id === 'gallery');
   assert.strictEqual(ring.name, 'Reference Library');
-  assert.ok(ring.items.some((it) => it.action === 'hub:ref-add'));
+  assert.ok(!JSON.stringify(ring).includes('hub:ref-add'));
 });
 
 test('references: a file is copied in, opens from the copy, and goes when deleted', () => {
