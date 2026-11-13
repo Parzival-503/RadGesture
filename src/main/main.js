@@ -81,7 +81,7 @@ const events = []; // recent bridge events, for Settings > Status and the tests
 
 function logEvent(type, detail = '') {
   events.push({ t: Date.now(), type, detail });
-  if (events.length > 60) events.shift();
+  if (events.length > 300) events.shift(); // Status shows the last 15; the tests read further back
   if (E2E || process.env.RG_SMOKE) console.log(`RG ${type} ${detail}`);
 }
 
