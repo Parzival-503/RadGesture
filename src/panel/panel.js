@@ -256,6 +256,7 @@
       else if (e.key === 'Escape') { e.preventDefault(); send(''); }
     });
     setTimeout(() => input.focus(), 30);
+    window.addEventListener('focus', () => { if (input.isConnected) input.focus(); });
     return [draggable(h('header', { class: 'head' },
       h('span', { class: 'plogo' }, msym('lock')),
       h('div', { class: 'tt' }, h('div', { class: 'ttl' }, d.title || 'Password'), h('div', { class: 'sub' }, d.sub || 'RadGesture types it in to sign you in.')),

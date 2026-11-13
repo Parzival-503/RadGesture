@@ -491,6 +491,32 @@
           "name": "OpenEvidence",
           "icon": "public",
           "action": "url:https://www.openevidence.com/"
+        },
+        {
+          "name": "Calculators",
+          "icon": "calculate",
+          "items": [
+            {
+              "name": "Adrenal CT",
+              "icon": "nephrology",
+              "action": "hub:calc:adrenal-ct"
+            },
+            {
+              "name": "Adrenal MRI",
+              "icon": "nephrology",
+              "action": "hub:calc:adrenal-mri"
+            },
+            {
+              "name": "HCC growth",
+              "icon": "trending_up",
+              "action": "hub:calc:hcc-growth"
+            },
+            {
+              "name": "All calculators",
+              "icon": "calculate",
+              "action": "hub:calc"
+            }
+          ]
         }
       ]
     }

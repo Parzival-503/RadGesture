@@ -486,6 +486,58 @@ goes to Settings). Screenshots are kept at most 2400 px wide.
   in main.js. Reading it the old way made "Search copied text" search for
   "[object Promise]"; the e2e now checks the search URL.
 
+### Calculators (Apps > Calculators, `hub:calc[:<id>]`)
+
+The owner, 2026-11-13: adrenal CT and MRI, HCC growth, and "customizable so
+others can add other calculators". On the **Apps** ring (he uses them now
+and then; a ring in the bottom row would cost a click on every switch),
+migration `calculators`.
+
+- **A calculator is data, not code** (`config/calculators.json` shipped,
+  `%APPDATA%\RadGesture\calculators.json` the person's): inputs (number or
+  date), results (formulas), rules (first that holds = the verdict, with a
+  tone), a sentence (`{name}`, `{verdict}`, `[optional part]`).
+  `src/common/calc.js` (tested) parses formulas itself: arithmetic,
+  comparisons, and/or/not, min max abs sqrt ln log exp round floor ceil,
+  `if(test, a, b)`; nothing else runs, so a shared `.rgcalc` is safe.
+  A value not typed is missing and anything made from it is missing; logic
+  is three-valued ("a or b" holds if either holds); `x == missing` asks
+  whether it was typed. Dates are days (t2 - t1 = days between).
+- `src/main/calc-store.js` (tested): shipped ones follow the shipped copy
+  until edited (`edited`), Reset puts it back, a deleted shipped one stays
+  deleted (`removed`) until Bring it back. Import gives clashing ids a new
+  one and never marks anything shipped.
+- **The window** (`src/calc/`): chips to switch, inputs, results, the
+  verdict, the sentence (editable), Insert / Copy / Clear, "Where the
+  numbers come from". Nothing typed is kept. Insert = hub puts the sentence
+  on the clipboard and hides the window; the helper's `calc:paste` goes
+  back to the window that had the cursor and presses Ctrl+V (else it says
+  "Copied"). Opening: the hub shows it inactive and queues `calc:focus`: the
+  helper remembers the window in front (`g_CalcPrev`) and hands the
+  calculator the keyboard (`HubActivatePanel`).
+- **Settings > Calculators**: list (On the ring switch = a `hub:calc:<id>`
+  direction in Apps > Calculators, a ring change that needs Save; order;
+  Try it; Edit), editor with a live try-out and problems in words, New,
+  Import / Export (`.rgcalc`), Reset to shipped, Delete.
+- Shipped: **Adrenal CT washout** (unenhanced 10 HU or less; absolute 60%,
+  relative 40% at 15 min; ACR white paper 2017), **Adrenal MRI chemical
+  shift** (SII over 16.5% or ASR under 0.71, Fujiyoshi 2003; cutoffs vary
+  by study and field strength, said in the calculator), **HCC threshold
+  growth** (LI-RADS v2018: 50% or more in 6 months or less; also time to
+  50% at this rate and volume doubling time; checked 2026-11-13 that v2018
+  is still the diagnostic version, v2024 being Treatment Response only).
+
+**Boxes that take typing must be activated by the helper** (owner,
+2026-11-13: typing the password went into the window behind the box).
+Windows does not let a background program take the keyboard, so the hub's
+`focus()` showed the box but left the keys where they were. The helper,
+which received the shortcut, may: `HubActivatePanel(title)` waits for the
+box by its exact title ("RadGesture password", "RadGesture One-liner",
+"RadGesture calculator"; `page-title-updated` is prevented so the page's
+`<title>` cannot replace them) and activates it. The Windows e2e opens the
+password box over Notepad (`pw:demo`, reports only the length) and types
+like a person: the keys must land in the box.
+
 ### Shortcuts page (made so colleagues can use RadGesture)
 
 The owner's PACS/Apps rings used to press Rad Optimizer's keys (now Library

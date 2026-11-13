@@ -1,0 +1,84 @@
+{
+  "calculators": [
+    {
+      "id": "adrenal-ct",
+      "name": "Adrenal CT washout",
+      "group": "Adrenal",
+      "icon": "calculate",
+      "about": "Type the values you have: unenhanced alone, or all three phases, or enhanced and delayed only (relative washout). Delayed phase at 15 minutes. Hypervascular metastases, pheochromocytoma and HCC can wash out too; read it with the rest of the study.",
+      "source": "Lipid-rich adenoma: 10 HU or less unenhanced. Washout with a 15-minute delay: absolute 60% or more, relative 40% or more. ACR Incidental Findings Committee white paper on adrenal incidentalomas (J Am Coll Radiol 2017).",
+      "inputs": [
+        { "id": "u", "label": "Unenhanced", "unit": "HU", "type": "number", "hint": "Before contrast" },
+        { "id": "e", "label": "Portal venous", "unit": "HU", "type": "number", "hint": "About 60 to 75 s" },
+        { "id": "d", "label": "Delayed", "unit": "HU", "type": "number", "hint": "15 minutes" }
+      ],
+      "results": [
+        { "id": "apw", "label": "Absolute washout", "unit": "%", "formula": "(e - d) / (e - u) * 100", "decimals": 0 },
+        { "id": "rpw", "label": "Relative washout", "unit": "%", "formula": "(e - d) / e * 100", "decimals": 0 }
+      ],
+      "rules": [
+        { "when": "u <= 10", "text": "Consistent with a lipid-rich adenoma (10 HU or less unenhanced).", "tone": "good" },
+        { "when": "apw >= 60", "text": "Consistent with adenoma (absolute washout 60% or more).", "tone": "good" },
+        { "when": "rpw >= 40", "text": "Consistent with adenoma (relative washout 40% or more).", "tone": "good" },
+        { "when": "rpw < 40", "text": "Indeterminate: washout below adenoma thresholds (absolute under 60%, relative under 40%).", "tone": "warn" },
+        { "when": "u > 10 and d == missing", "text": "Indeterminate on unenhanced CT (over 10 HU): washout CT or chemical shift MRI can characterize it.", "tone": "warn" }
+      ],
+      "sentence": "Adrenal nodule[ measuring {u} HU unenhanced][, {e} HU portal venous][, {d} HU at 15 minutes].[ Absolute washout {apw}%.][ Relative washout {rpw}%.] {verdict}",
+      "builtin": true
+    },
+    {
+      "id": "adrenal-mri",
+      "name": "Adrenal MRI chemical shift",
+      "group": "Adrenal",
+      "icon": "calculate",
+      "about": "Signal intensity of the nodule (and the spleen, for the ratio) on in-phase and opposed-phase images, from regions of interest of the same size and place. The spleen is optional.",
+      "source": "Signal intensity index over 16.5% or adrenal-to-spleen ratio under 0.71 (Fujiyoshi et al., Radiology 2003). Published cutoffs vary by study and field strength (lower at 3 T): change them here if your practice uses others.",
+      "inputs": [
+        { "id": "aip", "label": "Adrenal, in-phase", "unit": "", "type": "number", "hint": "Signal intensity" },
+        { "id": "aop", "label": "Adrenal, opposed-phase", "unit": "", "type": "number", "hint": "Signal intensity" },
+        { "id": "sip", "label": "Spleen, in-phase", "unit": "", "type": "number", "hint": "Optional" },
+        { "id": "sop", "label": "Spleen, opposed-phase", "unit": "", "type": "number", "hint": "Optional" }
+      ],
+      "results": [
+        { "id": "sii", "label": "Signal intensity index", "unit": "%", "formula": "(aip - aop) / aip * 100", "decimals": 1 },
+        { "id": "asr", "label": "Adrenal-to-spleen ratio", "unit": "", "formula": "(aop / sop) / (aip / sip)", "decimals": 2 }
+      ],
+      "rules": [
+        { "when": "sii > 16.5 or asr < 0.71", "text": "Signal loss on opposed-phase images, consistent with a lipid-rich adenoma.", "tone": "good" },
+        { "when": "sii <= 16.5 and (asr >= 0.71 or asr == missing)", "text": "No significant signal loss on opposed-phase images: indeterminate.", "tone": "warn" }
+      ],
+      "sentence": "Adrenal nodule on chemical shift MRI:[ signal intensity index {sii}%][, adrenal-to-spleen ratio {asr}]. {verdict}",
+      "builtin": true
+    },
+    {
+      "id": "hcc-growth",
+      "name": "HCC threshold growth",
+      "group": "Liver",
+      "icon": "calculate",
+      "about": "LI-RADS threshold growth: the size (diameter) of a mass goes up by 50% or more in 6 months or less. Measure on the same phase or sequence both times. Also gives the volume doubling time and how long 50% growth takes at this rate.",
+      "source": "LI-RADS CT/MRI v2018: threshold growth is a size increase of 50% or more in 6 months or less (a major feature). An unequivocal increase that is not threshold growth is subthreshold growth, an ancillary feature favoring malignancy.",
+      "inputs": [
+        { "id": "s1", "label": "Earlier size", "unit": "mm", "type": "number", "hint": "Longest diameter" },
+        { "id": "t1", "label": "Earlier exam", "unit": "", "type": "date", "hint": "" },
+        { "id": "s2", "label": "Current size", "unit": "mm", "type": "number", "hint": "Same phase or sequence" },
+        { "id": "t2", "label": "Current exam", "unit": "", "type": "date", "hint": "" }
+      ],
+      "results": [
+        { "id": "g", "label": "Change in size", "unit": "%", "formula": "(s2 - s1) / s1 * 100", "decimals": 0 },
+        { "id": "days", "label": "Interval", "unit": "days", "formula": "t2 - t1", "decimals": 0, "hidden": true },
+        { "id": "mo", "label": "Interval", "unit": "months", "formula": "days / 30.44", "decimals": 1 },
+        { "id": "t50", "label": "Time to grow 50% at this rate", "unit": "days", "formula": "if(s2 > s1 and days > 0, days * ln(1.5) / ln(s2 / s1))", "decimals": 0 },
+        { "id": "vdt", "label": "Volume doubling time (sphere)", "unit": "days", "formula": "if(s2 > s1 and days > 0, days * ln(2) / (3 * ln(s2 / s1)))", "decimals": 0 }
+      ],
+      "rules": [
+        { "when": "days <= 0", "text": "Check the dates: the current exam must be after the earlier one.", "tone": "warn" },
+        { "when": "g >= 50 and days <= 183", "text": "Meets LI-RADS threshold growth (50% or more in 6 months or less).", "tone": "bad" },
+        { "when": "g >= 50", "text": "Grew 50% or more, but over more than 6 months: not LI-RADS threshold growth (subthreshold growth, an ancillary feature).", "tone": "warn" },
+        { "when": "g > 0", "text": "Not LI-RADS threshold growth (under 50%). An unequivocal increase is subthreshold growth, an ancillary feature.", "tone": "info" },
+        { "when": "g <= 0", "text": "No growth.", "tone": "good" }
+      ],
+      "sentence": "Observation measures {s2} mm[ on {t2}], previously {s1} mm[ on {t1}]:[ {g}% change in size][ over {mo} months]. {verdict}",
+      "builtin": true
+    }
+  ]
+}

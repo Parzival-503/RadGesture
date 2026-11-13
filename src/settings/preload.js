@@ -44,5 +44,13 @@ contextBridge.exposeInMainWorld('rgs', {
   setPaused: (p) => ipcRenderer.invoke('rgs:set-paused', p),
   setOnTop: (on) => ipcRenderer.invoke('rgs:on-top', on),
   runHelperAction: (id) => ipcRenderer.invoke('rgs:run-helper-action', id),
+  calcList: () => ipcRenderer.invoke('rgs:calc-list'),
+  calcSave: (def, before) => ipcRenderer.invoke('rgs:calc-save', def, before),
+  calcRemove: (id) => ipcRenderer.invoke('rgs:calc-remove', id),
+  calcReset: (id) => ipcRenderer.invoke('rgs:calc-reset', id),
+  calcMove: (id, by) => ipcRenderer.invoke('rgs:calc-move', id, by),
+  calcOpen: (id) => ipcRenderer.invoke('rgs:calc-open', id),
+  calcExport: (ids) => ipcRenderer.invoke('rgs:calc-export', ids),
+  calcImport: () => ipcRenderer.invoke('rgs:calc-import'),
   onTab: (cb) => ipcRenderer.on('rgs:tab', (_e, tab) => cb(tab)),
 });

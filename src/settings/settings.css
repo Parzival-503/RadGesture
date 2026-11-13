@@ -503,3 +503,26 @@ main.fresh > * { animation: rg-page 200ms ease-out both; }
 .reftree .dragging { opacity: .4; }
 .reftree .dropbefore { box-shadow: inset 0 2px 0 0 var(--accent); }
 .reftree .dropinto { background: color-mix(in srgb, var(--accent) 18%, transparent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 60%, transparent) inset; }
+
+/* Calculators: one row per input / result / rule, and a live try-out. */
+.calcrow { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+.calcrow input[type=text] { flex: 1 1 90px; min-width: 0; }
+.calcrow input.w0 { width: 56px; flex: 0 0 56px; }
+.calcrow input.w1 { flex: 0 1 80px; }
+.calcrow input.w2 { flex: 2 1 150px; }
+.calcrow input.w3 { flex: 3 1 220px; }
+.calcrow input.mono, #calcSentenceText { font-family: ui-monospace, Consolas, monospace; font-size: 12.5px; }
+#calcSentenceText { width: 100%; box-sizing: border-box; }
+.calctry { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px 12px; }
+.calctry label { display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; color: var(--ink-2); }
+.calctry input { color-scheme: dark; }
+.calcout { margin-top: 12px; display: grid; gap: 4px; }
+.calcout > div:not(.calcverdict) { display: flex; justify-content: space-between; max-width: 420px; color: var(--ink-2); }
+.calcout b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.calcverdict { margin-top: 6px; padding: 8px 10px; border-radius: 9px; border: 1px solid var(--line-hi); }
+.calcverdict.good { border-color: color-mix(in srgb, var(--good) 45%, transparent); }
+.calcverdict.warn { border-color: color-mix(in srgb, var(--warn) 45%, transparent); }
+.calcverdict.bad { border-color: color-mix(in srgb, var(--bad) 50%, transparent); }
+.calcsent { margin: 8px 0 0; color: var(--ink-2); line-height: 1.45; }
+.calcprobs > div { display: flex; gap: 6px; align-items: flex-start; color: var(--bad); font-size: 12.5px; margin-bottom: 4px; }
+.calcprobs .msym { font-size: 16px; }

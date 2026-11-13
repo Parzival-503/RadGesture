@@ -45,6 +45,8 @@ const icons = createIconStore({ dir: () => path.join(userDir(), 'icons'), native
 const { codeFor } = require('./library-code');
 const { createReferences } = require('./references');
 const refs = createReferences({ dir: () => path.join(userDir(), 'references') });
+const { createCalcStore } = require('./calc-store');
+const calcs = createCalcStore({ userDir, defaultsPath: path.join(ROOT, 'config', 'calculators.json') });
 const { createStyleStore } = require('./style-store');
 const { exportLibrary } = require('./ref-export');
 const RL = require('../common/reflib');
@@ -58,6 +60,8 @@ let overlayReady = false;
 let pendingOpen = null;
 let settingsWin = null;
 let viewerWin = null;
+let calcWin = null;
+let calcWant = ''; // the calculator to show when the window opens
 let readerWin = null;
 let proofWin = null;
 let proofData = null; // the proofread results on show: { seq, report, flags }
@@ -328,6 +332,7 @@ function hubCommand(id) {
   else if (id === 'open-folder') shell.openPath(userDir());
   else if (id === 'reload-menu') loadMenu();
   else if (id === 'ref-browse') openReference(null);
+  else if (id === 'calc' || id.startsWith('calc:')) openCalc(id.slice(5));
   else notify(`Unknown command "${id}"`);
 }
 
@@ -524,6 +529,45 @@ function openReference(id) {
   logEvent('ref-open', id || 'library');
 }
 
+// The calculator window, next to the pointer. It takes typing, and Windows
+// does not let a background program take the keyboard, so the helper (which
+// heard the shortcut) brings it to the front ("calc:focus") and remembers the
+// window that had the cursor, for Insert. Without the helper, it asks itself.
+function openCalc(id) {
+  calcWant = id || '';
+  const helperUp = supervisor && supervisor.status().connected;
+  const front = () => {
+    if (helperUp) {
+      calcWin.setAlwaysOnTop(true);
+      calcWin.showInactive();
+      calcWin.moveTop();
+      bridge.enqueue('calc:focus');
+    } else bringToTop(calcWin, true);
+  };
+  if (!calcWin || calcWin.isDestroyed()) {
+    const pt = screen.getCursorScreenPoint();
+    const area = screen.getDisplayNearestPoint(pt).workArea;
+    const w = Math.min(470, area.width - 20), h = Math.min(660, area.height - 20);
+    calcWin = new BrowserWindow({
+      width: w, height: h,
+      x: Math.round(Math.min(Math.max(area.x + 10, pt.x - w / 2), area.x + area.width - w - 10)),
+      y: Math.round(Math.min(Math.max(area.y + 10, pt.y - 120), area.y + area.height - h - 10)),
+      show: false, frame: false, resizable: true, minWidth: 380, minHeight: 360, alwaysOnTop: true, skipTaskbar: false,
+      title: 'RadGesture calculator', backgroundColor: '#111318', icon: path.join(ROOT, 'assets', 'icon.png'),
+      webPreferences: { preload: path.join(__dirname, '..', 'calc', 'preload.js'), contextIsolation: true, sandbox: false },
+    });
+    calcWin.on('page-title-updated', (e) => e.preventDefault());
+    calcWin.on('closed', () => (calcWin = null));
+    calcWin.once('ready-to-show', front);
+    calcWin.loadFile(path.join(__dirname, '..', 'calc', 'index.html'));
+  } else {
+    calcWin.webContents.send('rgc:show', calcPayload());
+    front();
+  }
+  logEvent('calc-open', calcWant || 'last');
+}
+const calcPayload = () => ({ calcs: calcs.list(), theme: menu && menu.theme, id: calcWant });
+
 // The Reference Library window finds, opens, edits and adds notes itself,
 // without going through Settings. What it changes on the ring (a new note put
 // in a section, a note's direction renamed with its title) is saved at once,
@@ -701,6 +745,24 @@ function registerViewerIpc() {
     return { id: r.id, section: placed };
   });
   ipcMain.handle('rgv:close', () => { if (viewerWin && !viewerWin.isDestroyed()) viewerWin.close(); });
+
+  // The calculator window. Insert: the sentence goes on the clipboard, the
+  // window steps aside, and the helper pastes it into the window that had the
+  // cursor ("calc:paste"). Without the helper it stays on the clipboard.
+  ipcMain.handle('rgc:get', () => calcPayload());
+  ipcMain.handle('rgc:insert', (_e, text) => {
+    const t = String(text || '').slice(0, 4000);
+    if (!t) return false;
+    clipboard.writeText(t);
+    if (calcWin && !calcWin.isDestroyed()) calcWin.hide();
+    if (supervisor.status().connected) bridge.enqueue('calc:paste');
+    else notify('Copied. Click in the report and press Ctrl+V.');
+    logEvent('calc-insert', '');
+    return true;
+  });
+  ipcMain.handle('rgc:copy', (_e, text) => { clipboard.writeText(String(text || '').slice(0, 4000)); return true; });
+  ipcMain.handle('rgc:edit', (_e, id) => { openSettings('calculators' + (id ? ':' + id : '')); });
+  ipcMain.handle('rgc:close', () => { if (calcWin && !calcWin.isDestroyed()) calcWin.hide(); });
 }
 
 // Windows keeps a program that is not in front from putting its window
@@ -1000,6 +1062,41 @@ function registerSettingsIpc() {
     const r = await dialog.showOpenDialog(settingsWin, { properties: [kind === 'folder' ? 'openDirectory' : 'openFile'] });
     return r.canceled ? '' : r.filePaths[0];
   });
+  // Calculators (Settings > Calculators): saved at once, like notes. A
+  // shared file (.rgcalc) holds their data only and never runs anything.
+  const calcChanged = () => { if (calcWin && !calcWin.isDestroyed()) calcWin.webContents.send('rgc:show', calcPayload()); };
+  ipcMain.handle('rgs:calc-list', () => ({ list: calcs.list(), removed: calcs.removed(), shipped: calcs.defaults().map((c) => c.id) }));
+  ipcMain.handle('rgs:calc-save', (_e, def, before) => { const r = calcs.save(def, { before }); if (r.ok) { logEvent('calc-saved', r.calc.id); calcChanged(); } return r; });
+  ipcMain.handle('rgs:calc-remove', (_e, id) => { const ok = calcs.remove(id); calcChanged(); return ok; });
+  ipcMain.handle('rgs:calc-reset', (_e, id) => { const ok = calcs.reset(id); calcChanged(); return ok; });
+  ipcMain.handle('rgs:calc-move', (_e, id, by) => { const ok = calcs.move(id, by); calcChanged(); return ok; });
+  ipcMain.handle('rgs:calc-open', (_e, id) => { openCalc(id || ''); return true; });
+  ipcMain.handle('rgs:calc-export', async (_e, ids) => {
+    const r = await dialog.showSaveDialog(settingsWin, {
+      title: 'Save calculators to share',
+      defaultPath: path.join(app.getPath('documents'), 'RadGesture calculators.rgcalc'),
+      filters: [{ name: 'RadGesture calculators', extensions: ['rgcalc'] }],
+    });
+    if (r.canceled || !r.filePath) return { ok: false, canceled: true };
+    fs.writeFileSync(r.filePath, calcs.exportText(ids || null));
+    logEvent('calc-exported', path.basename(r.filePath));
+    return { ok: true, file: r.filePath };
+  });
+  ipcMain.handle('rgs:calc-import', async () => {
+    const r = await dialog.showOpenDialog(settingsWin, {
+      title: 'Import calculators',
+      filters: [{ name: 'RadGesture calculators', extensions: ['rgcalc', 'json'] }],
+      properties: ['openFile'],
+    });
+    if (r.canceled || !r.filePaths[0]) return { ok: false, canceled: true };
+    let text = '';
+    try { text = fs.readFileSync(r.filePaths[0], 'utf8'); } catch (e) { return { ok: false, error: 'Could not read that file: ' + e.message }; }
+    const out = calcs.importText(text);
+    calcChanged();
+    logEvent('calc-imported', `${out.added.length} from ${path.basename(r.filePaths[0])}`);
+    return { ok: true, ...out };
+  });
+
   // Shortcut sets: a small file a colleague can import (Settings > Shortcuts).
   // kind 'functions': the same file format, holding only My functions.
   ipcMain.handle('rgs:export-keys', async (_e, set, kind) => {

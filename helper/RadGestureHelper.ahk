@@ -137,6 +137,7 @@ global g_ToastHub        := false ; the hub shows a toast now
 global g_CardUntil       := 0     ; a hub card or picker may be open until this tick
 global g_ChartAskHub     := false ; the hub card asks "empty the chart text?"
 global g_PickerHub       := false ; the hub's one-liner picker is open
+global g_CalcPrev        := 0     ; the window that had the cursor when the calculator opened
 global g_SavedClip       := ""
 global g_PendingText     := ""
 global g_DirectFlavor    := ""    ; set by the ring: skip the flavor picker
@@ -3213,6 +3214,7 @@ PickerHub() {
         return false
     g_PickerHub := true
     HubCardShown()
+    HubActivatePanel("RadGesture One-liner")
     return true
 }
 
@@ -3371,6 +3373,48 @@ KillToast() {
 ; The hub draws the helper's small windows (src/panel/): a toast, the
 ; toolbar, result cards and the one-liner picker. True when it showed it;
 ; false sends the caller to its own old-style window.
+; A hub box that takes typing (the password, the one-liner picker) has to
+; own the keyboard. Windows does not let a program in the background take it,
+; so the hub's own focus left the keys going to the window behind the box.
+; The helper, which received the shortcut, may: it brings the box to the front.
+HubActivatePanel(title) {
+    oldMode := A_TitleMatchMode
+    SetTitleMatchMode, 3
+    WinWait, %title% ahk_class Chrome_WidgetWin_1, , 3
+    if !ErrorLevel {
+        WinActivate
+        WinWaitActive, %title% ahk_class Chrome_WidgetWin_1, , 1
+    }
+    SetTitleMatchMode, %oldMode%
+}
+
+CalcFocus() {
+    global g_CalcPrev
+    oldMode := A_TitleMatchMode
+    SetTitleMatchMode, 3
+    if !WinActive("RadGesture calculator ahk_class Chrome_WidgetWin_1")
+        g_CalcPrev := WinExist("A")
+    SetTitleMatchMode, %oldMode%
+    HubActivatePanel("RadGesture calculator")
+}
+
+; Paste the calculator's sentence (already on the clipboard) where the cursor
+; was when the calculator opened. It stays on the clipboard either way.
+CalcPaste() {
+    global g_CalcPrev
+    if (g_CalcPrev && WinExist("ahk_id " . g_CalcPrev)) {
+        WinActivate, ahk_id %g_CalcPrev%
+        WinWaitActive, ahk_id %g_CalcPrev%, , 1
+    }
+    Sleep, 120
+    if (!g_CalcPrev || !WinActive("ahk_id " . g_CalcPrev) || WinActive("ahk_class ConsoleWindowClass")) {
+        Toast("Copied. Click in the report and press Ctrl+V.", "info", 3500)
+        return
+    }
+    Send, ^v
+    Toast(Chr(0x2713) . " Inserted", "ok")
+}
+
 HubUi(json) {
     global g_UiHub
     g_UiHub := (HubRequest("POST", "/ui", 1500, json) = "ok")
@@ -4080,6 +4124,22 @@ RunHubAction(a) {
         OpenAiSettings()
     } else if (a = "history") {
         ShowHistoryViewer()
+    } else if (a = "calc:focus") {
+        ; The calculator window takes typing: remember where the cursor was
+        ; (Insert pastes there), then hand the calculator the keyboard.
+        CalcFocus()
+    } else if (a = "calc:paste") {
+        ; The hub put the calculator's sentence on the clipboard.
+        CalcPaste()
+    } else if (a = "pw:demo") {
+        ; The password box on its own (the Windows end-to-end test types into
+        ; it). Only whether it answered and how many characters came back are
+        ; reported; the text itself is dropped at once.
+        got := ""
+        r := HubAskPassword(got)
+        n := StrLen(got)
+        got := ""
+        try HubRequest("POST", "/done?action=pw:demo:" . r . ":" . n, 400)
     } else if (a = "proof:demo") {
         ; An invented report and findings, shown the way a real proofread
         ; is (the Windows end-to-end test uses it). No AI call.
@@ -4617,6 +4677,7 @@ HubAskPassword(ByRef pass) {
     pass := ""
     if !HubUi("{""t"":""secret"",""title"":""Password"",""sub"":""RadGesture types it in to sign you in.""}")
         return "nohub"
+    HubActivatePanel("RadGesture password")
     start := A_TickCount
     while (A_TickCount - start < 180000) {
         r := HubRequest("GET", "/secret", 1500)

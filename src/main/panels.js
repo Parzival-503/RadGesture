@@ -103,6 +103,8 @@ function createPanels({ BrowserWindow, screen, ipcMain, clipboard, userDir, them
       webPreferences: { preload: PRELOAD, contextIsolation: true, sandbox: false },
     });
     if (m === 'toast') win.setIgnoreMouseEvents(true);
+    // The helper finds the boxes that take typing by these titles.
+    if (keys(m)) win.on('page-title-updated', (e) => e.preventDefault());
     win.on('closed', () => { if (wins[m] === win) delete wins[m]; });
     if (m === 'secret') win.on('hide', () => { if (secret.state === 'wait') secret = { state: 'cancel' }; });
     win.loadFile(PAGE, { query: { mode: m } });

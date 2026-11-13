@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:">
+  <title>RadGesture calculator</title>
+  <link rel="stylesheet" href="../settings/settings.css">
+  <link rel="stylesheet" href="calc.css">
+</head>
+<body class="calcwin">
+  <header class="cbar">
+    <span class="msym">calculate</span>
+    <h1 id="title">Calculator</h1>
+    <span class="grow"></span>
+    <button class="iconbtn" id="edit" title="Change this calculator or add your own (Settings)" aria-label="Edit calculators"><span class="msym">tune</span></button>
+    <button class="iconbtn" id="close" title="Close (Esc)" aria-label="Close"><span class="msym">close</span></button>
+  </header>
+  <nav class="cpick" id="pick" role="tablist" aria-label="Calculators"></nav>
+  <main id="page"></main>
+  <script src="../common/themes.js"></script>
+  <script src="../common/calc.js"></script>
+  <script src="calc.js"></script>
+</body>
+</html>

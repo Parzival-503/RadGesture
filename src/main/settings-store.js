@@ -577,7 +577,7 @@ function migrate(m, lib) {
     changed = true;
   }
   if (!done.includes('library-tools')) {
-    // The Reference Library ring's own tools (the owner, 2026-11-06): "Find
+    // The Reference Library ring's own tools: "Find
     // in library" (the library window: find, read, edit, new note) on the
     // ring itself, where people see it, in the place "My documents" leaves,
     // so no section moves. Gone: the My documents folder button and a "My
@@ -605,8 +605,8 @@ function migrate(m, lib) {
   }
   if (!done.includes('ai-toolbar')) {
     // The toolbar (prior checklist, chart text, Proofread, Impression,
-    // One-liner) is a main button on the AI Tools ring (the owner,
-    // 2026-11-06: "not as a side thing"); it shows the toolbar or hides it.
+    // One-liner) is a main button on the AI Tools ring; it shows the toolbar
+    // or hides it.
     // The "Show toolbar" buttons inside Prior checklist and One-liner go.
     const ai = m.categories.find((c) => c.id === 'ai');
     if (ai) {
@@ -627,7 +627,7 @@ function migrate(m, lib) {
     changed = true;
   }
   if (!done.includes('no-clipboard-add')) {
-    // "Add from clipboard" is gone from the rings (the owner, 2026-11-06);
+    // "Add from clipboard" is gone from the rings;
     // Settings > Reference Library > Paste still adds a copied screenshot or
     // text. A smaller ring left empty goes with it.
     const strip = (items) => (items || []).filter((it) => {
@@ -642,7 +642,7 @@ function migrate(m, lib) {
   if (!done.includes('organ-emoji') || !done.includes('organ-same-style')) {
     // Every window / level preset in one icon style, the outlined organ
     // symbols: Soft tissue a stomach, Lung lungs, Bone a bone, Brain and
-    // Stroke a brain (the owner, 2026-11-06). Saved rings showed a contrast
+    // Stroke a brain. Saved rings could show a contrast
     // half-circle on Bone / Brain / Stroke, then for one build colour emoji,
     // which did not match Lung and Soft tissue. Whatever icon they had,
     // except a picture the person added.
@@ -658,6 +658,23 @@ function migrate(m, lib) {
     m.categories.forEach((c) => walk(c.items));
     if (!done.includes('organ-emoji')) done.push('organ-emoji');
     done.push('organ-same-style');
+    changed = true;
+  }
+  if (!done.includes('calculators')) {
+    // Calculators (adrenal CT and MRI, HCC growth, your own) sit in the Apps
+    // ring, not in the row of rings: they are used now and then. Added
+    // once, where there is room.
+    const apps = m.categories.find((c) => c.id === 'apps') || m.categories.find((c) => /^apps$/i.test(String(c.name || '').trim()));
+    const has = (items) => (items || []).some((it) => /^hub:calc(:|$)/.test(it.action || '') || (Array.isArray(it.items) && has(it.items)));
+    if (apps && !has(apps.items) && (apps.items || []).length < M_MAX) {
+      apps.items.push({ name: 'Calculators', icon: 'calculate', items: [
+        { name: 'Adrenal CT', icon: 'nephrology', action: 'hub:calc:adrenal-ct' },
+        { name: 'Adrenal MRI', icon: 'nephrology', action: 'hub:calc:adrenal-mri' },
+        { name: 'HCC growth', icon: 'trending_up', action: 'hub:calc:hcc-growth' },
+        { name: 'All calculators', icon: 'calculate', action: 'hub:calc' },
+      ] });
+    }
+    done.push('calculators');
     changed = true;
   }
   if (changed) m.migrated = done;

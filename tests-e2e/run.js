@@ -609,6 +609,89 @@ async function waitFor(fn, ms, step = 200) {
       await sleep(400);
     } else check('Browse library opens the library window', false);
 
+    // ---------------- calculators
+    // The shipped rings carry Apps > Calculators; a calculator opens from the
+    // ring, computes as you type, and Insert puts the sentence on the
+    // clipboard for the helper to paste.
+    {
+      const mjc = JSON.parse(fs.readFileSync(path.join(userData, 'menu.json'), 'utf8'));
+      const appsRing = mjc.categories.find((c) => c.id === 'apps');
+      const calcSub = appsRing && appsRing.items.find((x) => x.name === 'Calculators');
+      check('Apps > Calculators holds Adrenal CT, Adrenal MRI, HCC growth', !!calcSub && calcSub.items.map((x) => x.action).join(',') === 'hub:calc:adrenal-ct,hub:calc:adrenal-mri,hub:calc:hcc-growth,hub:calc', calcSub ? calcSub.items.map((x) => x.name).join(' | ') : 'none');
+      await rg((r) => r.runAction('hub:calc:adrenal-ct'));
+      const cw = await waitFor(async () => app.windows().find((w) => w.url().includes('/calc/')), 8000);
+      if (cw) {
+        await cw.waitForSelector('#in-u', { timeout: 5000 }).catch(() => {});
+        await cw.fill('#in-u', '18');
+        await cw.fill('#in-e', '85');
+        await cw.fill('#in-d', '32');
+        const vals = await cw.$$eval('.cres .v', (e) => e.map((x) => x.textContent));
+        const sentence = await cw.inputValue('#sentence');
+        const verdict = await cw.textContent('#verdictBox span:last-child').catch(() => '');
+        await cw.screenshot({ path: path.join(SHOTS, 'calculator-adrenal-ct.png') }).catch(() => {});
+        check('Adrenal CT: washout as you type, with the verdict and the sentence', vals.join('|') === '79%|62%' && /absolute washout 60% or more/.test(verdict) && /^Adrenal nodule measuring 18 HU unenhanced, 85 HU portal venous, 32 HU at 15 minutes\. Absolute washout 79%\./.test(sentence), `${vals.join('|')} :: ${verdict} :: ${sentence}`);
+        // The HCC calculator, with dates.
+        await cw.click('.cchip[data-id="hcc-growth"]');
+        await cw.fill('#in-s1', '20');
+        await cw.fill('#in-t1', '2026-01-10');
+        await cw.fill('#in-s2', '31');
+        await cw.fill('#in-t2', '2026-05-01');
+        const hv = await cw.textContent('#verdictBox span:last-child').catch(() => '');
+        await cw.screenshot({ path: path.join(SHOTS, 'calculator-hcc.png') }).catch(() => {});
+        check('HCC growth: 55% in 3.6 months meets LI-RADS threshold growth', /^Meets LI-RADS threshold growth/.test(hv), hv);
+        await app.evaluate(({ clipboard }) => clipboard.writeText('before'));
+        await cw.click('#insert');
+        await sleep(400);
+        const clip = await app.evaluate(({ clipboard }) => clipboard.readText());
+        check('Insert puts the sentence on the clipboard for the report and steps aside', /^Observation measures 31 mm on 5\/1\/2026, previously 20 mm on 1\/10\/2026: 55% change in size over 3\.6 months\. Meets LI-RADS/.test(clip) && !(await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().some((w) => w.getTitle() === 'RadGesture calculator' && w.isVisible()))), clip);
+      } else check('a calculator opens from the ring', false);
+
+      // Settings > Calculators: change a shipped one, add your own, put it on the ring.
+      await win.click('#nav button[data-tab="calculators"]');
+      await win.waitForSelector('#calcList', { timeout: 5000 }).catch(() => {});
+      await win.screenshot({ path: path.join(SHOTS, 'settings-calculators.png') });
+      const names = await win.$$eval('#calcList .row .lbl b', (e) => e.map((x) => x.textContent));
+      check('Settings lists the calculators', names.join('|') === 'Adrenal CT washout|Adrenal MRI chemical shift|HCC threshold growth', names.join('|'));
+      await win.click('button[data-calc="adrenal-mri"]');
+      await win.waitForSelector('#calcEditor', { timeout: 4000 }).catch(() => {});
+      const ruleTest = win.locator('#calcRules .calcrow input[aria-label="Test"]').first();
+      await ruleTest.fill('sii > 20 or asr < 0.71');
+      await win.screenshot({ path: path.join(SHOTS, 'settings-calculator-edit.png'), fullPage: true });
+      await win.click('#calcSave');
+      await sleep(500);
+      const cj = JSON.parse(fs.readFileSync(path.join(userData, 'calculators.json'), 'utf8'));
+      const mri = cj.list.find((c) => c.id === 'adrenal-mri');
+      check('a changed shipped calculator is saved as yours', !!mri && mri.edited && mri.rules[0].when === 'sii > 20 or asr < 0.71', mri ? mri.rules[0].when : 'none');
+      await win.click('#calcNew');
+      await win.waitForSelector('#calcName', { timeout: 4000 }).catch(() => {});
+      await win.fill('#calcName', 'Ratio check');
+      const probs0 = await win.textContent('#calcProblems');
+      const tries = win.locator('#calcTry input');
+      await tries.nth(0).fill('6');
+      await tries.nth(1).fill('4');
+      const tryOut = await win.textContent('#calcTryOut');
+      check('a new calculator works in the editor before it is saved', !probs0 && /1\.5/.test(tryOut) && /1 or more/.test(tryOut), `${probs0} :: ${tryOut}`);
+      await win.click('#calcSave');
+      await sleep(500);
+      const names2 = await win.$$eval('#calcList .row .lbl b', (e) => e.map((x) => x.textContent));
+      check('your own calculator is added', names2.includes('Ratio check'), names2.join('|'));
+      await win.click('#calcList .row:has-text("Ratio check") button.switch');
+      await win.click('#saveAll');
+      await sleep(600);
+      const mj2 = JSON.parse(fs.readFileSync(path.join(userData, 'menu.json'), 'utf8'));
+      const sub2 = mj2.categories.find((c) => c.id === 'apps').items.find((x) => x.name === 'Calculators');
+      check('"On the ring" puts it in Apps > Calculators', !!sub2 && sub2.items.some((x) => x.action === 'hub:calc:ratio-check'), sub2 ? sub2.items.map((x) => x.action).join(', ') : 'none');
+      // Share: export to a file, import it back as a copy.
+      const calcFile = path.join(userData, 'shared.rgcalc');
+      await app.evaluate(({ dialog }, f) => { dialog.showSaveDialog = async () => ({ canceled: false, filePath: f }); dialog.showOpenDialog = async () => ({ canceled: false, filePaths: [f] }); }, calcFile);
+      await win.click('#calcExport');
+      await sleep(400);
+      await win.click('#calcImport');
+      await sleep(500);
+      const names3 = await win.$$eval('#calcList .row .lbl b', (e) => e.map((x) => x.textContent));
+      check('export and import a calculator file', fs.existsSync(calcFile) && names3.filter((n) => n === 'Ratio check').length === 2, names3.join('|'));
+    }
+
     // Proofread: the helper hands its results to the hub's window. Findings
     // come in a different order than they sit in the report, and one is not
     // in the text: every click must still land on its own mark.
@@ -1103,6 +1186,34 @@ async function waitFor(fn, ms, step = 200) {
         spawnSync(process.env.AHK_EXE, [fakeSectra], { timeout: 30000 });
         const gotKey = fs.existsSync(keyOut) ? fs.readFileSync(keyOut, 'utf8') : 'nothing';
         check('a Sectra function from a held Ctrl+Alt+M presses plain Alt+M in the image window (Insert measurement)', /^alt\+m\|/.test(gotKey), gotKey);
+        try { execFileSync('taskkill', ['/F', '/IM', 'notepad.exe'], { timeout: 15000 }); } catch (_) {}
+
+        // The password box must take the keyboard: Notepad is in front, the
+        // box opens, a person types. The keys have to land in the box (the
+        // helper hands it the keyboard), not in Notepad behind it.
+        const pwOut = path.join(userData, 'pw-notepad.txt');
+        try { fs.unlinkSync(pwOut); } catch (_) {}
+        const pwAhk = path.join(userData, 'type-password.ahk');
+        fs.writeFileSync(pwAhk, [
+          '#NoTrayIcon', 'SetTitleMatchMode, 3',
+          'Run, notepad.exe', 'WinWait, ahk_exe notepad.exe, , 8', 'WinActivate', 'WinWaitActive, ahk_exe notepad.exe, , 5',
+          'FileAppend, ready, ' + pwOut + '.ready',
+          'WinWait, RadGesture password, , 12', 'Sleep, 1500',
+          'WinGetTitle, active, A',
+          'SendInput, Pw123x', 'Sleep, 200', 'SendInput, {Enter}', 'Sleep, 800',
+          'ControlGetText, t, Edit1, ahk_exe notepad.exe',
+          'FileAppend, active=%active%|notepad=%t%, ' + pwOut,
+          'ExitApp', ''].join('\r\n'));
+        const { spawn } = require('child_process');
+        const typer = spawn(process.env.AHK_EXE, [pwAhk], { stdio: 'ignore' });
+        await waitFor(async () => fs.existsSync(pwOut + '.ready'), 12000);
+        await sleep(500);
+        await runVia('pw:demo');
+        const pwDone = await waitFor(async () => (await ev()).find((e) => /^done pw:demo:/.test(e)), 25000);
+        await waitFor(async () => fs.existsSync(pwOut), 8000);
+        try { typer.kill(); } catch (_) {}
+        const pwSeen = fs.existsSync(pwOut) ? fs.readFileSync(pwOut, 'utf8') : 'nothing';
+        check('the password box takes the keyboard: typing goes into it, not the window behind', pwDone === 'done pw:demo:ok:6' && /active=RadGesture password\|notepad=$/.test(pwSeen), `${pwDone} :: ${pwSeen}`);
         try { execFileSync('taskkill', ['/F', '/IM', 'notepad.exe'], { timeout: 15000 }); } catch (_) {}
 
         // The one-liner's chart bin and the prior checklist, on the hub's

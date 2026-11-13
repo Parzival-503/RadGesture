@@ -37,6 +37,12 @@ checked against the source in this repository; the file that does it is named.
   RadGesture closes (`LibPassword()` / `HubAskPassword()` in the helper,
   `src/main/panels.js`). No username,
   password or work link is in this repository (`test/library.test.js`).
+- **Calculators** (Apps > Calculators) compute from the numbers the user
+  types; nothing typed is stored. Insert puts the sentence on the clipboard
+  and pastes it into the window that had the cursor. A calculator is data
+  (inputs, formulas, rules, a sentence); its formulas can only do arithmetic
+  (`src/common/calc.js`), so a calculator file shared by a colleague
+  (`.rgcalc`) cannot run anything.
 - **Settings > Status** lists running programs (a PowerShell
   `Get-CimInstance Win32_Process` query, `src/main/conflicts.js`) to find
   older tools that claim the same keys, and closes them only when the user
@@ -62,6 +68,7 @@ All in `%APPDATA%\RadGesture`:
 | `RadProofread_history.jsonl` | Each proofread of the **last 7 days**: the report text and the findings, so recent results can be reviewed. Older sessions are deleted (at start-up, every hour, and whenever the history is written or opened; `PruneHistory()` in the helper) |
 | `RadProofread_lastrequest.txt`, `..._lastresponse.txt` | The most recent AI request and answer, for troubleshooting. Deleted once 7 days old |
 | `references\`, `icons\`, `functions\` | The user's own notes, pictures, icons and My functions |
+| `calculators.json` | The user's calculators (changed or added ones); no values typed into them |
 | `bridge.ini` | Port and random token of the local connection below |
 
 The two result pages the helper draws in `%TEMP%` (`rad_proofread.html`,

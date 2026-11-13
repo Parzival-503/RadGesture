@@ -140,6 +140,8 @@
     if (a.kind === 'search') return 'search copied text';
     if (a.kind === 'ref') { const r = refById(a.value); return r ? 'reference: ' + r.title : (refsList ? 'reference (deleted)' : 'reference'); }
     if (a.kind === 'hub' && a.value === 'ref-browse') return 'opens the Reference Library window: find, read, edit, new note';
+    if (a.kind === 'hub' && a.value === 'calc') return 'opens the calculators';
+    if (a.kind === 'hub' && /^calc:/.test(a.value)) return 'opens a calculator';
     if (a.kind === 'file') return a.value.split(/[\\/]/).pop() || a.value;
     if (a.kind === 'app') return 'opens ' + (a.value.split(/[\\/]/).pop() || a.value) + (it.startWithHub ? ' (starts with RadGesture)' : '');
     return a.value;
@@ -168,6 +170,10 @@
     // "references:<id>" opens the Reference Library on that entry.
     const m = /^references:(r[a-z0-9]+)$/.exec(t || '');
     if (m) { t = 'references'; ui.refSel = 'ref:' + m[1]; refsList = null; ui.refQuery = ''; }
+    // "calculators:<id>" opens that calculator for editing.
+    const mc = /^calculators:([a-z0-9-]+)$/.exec(t || '');
+    if (mc) { t = 'calculators'; ui.calcOpenId = mc[1]; calcData = null; ui.calcEdit = null; }
+    else if (t === 'calculators') { calcData = null; }
     ui.tab = t;
     document.querySelectorAll('#nav button').forEach((b) => b.classList.toggle('on', b.dataset.tab === t));
     render();
@@ -270,7 +276,7 @@
     // Fade in only when the page changes, not on every re-render while editing.
     $main.classList.toggle('fresh', ui.tab !== lastTab);
     lastTab = ui.tab;
-    const page = { rings: renderRings, ai: renderAI, shortcuts: renderShortcuts, functions: renderLibrary, workflow: renderWorkflow, references: renderReferences, general: renderGeneral, status: renderStatus }[ui.tab] || renderRings;
+    const page = { rings: renderRings, ai: renderAI, shortcuts: renderShortcuts, functions: renderLibrary, workflow: renderWorkflow, references: renderReferences, calculators: renderCalculators, general: renderGeneral, status: renderStatus }[ui.tab] || renderRings;
     page();
     if (kept) {
       $main.querySelectorAll('[data-keep-scroll]').forEach((el) => { const y = kept.lists[el.dataset.keepScroll]; if (y !== undefined) el.scrollTop = y; });
@@ -2311,6 +2317,208 @@
   }
 
   // ---------------------------------------------------------------- General
+
+  // ---------------------------------------------------------------- Calculators
+  // Each calculator turns a few numbers into results, a verdict and a report
+  // sentence (src/common/calc.js). Shipped ones can be changed (Reset puts
+  // them back), and anyone can add their own or import a colleague's. Saved
+  // at once, like notes; putting one on the ring is a ring change (Save).
+  let calcData = null; // { list, removed, shipped }
+  async function loadCalcs() { calcData = await api.calcList(); }
+  const calcRingAction = (id) => 'hub:calc:' + id;
+  function calcOnRing(id) {
+    let found = false;
+    const walk = (items) => (items || []).forEach((it) => { if (it.action === calcRingAction(id)) found = true; if (Array.isArray(it.items)) walk(it.items); });
+    menuDraft.categories.forEach((c) => walk(c.items));
+    return found;
+  }
+  // Apps > Calculators holds them (made when first needed).
+  function calcRing(make) {
+    const apps = menuDraft.categories.find((c) => c.id === 'apps') || menuDraft.categories.find((c) => /^apps$/i.test(String(c.name || '').trim()));
+    if (!apps) return null;
+    let sub = (apps.items || []).find((it) => Array.isArray(it.items) && it.items.some((x) => /^hub:calc(:|$)/.test(x.action || '')))
+      || (apps.items || []).find((it) => Array.isArray(it.items) && /^calculators$/i.test(String(it.name || '').trim()));
+    if (!sub && make) {
+      if ((apps.items || []).length >= 8) return null;
+      sub = { name: 'Calculators', icon: 'calculate', items: [] };
+      apps.items.push(sub);
+    }
+    return sub || null;
+  }
+  function setCalcOnRing(c, on) {
+    if (on) {
+      const sub = calcRing(true);
+      if (!sub) return toast('The Apps ring is full. Make room there first (Rings).');
+      if (sub.items.length >= 8) return toast('Apps > Calculators is full (8). Take one off first.');
+      const at = sub.items.findIndex((x) => x.action === 'hub:calc');
+      sub.items.splice(at >= 0 ? at : sub.items.length, 0, { name: c.name.slice(0, 24), icon: c.icon || 'calculate', action: calcRingAction(c.id) });
+    } else {
+      const strip = (items) => (items || []).filter((it) => { if (Array.isArray(it.items)) it.items = strip(it.items); return it.action !== calcRingAction(c.id); });
+      menuDraft.categories.forEach((cat) => { cat.items = strip(cat.items); });
+    }
+    markDirty('menu');
+    render();
+  }
+
+  const blankCalc = () => ({ id: '', name: 'New calculator', group: '', icon: 'calculate', about: '', source: '',
+    inputs: [{ id: 'a', label: 'First value', unit: '', type: 'number', hint: '' }, { id: 'b', label: 'Second value', unit: '', type: 'number', hint: '' }],
+    results: [{ id: 'r', label: 'Result', unit: '', formula: 'a / b', decimals: 1 }],
+    rules: [{ when: 'r >= 1', text: 'The result is 1 or more.', tone: 'info' }],
+    sentence: 'Result {r}. {verdict}' });
+  const shortName = (label, taken) => {
+    let b = String(label || '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '').replace(/^(\d)/, 'v$1').slice(0, 20) || 'v';
+    if (/^(and|or|not|verdict|min|max|abs|sqrt|ln|log|exp|round|floor|ceil|if)$/.test(b)) b += '_v';
+    let id = b, n = 2;
+    while (taken.includes(id)) id = `${b}${n++}`;
+    return id;
+  };
+
+  function renderCalculators() {
+    $main.append(h('h1', {}, 'Calculators'),
+      h('p', { class: 'lede' }, 'A few numbers in, the result and a sentence for the report out. On the ring under Apps > Calculators. Change any of them, or add your own.'));
+    if (!calcData) { loadCalcs().then(() => { if (ui.tab === 'calculators') render(); }); $main.append(h('p', { class: 'hint' }, 'Loading...')); return; }
+    if (ui.calcOpenId) {
+      const c = calcData.list.find((x) => x.id === ui.calcOpenId);
+      ui.calcOpenId = null;
+      if (c) ui.calcEdit = { def: clone(c), before: c.id, tryRaw: {} };
+    }
+    if (ui.calcEdit) return renderCalcEditor();
+
+    const top = h('div', { class: 'addrow', id: 'calcTop' },
+      h('button', { class: 'btn primary small', id: 'calcNew', onclick: () => { ui.calcEdit = { def: blankCalc(), before: null, tryRaw: {} }; render(); } }, msym('add'), 'New calculator'),
+      h('button', { class: 'btn small', id: 'calcImport', onclick: async () => {
+        const r = await api.calcImport();
+        if (!r.ok) { if (!r.canceled) toast(r.error); return; }
+        await loadCalcs();
+        toast(r.added.length ? `Added ${r.added.join(', ')}.` + (r.problems.length ? ' Skipped: ' + r.problems.join('; ') : '') : 'Nothing added. ' + r.problems.join('; '));
+        render();
+      } }, msym('download'), 'Import...'),
+      h('button', { class: 'btn small', id: 'calcExport', onclick: async () => { const r = await api.calcExport(null); if (r.ok) toast('Saved: ' + r.file); else if (!r.canceled) toast(r.error); } }, msym('upload'), 'Export all...'),
+      h('button', { class: 'btn ghost small', id: 'calcOpen', onclick: () => api.calcOpen('') }, msym('open_in_new'), 'Open the calculator'));
+    $main.append(h('div', { class: 'card' }, top));
+
+    const list = h('div', { class: 'card', id: 'calcList' });
+    calcData.list.forEach((c, i) => {
+      const tag = !c.builtin ? 'Mine' : c.edited ? 'Changed' : 'Shipped';
+      const on = calcOnRing(c.id);
+      list.append(row(c.name, `${c.group ? c.group + '  ·  ' : ''}${tag}  ·  ${c.inputs.length} input${c.inputs.length === 1 ? '' : 's'}, ${c.results.filter((r) => !r.hidden).length} result${c.results.length === 1 ? '' : 's'}`,
+        h('span', { class: 'hint' }, 'On the ring'),
+        sw(on, (v) => setCalcOnRing(c, v), 'Put ' + c.name + ' on the ring'),
+        h('button', { class: 'iconbtn', title: 'Move up', 'aria-label': 'Move up', disabled: i === 0, onclick: async () => { await api.calcMove(c.id, -1); await loadCalcs(); render(); } }, msym('arrow_upward')),
+        h('button', { class: 'iconbtn', title: 'Move down', 'aria-label': 'Move down', disabled: i === calcData.list.length - 1, onclick: async () => { await api.calcMove(c.id, 1); await loadCalcs(); render(); } }, msym('arrow_downward')),
+        h('button', { class: 'btn ghost small', onclick: () => api.calcOpen(c.id) }, msym('play_arrow'), 'Try it'),
+        h('button', { class: 'btn small', 'data-calc': c.id, onclick: () => { ui.calcEdit = { def: clone(c), before: c.id, tryRaw: {} }; render(); } }, msym('edit'), 'Edit')));
+    });
+    if (calcData.removed.length) {
+      list.append(h('h3', { class: 'subhead' }, 'Deleted'));
+      for (const id of calcData.removed) list.append(row(id, 'A shipped calculator you deleted', h('button', { class: 'btn small', onclick: async () => { await api.calcReset(id); await loadCalcs(); render(); } }, msym('restore'), 'Bring it back')));
+    }
+    $main.append(list);
+  }
+
+  function renderCalcEditor() {
+    const E = ui.calcEdit;
+    const d = E.def;
+    const C = window.RGCalc;
+    const ids = () => [...d.inputs.map((x) => x.id), ...d.results.map((x) => x.id)];
+    const redraw = () => render();
+    const text = (val, on, attrs) => h('input', Object.assign({ type: 'text', value: val || '', oninput: (e) => { on(e.target.value); live(); } }, attrs || {}));
+    const del = (arr, i) => h('button', { class: 'iconbtn', title: 'Remove', 'aria-label': 'Remove', onclick: () => { arr.splice(i, 1); redraw(); } }, msym('close'));
+
+    $main.append(h('div', { class: 'addrow' },
+      h('button', { class: 'btn ghost small', id: 'calcBack', onclick: () => { ui.calcEdit = null; render(); } }, msym('arrow_back'), 'All calculators')));
+
+    const about = h('div', { class: 'card editor', id: 'calcEditor' },
+      h('h2', {}, msym('calculate'), E.before ? 'Edit ' + d.name : 'New calculator'),
+      h('div', { class: 'field' }, h('label', {}, 'Name'), text(d.name, (v) => { d.name = v; }, { id: 'calcName' })),
+      h('div', { class: 'field' }, h('label', {}, 'Group (optional)'), text(d.group, (v) => { d.group = v; }, { placeholder: 'Adrenal, Liver, Prostate...' })),
+      h('div', { class: 'field' }, h('label', {}, 'How to use it (shown above the inputs)'), h('textarea', { rows: '2', oninput: (e) => { d.about = e.target.value; } }, d.about || '')),
+      h('div', { class: 'field' }, h('label', {}, 'Where the numbers come from'), h('textarea', { rows: '2', oninput: (e) => { d.source = e.target.value; } }, d.source || '')));
+
+    const ins = h('div', { class: 'card editor', id: 'calcInputs' }, h('h2', {}, msym('input'), 'Inputs'),
+      h('p', { class: 'hint' }, 'What you type. The short name is how formulas use it.'));
+    d.inputs.forEach((x, i) => ins.append(h('div', { class: 'calcrow' },
+      text(x.label, (v) => { x.label = v; }, { placeholder: 'Label', 'aria-label': 'Label', class: 'w2' }),
+      text(x.id, (v) => { x.id = v.trim(); }, { placeholder: 'short name', 'aria-label': 'Short name', class: 'mono' }),
+      text(x.unit, (v) => { x.unit = v; }, { placeholder: 'unit', 'aria-label': 'Unit', class: 'w1' }),
+      h('select', { 'aria-label': 'Kind', onchange: (e) => { x.type = e.target.value; live(); } },
+        h('option', { value: 'number', selected: x.type !== 'date' }, 'Number'), h('option', { value: 'date', selected: x.type === 'date' }, 'Date')),
+      text(x.hint, (v) => { x.hint = v; }, { placeholder: 'hint (optional)', 'aria-label': 'Hint', class: 'w2' }),
+      del(d.inputs, i))));
+    ins.append(h('div', { class: 'addrow' }, h('button', { class: 'btn small', id: 'calcAddInput', onclick: () => { d.inputs.push({ id: shortName('value', ids()), label: 'Value', unit: '', type: 'number', hint: '' }); redraw(); } }, msym('add'), 'Add an input')));
+
+    const res = h('div', { class: 'card editor', id: 'calcResults' }, h('h2', {}, msym('function'), 'Results'),
+      h('p', { class: 'hint' }, 'Formulas use the short names: + - * / ^ ( ), min, max, abs, sqrt, ln, log, exp, round, and if(test, value). Dates count in days, so t2 - t1 is the days between.'));
+    d.results.forEach((x, i) => res.append(h('div', { class: 'calcrow' },
+      text(x.label, (v) => { x.label = v; }, { placeholder: 'Label', 'aria-label': 'Label', class: 'w2' }),
+      text(x.id, (v) => { x.id = v.trim(); }, { placeholder: 'short name', 'aria-label': 'Short name', class: 'mono' }),
+      text(x.formula, (v) => { x.formula = v; }, { placeholder: 'formula, e.g. (e - d) / (e - u) * 100', 'aria-label': 'Formula', class: 'mono w3' }),
+      text(x.unit, (v) => { x.unit = v; }, { placeholder: 'unit', 'aria-label': 'Unit', class: 'w1' }),
+      h('input', { type: 'number', min: '0', max: '4', value: String(x.decimals || 0), title: 'Decimals', 'aria-label': 'Decimals', class: 'w0', oninput: (e) => { x.decimals = +e.target.value || 0; live(); } }),
+      del(d.results, i))));
+    res.append(h('div', { class: 'addrow' }, h('button', { class: 'btn small', id: 'calcAddResult', onclick: () => { d.results.push({ id: shortName('result', ids()), label: 'Result', unit: '', formula: '', decimals: 1 }); redraw(); } }, msym('add'), 'Add a result')));
+
+    const rules = h('div', { class: 'card editor', id: 'calcRules' }, h('h2', {}, msym('rule'), 'What it means'),
+      h('p', { class: 'hint' }, 'Checked top to bottom; the first that holds is the verdict. Tests use the short names with < <= > >= ==, and, or, not. "x == missing" means x was not typed.'));
+    d.rules.forEach((x, i) => rules.append(h('div', { class: 'calcrow' },
+      text(x.when, (v) => { x.when = v; }, { placeholder: 'test, e.g. apw >= 60', 'aria-label': 'Test', class: 'mono w2' }),
+      text(x.text, (v) => { x.text = v; }, { placeholder: 'what it shows and puts in the sentence', 'aria-label': 'Verdict', class: 'w3' }),
+      h('select', { 'aria-label': 'Colour', onchange: (e) => { x.tone = e.target.value; live(); } },
+        ...[['info', 'Neutral'], ['good', 'Reassuring'], ['warn', 'Indeterminate'], ['bad', 'Worrying']].map(([v, l]) => h('option', { value: v, selected: (x.tone || 'info') === v }, l))),
+      h('button', { class: 'iconbtn', title: 'Move up', 'aria-label': 'Move up', disabled: i === 0, onclick: () => { d.rules.splice(i - 1, 0, d.rules.splice(i, 1)[0]); redraw(); } }, msym('arrow_upward')),
+      del(d.rules, i))));
+    rules.append(h('div', { class: 'addrow' }, h('button', { class: 'btn small', id: 'calcAddRule', onclick: () => { d.rules.push({ when: '', text: '', tone: 'info' }); redraw(); } }, msym('add'), 'Add a rule')));
+
+    const sent = h('div', { class: 'card editor', id: 'calcSentence' }, h('h2', {}, msym('edit_note'), 'Sentence for the report'),
+      h('p', { class: 'hint' }, '{short name} puts in a value, {verdict} the verdict. A part in [square brackets] is left out when a value inside it was not typed.'),
+      h('textarea', { rows: '3', id: 'calcSentenceText', class: 'mono', oninput: (e) => { d.sentence = e.target.value; live(); } }, d.sentence || ''));
+
+    // Try it here, with the calculator as it is now.
+    const tryBox = h('div', { class: 'card', id: 'calcTry' }, h('h2', {}, msym('science'), 'Try it'));
+    const tryIns = h('div', { class: 'calctry' });
+    const out = h('div', { class: 'calcout', id: 'calcTryOut' });
+    const probs = h('div', { class: 'calcprobs', id: 'calcProblems' });
+    function live() {
+      const p = C.check(C.clean({ ...d, id: d.id || 'x' }));
+      probs.replaceChildren(...p.map((t) => h('div', {}, msym('error'), t)));
+      if (p.length) { out.replaceChildren(); return; }
+      const r = C.compute(d, E.tryRaw);
+      out.replaceChildren(
+        ...r.results.filter((x) => !x.hidden).map((x) => h('div', {}, h('span', {}, x.label), h('b', {}, x.value === null ? '-' : x.text + (x.unit ? (x.unit === '%' ? '%' : ' ' + x.unit) : '')))),
+        r.verdict ? h('div', { class: 'calcverdict ' + r.verdict.tone }, r.verdict.text) : null,
+        r.sentence ? h('p', { class: 'calcsent' }, r.sentence) : null);
+    }
+    for (const x of d.inputs) tryIns.append(h('label', {}, x.label || x.id, h('input', { type: x.type === 'date' ? 'date' : 'text', value: E.tryRaw[x.id] || '', oninput: (e) => { E.tryRaw[x.id] = e.target.value; live(); } })));
+    tryBox.append(tryIns, out);
+
+    const isShipped = E.before && calcData.shipped.includes(E.before);
+    const acts = h('div', { class: 'card' }, probs, h('div', { class: 'addrow' },
+      h('button', { class: 'btn primary small', id: 'calcSave', onclick: async () => {
+        if (!d.id) d.id = C.idFrom(d.name, calcData.list.map((c) => c.id));
+        const r = await api.calcSave(clone(d), E.before);
+        if (!r.ok) { toast(r.problems[0]); live(); return; }
+        // A renamed calculator keeps its ring direction's name in step.
+        await loadCalcs();
+        ui.calcEdit = null;
+        toast('Saved ' + r.calc.name + '.');
+        render();
+      } }, msym('check'), 'Save'),
+      h('button', { class: 'btn small', onclick: () => { ui.calcEdit = null; render(); } }, 'Cancel'),
+      E.before ? h('button', { class: 'btn ghost small', onclick: async () => { const r = await api.calcExport([E.before]); if (r.ok) toast('Saved: ' + r.file); } }, msym('upload'), 'Export this one...') : null,
+      h('span', { style: 'flex:1' }),
+      isShipped ? h('button', { class: 'btn ghost small', id: 'calcReset', onclick: async () => { await api.calcReset(E.before); await loadCalcs(); ui.calcEdit = null; toast('Back to the shipped version.'); render(); } }, msym('restart_alt'), 'Reset to shipped') : null,
+      E.before ? h('button', { class: 'btn ghost small danger', id: 'calcDelete', onclick: async () => {
+        if (!confirm(`Delete "${d.name}"?`)) return;
+        await api.calcRemove(E.before);
+        if (calcOnRing(E.before)) setCalcOnRing({ id: E.before }, false);
+        await loadCalcs();
+        ui.calcEdit = null;
+        render();
+      } }, msym('delete'), 'Delete') : null));
+
+    $main.append(about, ins, res, rules, sent, tryBox, acts);
+    live();
+  }
 
   function renderGeneral() {
     $main.append(h('h1', {}, 'General'), h('p', { class: 'lede' }, 'How the ring looks and behaves.'));
